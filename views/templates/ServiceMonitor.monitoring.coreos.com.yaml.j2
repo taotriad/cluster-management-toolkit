@@ -52,15 +52,9 @@ infoview:
         default: "<unset>"
         type: "int"
         formatter: "numerical"
-      selector:
-        header: [["Selec", ["main", "infoheader"]],
-                 ["t", ["main", "infoheader_shortcut"]],
-                 ["or:", ["main", "infoheader"]]]
-        paths:
-          - path: "spec#selector"
-            pathtype: "obj"
-            default: "<none>"
-        formatter: "selector"
+      {%- for line in row_selector.split("\n") %}
+      {{ line }}
+      {%- endfor %}
   {%- for line in listpad_pod_spec_selector_matchlabels.split("\n") %}
   {{ line }}
   {%- endfor %}
@@ -68,16 +62,9 @@ infoview:
     {%- for line in shortcut_controller.split("\n") %}
     {{ line }}
     {%- endfor %}
-    "Selector":
-      key: "t"
-      read_only: true
-      helptext: "Show selector"
-      widget: "windowwidget"
-      widget_args:
-        title: "Selector:"
-        itemgetter: "get_selector_list"
-        itemgetter_args:
-          path: "spec#selector"
+    {%- for line in shortcut_selector.split("\n") %}
+    {{ line }}
+    {%- endfor %}
     "Service Monitor Endpoints":
       key: "s"
       modifier: "shift"

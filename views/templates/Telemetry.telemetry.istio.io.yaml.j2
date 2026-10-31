@@ -14,25 +14,18 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["label_selector"]
+        fields: ["selector"]
     rows:
-      label_selector:
-        header: [["Label Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: ["spec#selector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
+      {%- for line in row_selector.split("\n") %}
+      {{ line }}
+      {%- endfor %}
   {%- for line in listpad_pod_spec_selector_matchlabels.split("\n") %}
   {{ line }}
   {%- endfor %}
   shortcuts:
+    {%- for line in shortcut_selector.split("\n") %}
+    {{ line }}
+    {%- endfor %}
     "Show access logging rules":
       key: "a"
       modifier: "shift"

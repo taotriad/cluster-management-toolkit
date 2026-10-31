@@ -115,7 +115,7 @@ infoview:
     infogetter: "generic_infogetter"
     field_indexes:
       Normal:
-        fields: ["kind", "label_selector", "set_based_selector"]
+        fields: ["kind", "selector"]
         sortcolumn: "kind"
     fields:
       kind:
@@ -135,34 +135,9 @@ infoview:
           field_formatters:
             - ""
             - "version"
-      label_selector:
-        header: "Label Selector:"
-        paths:
-          - path: ["selector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
-      set_based_selector:
-        header: "Set-based Selector:"
-        paths:
-          - path: "selector#matchExpressions"
-            pathtype: "match_expression"
-            default: "<none>"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "operator"
-            - type: "value"
-          field_separators:
-            - type: "space"
-            - type: "no_pad"
+      {%- for line in field_selector.split("\n") %}
+      {{ line }}
+      {%- endfor %}
   shortcuts:
     "Open Sink":
       key: "s"

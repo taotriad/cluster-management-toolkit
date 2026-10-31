@@ -122,7 +122,7 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["label_selector", "replicas", "available", "paused"]
+        fields: [selector", "replicas", "available", "paused"]
     rows:
       available:
         header: [["Available:", ["main", "infoheader"]]]
@@ -146,19 +146,6 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_not_ok"
-      label_selector:
-        header: [["Label Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: ["spec#selector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
       paused:
         header: [["Paused:", ["main", "infoheader"]]]
         path: "spec#paused"
@@ -218,10 +205,16 @@ infoview:
             - type: "no_pad"
             - type: "fraction_spaced"
             - type: "no_pad"
+      {%- for line in row_selector.split("\n") %}
+      {{ line }}
+      {%- endfor %}
   {%- for line in listpad_pod_spec_selector_matchlabels.split("\n") %}
   {{ line }}
   {%- endfor %}
   shortcuts:
+    {%- for line in shortcut_selector.split("\n") %}
+    {{ line }}
+    {%- endfor %}
     "Pod template":
       key: "t"
       modifier: "shift"

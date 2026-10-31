@@ -27,7 +27,7 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["fetch_config", "installed_version", "contract",
+        fields: ["fetch_config_selector", "installed_version", "contract",
                  "condition_ready"]
     rows:
       {%- for line in row_condition_ready.split("\n") %}
@@ -38,25 +38,31 @@ infoview:
         path: "status#contract"
         type: "str"
         formatter: "version"
-      fetch_config:
-        header: [["Fetch Config:", ["main", "infoheader"]]]
+      fetch_config_selector:
+        header: [["Fetch Config Selec", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 ["or:", ["main", "infoheader"]]]
         paths:
-          - path: ["spec#fetchConfig#selector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
+          - path: "spec#fetchConfig#selector"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "selector"
       installed_version:
         header: [["Installed Version:", ["main", "infoheader"]]]
         path: "status#installedVersion"
         type: "str"
         formatter: "version"
   shortcuts:
+    "Fetch Config Selector":
+      key: "t"
+      read_only: true
+      helptext: "Show fetch config selector"
+      widget: "windowwidget"
+      widget_args:
+        title: "Fetch Config Selector:"
+        itemgetter: "get_selector_list"
+        itemgetter_args:
+          path: "spec#fetchConfig#selector"
     "Podsets":
       key: "d"
       modifier: "shift"

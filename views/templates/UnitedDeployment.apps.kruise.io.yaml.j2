@@ -103,24 +103,9 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["label_selector", "replicas", "update_strategy",
+        fields: ["selector", "replicas", "update_strategy",
                  "update_strategy_manual_update_partition"]
     rows:
-      label_selector:
-        header: [["La", ["main", "infoheader"]],
-                 ["b", ["main", "infoheader_shortcut"]],
-                 ["el Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: ["spec#selector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
       replicas:
         header: [["Replicas:", ["main", "infoheader"]]]
         paths:
@@ -149,6 +134,9 @@ infoview:
             - type: "no_pad"
             - type: "fraction_spaced"
             - type: "no_pad"
+      {%- for line in row_selector.split("\n") %}
+      {{ line }}
+      {%- endfor %}
       update_strategy:
         header: [["Update Strategy:", ["main", "infoheader"]]]
         path: "spec#updateStrategy#type"
@@ -171,17 +159,9 @@ infoview:
   {{ line }}
   {%- endfor %}
   shortcuts:
-    "Label Selector":
-      key: "b"
-      read_only: true
-      helptext: "Show label selector"
-      widget: "windowwidget"
-      widget_args:
-        title: "Label Selector:"
-        headers: ["Key:", "Value:"]
-        itemgetter: "get_key_value"
-        itemgetter_args:
-          path: "spec#selector#matchLabels"
+    {%- for line in shortcut_selector.split("\n") %}
+    {{ line }}
+    {%- endfor %}
     "Pod template":
       key: "t"
       modifier: "shift"

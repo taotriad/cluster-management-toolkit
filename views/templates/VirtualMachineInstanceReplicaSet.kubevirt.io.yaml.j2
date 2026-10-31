@@ -77,21 +77,11 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["label_selector", "set_based_selector", "replicas"]
+        fields: ["selector", "replicas"]
     rows:
-      label_selector:
-        header: [["Label Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: ["spec#selector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
+      {%- for line in row_selector.split("\n") %}
+      {{ line }}
+      {%- endfor %}
       replicas:
         header: [["Replicas:", ["main", "infoheader"]]]
         paths:
@@ -118,21 +108,6 @@ infoview:
             - type: "fraction_spaced"
             - type: "no_pad"
             - type: "fraction_spaced"
-            - type: "no_pad"
-      set_based_selector:
-        header: [["Set-based Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: "spec#selector#matchExpressions"
-            pathtype: "match_expression"
-            default: "<none>"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "operator"
-            - type: "value"
-          field_separators:
-            - type: "space"
             - type: "no_pad"
   listpad:
     listgetter: "generic_listgetter"
@@ -217,6 +192,9 @@ infoview:
                 eq: "Paused"
         type: "str"
   shortcuts:
+    {%- for line in shortcut_selector.split("\n") %}
+    {{ line }}
+    {%- endfor %}
     "SSH to VM":
       key: "s"
       modifier: "shift"

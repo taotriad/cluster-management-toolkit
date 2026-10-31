@@ -1,0 +1,7 @@
+selector:
+  header: "Selector:"
+  paths:
+    - path: "spec#selector"
+      pathtype: "obj"
+      default: "<none>"
+  formatter: "selector"

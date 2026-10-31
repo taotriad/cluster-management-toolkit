@@ -89,15 +89,9 @@ infoview:
         path: "status#replicas"
         type: "int"
         formatter: "numerical"
-      selector:
-        header: [["Selec", ["main", "infoheader"]],
-                 ["t", ["main", "infoheader_shortcut"]],
-                 ["or:", ["main", "infoheader"]]]
-        paths:
-          - path: "spec#selector"
-            pathtype: "obj"
-            default: "<none>"
-        formatter: "selector"
+      {%- for line in row_selector.split("\n") %}
+      {{ line }}
+      {%- endfor %}
       template_bootstrap:
         header: [["  B", ["main", "infoheader"]],
                  ["o", ["main", "infoheader_shortcut"]],
@@ -237,16 +231,12 @@ infoview:
                   - context: "main"
                     type: "status_not_ok"
   shortcuts:
-    "Selector":
-      key: "t"
-      read_only: true
-      helptext: "Show selector"
-      widget: "windowwidget"
-      widget_args:
-        title: "Selector:"
-        itemgetter: "get_selector_list"
-        itemgetter_args:
-          path: "spec#selector"
+    {%- for line in shortcut_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    {%- for line in shortcut_selector.split("\n") %}
+    {{ line }}
+    {%- endfor %}
     "Machine Template":
       key: "t"
       modifier: "shift"
@@ -258,9 +248,6 @@ infoview:
         title: "Machine Template"
         _pass_obj: true
         path: "spec#template"
-    {%- for line in shortcut_controller.split("\n") %}
-    {{ line }}
-    {%- endfor %}
     "Open Cluster":
       key: "u"
       read_only: true

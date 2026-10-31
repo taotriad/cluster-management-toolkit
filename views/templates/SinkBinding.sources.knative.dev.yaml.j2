@@ -45,8 +45,7 @@ infoview:
                  "subject_header",
                  "subject_kind",
                  "subject_referent",
-                 "subject_label_selector",
-                 "subject_set_based_selector",
+                 "subject_selector",
                  "condition_ready", "reason"]
     rows:
       {%- for line in row_condition_ready.split("\n") %}
@@ -111,21 +110,15 @@ infoview:
             - type: "api_group"
           field_separators:
             - type: "kind_api_group"
-      subject_label_selector:
-        header: [["  La", ["main", "infoheader"]],
-                 ["b", ["main", "infoheader_shortcut"]],
-                 ["el Selector:", ["main", "infoheader"]]]
+      subject_selector:
+        header: [["  Selec", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 ["or:", ["main", "infoheader"]]]
         paths:
-          - path: ["spec#subject#selector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
+          - path: "spec#subject#selector"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "selector"
       subject_referent:
         header: [["  ", ["main", "infoheader"]],
                  ["R", ["main", "infoheader_shortcut"]],
@@ -139,21 +132,6 @@ infoview:
           field_colors:
             - type: "namespace"
             - type: "generic"
-      subject_set_based_selector:
-        header: [["  Set-based Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: "spec#subject#selector#matchExpressions"
-            pathtype: "match_expression"
-            default: "<none>"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "operator"
-            - type: "value"
-          field_separators:
-            - type: "space"
-            - type: "no_pad"
   listpad:
     listgetter: "generic_listgetter"
     listgetter_args:
@@ -352,14 +330,13 @@ infoview:
         _named_title: true
         _pass_obj: true
         path: "spec#ceOverrides"
-    "Subject Label Selector":
-      key: "b"
+    "Subject Selector":
+      key: "t"
       read_only: true
-      helptext: "Show subject label selector"
+      helptext: "Show subject selector"
       widget: "windowwidget"
       widget_args:
-        title: "Subject Label Selector:"
-        headers: ["Key:", "Value:"]
-        itemgetter: "get_key_value"
+        title: "Subject Selector:"
+        itemgetter: "get_selector_list"
         itemgetter_args:
-          path: "spec#subject#selector#matchLabels"
+          path: "spec#subject#selector"
