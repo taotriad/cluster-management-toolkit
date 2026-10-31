@@ -1,0 +1,9 @@
+selector:
+  header: [["Selec", ["main", "infoheader"]],
+           ["t", ["main", "infoheader_shortcut"]],
+           ["or:", ["main", "infoheader"]]]
+  paths:
+    - path: "spec#selector"
+      pathtype: "obj"
+      default: "<none>"
+  formatter: "selector"

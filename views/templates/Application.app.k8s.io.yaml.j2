@@ -27,7 +27,7 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["add_ownerref", "label_selector",
+        fields: ["add_ownerref", "selector",
                  "kinds", "keywords", "type", "version"]
     rows:
       add_ownerref:
@@ -56,19 +56,9 @@ infoview:
             - type: "api_group"
           field_separator:
             - type: "kind_api_group"
-      label_selector:
-        header: [["Label Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: ["spec#selector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
+      {%- for line in row_selector.split("\n") %}
+      {{ line }}
+      {%- endfor %}
       type:
         header: [["Type:", ["main", "infoheader"]]]
         path: "spec#descriptor#type"
@@ -150,6 +140,9 @@ infoview:
         itemgetter: "get_strings_from_string"
         itemgetter_args:
           path: "spec#descriptor#description"
+    {%- for line in shortcut_selector.split("\n") %}
+    {{ line }}
+    {%- endfor %}
     "Links":
       key: "k"
       helptext: "Show links"

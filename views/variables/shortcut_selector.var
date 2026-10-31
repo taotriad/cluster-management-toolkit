@@ -1,0 +1,10 @@
+"Selector":
+  key: "t"
+  read_only: true
+  helptext: "Show selector"
+  widget: "windowwidget"
+  widget_args:
+    title: "Selector:"
+    itemgetter: "get_selector_list"
+    itemgetter_args:
+      path: "spec#selector"
