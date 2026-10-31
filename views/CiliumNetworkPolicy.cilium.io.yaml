@@ -173,7 +173,7 @@ infoview:
       action: "call"
       action_call: "view_yaml"
       action_args:
-        title: "egress rules"
+        title: "Egress rules"
         _pass_obj: true
         paths:
           - "spec#egress"

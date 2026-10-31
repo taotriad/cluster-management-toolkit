@@ -39,80 +39,32 @@ infoview:
     infogetter: "generic_infogetter"
     field_indexes:
       Normal:
-        fields: ["type", "cluster_label_selector",
-                 "cluster_set_based_selector",
-                 "label_selector", "set_based_selector",
-                 "namespace_label_selector"]
+        fields: ["type",
+                 "cluster_selector",
+                 "selector",
+                 "namespace_selector"]
     fields:
-      cluster_label_selector:
-        header: "Cluster Label Selector:"
+      cluster_selector:
+        header: "Cluster Selector:"
         paths:
-          - path: ["clusterSelector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
-      cluster_set_based_selector:
-        header: "Cluster Set-based Selector:"
-        paths:
-          - path: "clusterSelector#matchExpressions"
-            pathtype: "match_expression"
+          - path: "clusterSelector"
+            pathtype: "obj"
             default: "<none>"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "operator"
-            - type: "value"
-          field_separators:
-            - type: "space"
-            - type: "no_pad"
+        formatter: "selector"
       label_selector:
-        header: "Label Selector:"
+        header: "Selector:"
         paths:
-          - path: ["selector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
-      namespace_label_selector:
-        header: "Namespace Label Selector:"
-        paths:
-          - path: ["namespaceSelector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
-      set_based_selector:
-        header: "Set-based Selector:"
-        paths:
-          - path: "selector#matchExpressions"
-            pathtype: "match_expression"
+          - path: "selector"
+            pathtype: "obj"
             default: "<none>"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "operator"
-            - type: "value"
-          field_separators:
-            - type: "space"
-            - type: "no_pad"
+        formatter: "selector"
+      namespace_label_selector:
+        header: "Namespace Selector:"
+        paths:
+          - path: "namespaceSelector"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "selector"
       type:
         header: "Type:"
         path: "type"

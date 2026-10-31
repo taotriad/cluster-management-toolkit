@@ -19,7 +19,7 @@ infoview:
       Normal:
         fields: ["cluster_selector", "resources", "strategy"]
     rows:
-      cluster_label_selector:
+      cluster_selector:
         header: [["Cluster Selec", ["main", "infoheader"]],
                  ["t", ["main", "infoheader_shortcut"]],
                  ["or:", ["main", "infoheader"]]]

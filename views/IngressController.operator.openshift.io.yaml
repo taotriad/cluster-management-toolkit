@@ -14,23 +14,31 @@ infoview:
   infopad:
     row_indexes:
       Wide:
-        fields: ["domain", "namespace_label_selector",
-                 "namespace_set_based_selector", "client_tls_header",
-                 "client_tls_ca_name",
-                 "client_tls_client_certificate_policy",
-                 "http_empty_requests_policy",
-                 "endpoint_publishing_strategy", "tls_ciphers",
-                 "min_tls_version", "desired_replicas",
-                 "available_replicas"]
-      Normal:
-        fields: ["domain", "namespace_label_selector",
-                 "namespace_set_based_selector", "client_tls_header",
+        fields: ["domain",
+                 "namespace_name_selector",
+                 "namespace_selector",
+                 "client_tls_header",
                  "client_tls_ca_name",
                  "client_tls_client_certificate_policy",
                  "http_empty_requests_policy",
                  "endpoint_publishing_strategy",
-                 "tls_ciphers_ellipsise", "min_tls_version",
-                 "desired_replicas", "available_replicas"]
+                 "tls_ciphers",
+                 "min_tls_version",
+                 "desired_replicas",
+                 "available_replicas"]
+      Normal:
+        fields: ["domain",
+                 "namespace_name_selector",
+                 "namespace_selector",
+                 "client_tls_header",
+                 "client_tls_ca_name",
+                 "client_tls_client_certificate_policy",
+                 "http_empty_requests_policy",
+                 "endpoint_publishing_strategy",
+                 "tls_ciphers_ellipsise",
+                 "min_tls_version",
+                 "desired_replicas",
+                 "available_replicas"]
     rows:
       available_replicas:
         header: [["Available Replicas:", ["main", "infoheader"]]]
@@ -75,40 +83,21 @@ infoview:
         default: "<unset>"
         type: "str"
         formatter: "version"
-      namespace_selector:
-        header: [["Namespace Selector:", ["main", "infoheader"]]]
+      namespace_name_selector:
+        header: [["Namespace Name Selector:", ["main", "infoheader"]]]
         path: "spec#namespaceSelector#matchNames"
         default: ["<unset>"]
         type: "raw"
         formatter: "list"
-      namespace_label_selector:
-        header: [["Namespace Label Selector:", ["main", "infoheader"]]]
+      namespace_selector:
+        header: [["Namespace Selec", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 ["or:", ["main", "infoheader"]]]
         paths:
-          - path: ["spec#namespaceSelector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
-      namespace_set_based_selector:
-        header: [["Namespace Set-based Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: "spec#namespaceSelector#matchExpressions"
-            pathtype: "match_expression"
+          - path: "spec#namespaceSelector"
+            pathtype: "obj"
             default: "<none>"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "operator"
-            - type: "value"
-          field_separators:
-            - type: "space"
-            - type: "no_pad"
+        formatter: "selector"
       tls_ciphers:
         header: [["T", ["main", "infoheader_shortcut"]],
                  ["LS Ciphers:", ["main", "infoheader"]]]
@@ -126,6 +115,16 @@ infoview:
         formatting:
           ellipsise: 3
   shortcuts:
+    "Namespace Selector":
+      key: "t"
+      read_only: true
+      helptext: "Show Namespace selector"
+      widget: "windowwidget"
+      widget_args:
+        title: "Namespace Selector:"
+        itemgetter: "get_selector_list"
+        itemgetter_args:
+          path: "spec#namespaceSelector"
     "Show TLS cipher list":
       key: "t"
       modifier: "shift"

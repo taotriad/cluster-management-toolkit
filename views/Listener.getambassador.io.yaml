@@ -73,18 +73,14 @@ infoview:
       hostbinding_header:
         header: [["Host Binding:", ["main", "infoheader"]]]
       hostbinding_selector:
-        header: [["  Selector:", ["main", "infoheader"]]]
+        header: [["  Selec", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 ["or:", ["main", "infoheader"]]]
         paths:
-          - path: ["spec#hostBinding#selector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
+          - path: "spec#hostBinding#selector"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "selector"
       port:
         header: [["Port:", ["main", "infoheader"]]]
         paths:
@@ -100,4 +96,16 @@ infoview:
       security_model:
         header: [["Security Model:", ["main", "infoheader"]]]
         path: "spec#securityModel"
+        default: "<unset>"
         type: "str"
+  shortcut:
+    "Host Binding Selector":
+      key: "t"
+      read_only: true
+      helptext: "Show host binding selector"
+      widget: "windowwidget"
+      widget_args:
+        title: "Host Binding Selector:"
+        itemgetter: "get_selector_list"
+        itemgetter_args:
+          path: "spec#hostBinding#selector"

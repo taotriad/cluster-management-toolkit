@@ -92,6 +92,7 @@ views/ExposedSecretReport.aquasecurity.github.io.yaml
 views/FlowSchema.flowcontrol.apiserver.k8s.io.yaml
 views/GameServer.game.kruise.io.yaml
 views/GameServerSet.agones.dev.yaml
+views/GameServerSet.game.kruise.io.yaml
 views/GraphRevision.internal.kro.run.yaml
 views/HTTPProxy.projectcontour.io.yaml
 views/HelmChart.source.toolkit.fluxcd.io.yaml
@@ -130,6 +131,7 @@ views/Machine.cluster.x-k8s.io.yaml
 views/MachineConfig.machineconfiguration.openshift.io.yaml
 views/MachineHealthCheck.machine.openshift.io.yaml
 views/MachineSet.cluster.x-k8s.io.yaml
+views/MachineSet.machine.openshift.io.yaml
 views/Management.k0rdent.mirantis.com.yaml
 views/Metric.autoscaling.internal.knative.dev.yaml
 views/MiniCluster.flux-framework.org.yaml

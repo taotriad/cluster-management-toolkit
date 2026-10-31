@@ -111,8 +111,8 @@ infoview:
     row_indexes:
       Normal:
         fields: ["image", "node_selector_header", "node_selector_names",
-                 "node_selector_label", "pod_selector_header",
-                 "pod_selector_label", "pod_selector_set_based",
+                 "node_selector",
+                 "pod_selector",
                  "pull_policy_header", "pull_policy_policy",
                  "pull_policy_backoff_limit", "pull_policy_timeout_seconds",
                  "completion_policy_header",
@@ -191,55 +191,30 @@ infoview:
         default: "<unset>"
         type: "raw"
         formatter: "list"
-      node_selector_label:
-        header: [["  Label Selector:", ["main", "infoheader"]]]
+      node_selector:
+        header: [["  Select", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 ["or:", ["main", "infoheader"]]]
         paths:
-          - path: ["spec#selector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
+          - path: "spec#selector"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "selector"
       parallelism:
         header: [["Parallelism:", ["main", "infoheader"]]]
         path: "spec#parallelism"
         default: 1
         type: "int"
         formatter: "numerical"
-      pod_selector_header:
-        header: [["Pod Selector:", ["main", "infoheader"]]]
-      pod_selector_label:
-        header: [["  Label Selector:", ["main", "infoheader"]]]
+      pod_selector:
+        header: [["Pod ", ["main", "infoheader"]],
+                 ["S", ["main", "infoheader_shortcut"]],
+                 ["elector:", ["main", "infoheader"]]]
         paths:
-          - path: ["spec#podSelector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
-      pod_selector_set_based:
-        header: [["  Set-based Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: "spec#podSelector#matchExpressions"
-            pathtype: "match_expression"
+          - path: "spec#podSelector"
+            pathtype: "obj"
             default: "<none>"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "operator"
-            - type: "value"
-          field_separators:
-            - type: "space"
-            - type: "no_pad"
+        formatter: "selector"
       pull_policy_backoff_limit:
         header: [["  Backoff Limit:", ["main", "infoheader"]]]
         path: "spec#pullPolicy#backoffLimit"
@@ -294,6 +269,16 @@ infoview:
             - type: "fraction_spaced"
             - type: "no_pad"
   shortcuts:
+    "Name Selector":
+      key: "t"
+      read_only: true
+      helptext: "Show Name selector"
+      widget: "windowwidget"
+      widget_args:
+        title: "Name Selector:"
+        itemgetter: "get_selector_list"
+        itemgetter_args:
+          path: "spec#selector"
     "Show node names":
       key: "m"
       read_only: true
@@ -306,3 +291,14 @@ infoview:
           paths: ["spec#selector#names"]
         # Not supported for now
         sortcolumn: "names"
+    "Pod Selector":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show Pod selector"
+      widget: "windowwidget"
+      widget_args:
+        title: "Pod Selector:"
+        itemgetter: "get_selector_list"
+        itemgetter_args:
+          path: "spec#podSelector"

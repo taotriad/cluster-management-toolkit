@@ -17,7 +17,7 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["instance_label_selector", "allow_cross_namespace_import",
+        fields: ["instance_selector", "allow_cross_namespace_import",
                  "resync_period"]
     rows:
       allow_cross_namespace_import:
@@ -25,21 +25,15 @@ infoview:
         path: "spec#allowCrossNamespaceImport"
         default: "<unset>"
         type: "bool"
-      instance_label_selector:
-        header: [["Instance La", ["main", "infoheader"]],
-                 ["b", ["main", "infoheader_shortcut"]],
-                 ["el Selector:", ["main", "infoheader"]]]
+      instance_selector:
+        header: [["Instance Selec", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 ["or:", ["main", "infoheader"]]]
         paths:
-          - path: ["spec#instanceSelector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
+          - path: "spec#instanceSelector"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "selector"
       resync_period:
         header: [["Resync Period:", ["main", "infoheader"]]]
         path: "spec#resyncPeriod"
@@ -53,14 +47,13 @@ infoview:
       path: "spec#json"
     timestamps: false
   shortcuts:
-    "Instance Label Selector":
+    "Instance Selector":
       key: "b"
       read_only: true
-      helptext: "Show instance label selector"
+      helptext: "Show instance selector"
       widget: "windowwidget"
       widget_args:
-        title: "Instance Label Selector:"
-        headers: ["Key:", "Value:"]
-        itemgetter: "get_key_value"
+        title: "Instance Selector:"
+        itemgetter: "get_selector_list"
         itemgetter_args:
-          path: "spec#instanceSelector#matchLabels"
+          path: "spec#instanceSelector"

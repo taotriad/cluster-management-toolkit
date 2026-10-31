@@ -18,8 +18,7 @@ infoview:
     row_indexes:
       Normal:
         fields: ["interfaces", "ip_address_pools",
-                 "ip_address_pool_label_selector",
-                 "ip_address_pool_set_based_selector",
+                 "ip_address_pool_selector",
                  "node_selectors"]
     rows:
       interfaces:
@@ -36,37 +35,15 @@ infoview:
         default: ["<unset>"]
         type: "raw"
         formatter: "list"
-      ip_address_pool_label_selector:
+      ip_address_pool_selector:
         header: [["IP-A", ["main", "infoheader"]],
                  ["d", ["main", "infoheader_shortcut"]],
-                 ["dress Pool Node Label Selector:", ["main", "infoheader"]]]
+                 ["dress Pool Selector:", ["main", "infoheader"]]]
         paths:
-          - path: ["spec#ipAddressPoolSelectors#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
-      ip_address_pool_set_based_selector:
-        header: [["IP-Address Pool Set-based Selector:",
-                  ["main", "infoheader"]]]
-        paths:
-          - path: "spec#ipAddressPoolSelectors#matchExpressions"
-            pathtype: "match_expression"
+          - path: "spec#ipAddressPoolSelectors"
+            pathtype: "obj"
             default: "<none>"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "operator"
-            - type: "value"
-          field_separators:
-            - type: "space"
-            - type: "no_pad"
+        formatter: "selector"
       node_selectors:
         header: [["Node ", ["main", "infoheader"]],
                  ["S", ["main", "infoheader_shortcut"]],
@@ -88,17 +65,16 @@ infoview:
         itemgetter: "get_list_as_list"
         itemgetter_args:
           path: "spec#ipAddressPools"
-    "IP-Address Pool Label Selector":
+    "IP-Address Pool Selector":
       key: "d"
       read_only: true
-      helptext: "Show IP-address label selector"
+      helptext: "Show IP-address pool selector"
       widget: "windowwidget"
       widget_args:
-        title: "IP-Address Label Selector:"
-        headers: ["Key:", "Value:"]
-        itemgetter: "get_key_value"
+        title: "IP-Address Pool Selector:"
+        itemgetter: "get_selector_list"
         itemgetter_args:
-          path: "spec#nodeSelectors#matchLabels"
+          path: "spec#ipAddressPoolSelectors"
     "Node Selectors":
       key: "s"
       modifier: "shift"

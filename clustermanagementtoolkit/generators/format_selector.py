@@ -129,6 +129,9 @@ def format_selector(items: dict | list[dict],
                         ThemeRef("separators", "keyvalue"),
                         ThemeStr(f"{value}", valueattr),
                     ]
+            elif selector_type == "matchName":
+                # We have to handle these separately until we figure out a better way.
+                continue
 
             if array and _vlist:
                 array.append(item_separator)
