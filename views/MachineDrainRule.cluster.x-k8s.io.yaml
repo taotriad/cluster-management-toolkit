@@ -51,14 +51,14 @@ infoview:
             pathtype: "obj"
             default: "<none>"
         formatter: "selector"
-      label_selector:
+      selector:
         header: "Selector:"
         paths:
           - path: "selector"
             pathtype: "obj"
             default: "<none>"
         formatter: "selector"
-      namespace_label_selector:
+      namespace_selector:
         header: "Namespace Selector:"
         paths:
           - path: "namespaceSelector"

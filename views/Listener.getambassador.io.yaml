@@ -98,7 +98,7 @@ infoview:
         path: "spec#securityModel"
         default: "<unset>"
         type: "str"
-  shortcut:
+  shortcuts:
     "Host Binding Selector":
       key: "t"
       read_only: true
