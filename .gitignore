@@ -23,6 +23,7 @@ views/ApmServer.apm.k8s.elastic.co.yaml
 views/App.catalog.cattle.io.yaml
 views/Application.app.k8s.io.yaml
 views/Application.argoproj.io.yaml
+views/ApplicationAwareAppliedClusterResourceQuota.aaq.kubevirt.io.yaml
 views/AuthorizationPolicy.security.istio.io.yaml
 views/BootstrapProvider.operator.cluster.x-k8s.io.yaml
 views/BroadcastJob.apps.kruise.io.yaml
@@ -164,6 +165,7 @@ views/PodCliqueScalingGroup.grove.io.yaml
 views/PodDisruptionBudget.policy.yaml
 views/PodGang.scheduler.grove.io.yaml
 views/PodGroup.scheduling.volcano.sh.yaml
+views/PodUnavailableBudget.policy.kruise.io.yaml
 views/PreprovisioningImage.metal3.io.yaml
 views/PriorityClass.scheduling.k8s.io.yaml
 views/PriorityLevelConfiguration.flowcontrol.apiserver.k8s.io.yaml
@@ -209,8 +211,10 @@ views/SidecarSet.apps.kruise.io.yaml
 views/SinkBinding.sources.knative.dev.yaml
 views/Space.cluster.loft.sh.yaml
 views/Stage.kargo.akuity.io.yaml
+views/Stage.kwok.x-k8s.io.yaml
 views/StatefulSet.apps.kruise.io.yaml
 views/StatefulSet.apps.yaml
+views/StateManagementProvider.k0rdent.mirantis.com.yaml
 views/StorageProfile.cdi.kubevirt.io.yaml
 views/StorageVersionMigration.migration.k8s.io.yaml
 views/Subscription.messaging.knative.dev.yaml
@@ -238,6 +242,7 @@ views/VirtinkCluster.infrastructure.cluster.x-k8s.io.yaml
 views/VirtinkMachine.infrastructure.cluster.x-k8s.io.yaml
 views/VirtualMachine.kubevirt.io.yaml
 views/VirtualMachineInstance.kubevirt.io.yaml
+views/VirtualMachineInstancePreset.kubevirt.io.yaml
 views/VirtualMachineInstanceReplicaSet.kubevirt.io.yaml
 views/VirtualMachinePool.pool.kubevirt.io.yaml
 views/VirtualMachineRestore.snapshot.kubevirt.io.yaml

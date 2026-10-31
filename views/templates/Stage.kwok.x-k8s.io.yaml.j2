@@ -41,7 +41,7 @@ infoview:
     row_indexes:
       Normal:
         fields: ["delay_header", "delay_duration", "delay_jitter_duration",
-                 "weight", "resource", "set_based_selector",
+                 "weight", "resource", "selector",
                  "next_header", "next_delete",
                  "next_finalizers_header",
                  "next_finalizers_empty", "next_status_subresource"]
@@ -97,21 +97,9 @@ infoview:
             - type: "api_group"
           field_separators:
             - type: "kind_api_group"
-      set_based_selector:
-        header: [["Set-based Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: "spec#selector#matchExpressions"
-            pathtype: "match_expression"
-            default: "<none>"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "operator"
-            - type: "value"
-          field_separators:
-            - type: "space"
-            - type: "no_pad"
+      {%- for line in row_selector.split("\n") %}
+      {{ line }}
+      {%- endfor %}
       weight:
         header: [["Weight:", ["main", "infoheader"]]]
         path: "spec#weight"
@@ -124,3 +112,7 @@ infoview:
       formatter: "format_yaml"
       path: "spec#next#statusTemplate"
     timestamps: false
+  shortcuts:
+    {%- for line in shortcut_selector.split("\n") %}
+    {{ line }}
+    {%- endfor %}

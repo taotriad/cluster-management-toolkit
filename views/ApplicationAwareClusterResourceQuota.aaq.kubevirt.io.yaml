@@ -55,9 +55,9 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["selector"]
+        fields: ["label_selector"]
     rows:
-      selector:
+      label_selector:
         header: [["Label Selec", ["main", "infoheader"]],
                  ["t", ["main", "infoheader_shortcut"]],
                  ["or:", ["main", "infoheader"]]]
@@ -95,13 +95,13 @@ infoview:
         formatter: "numerical"
         align: "right"
   shortcuts:
-    "Selector":
+    "Label Selector":
       key: "t"
       read_only: true
-      helptext: "Show selector"
+      helptext: "Show label selector"
       widget: "windowwidget"
       widget_args:
-        title: "Selector:"
+        title: "Label Selector:"
         itemgetter: "get_selector_list"
         itemgetter_args:
           path: "spec#selector#labels"

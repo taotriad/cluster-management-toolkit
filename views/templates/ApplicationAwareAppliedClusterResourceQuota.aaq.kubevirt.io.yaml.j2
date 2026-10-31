@@ -1,0 +1,116 @@
+---
+kind: "ApplicationAwareAppliedClusterResourceQuota"
+api_family: "aaq.kubevirt.io"
+default_command: "applicationawareappliedclusterresourcequotas"
+command:
+  - "aaaclrquotas"
+  - "aaaclrquota"
+  - "aaacrqs"
+  - "aaacrq"
+listview:
+  name: "Application Aware Applied Cluster Resource Quotas"
+  group: "Policy"
+  field_indexes:
+    Wide:
+      fields: ["name", "controller", "age", "request", "limit"]
+    Normal:
+      fields: ["name", "age"]
+  fields:
+    {%- for line in field_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    limit:
+      header: "Limit:"
+      paths:
+        - path: "spec#quota#hard"
+          pathtype: "key_value"
+          when:
+            - key_startswith: "limits."
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "key"
+          - type: "numerical"
+        field_separators:
+          - type: "keyvalue"
+        field_formatters:
+          - ""
+          - "numerical_with_units"
+    request:
+      header: "Request:"
+      paths:
+        - path: "spec#quota#hard"
+          pathtype: "key_value"
+          when:
+            - key_notstartswith: "limits."
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "key"
+          - type: "numerical"
+        field_separators:
+          - type: "keyvalue"
+        field_formatters:
+          - ""
+          - "numerical_with_units"
+infoview:
+  name: "Application Aware Applied Cluster Resource Quota Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller", "label_selector"]
+    rows:
+      {%- for line in row_controller.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      label_selector:
+        header: [["Label Selec", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 ["or:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#selector#labels"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "selector"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: ""
+    infogetter: "get_rq_item_info"
+    infogetter_args:
+      hard_path: "spec#quota#hard"
+      used_path: "status#total#used"
+    field_indexes:
+      Normal:
+        fields: ["resource", "used", "hard"]
+    fields:
+      hard:
+        header: "Hard:"
+        path: "hard"
+        type: "str"
+        formatter: "numerical"
+        align: "right"
+      resource:
+        header: "Resource:"
+        path: "resource"
+        type: "str"
+      used:
+        header: "Used:"
+        path: "used"
+        type: "str"
+        formatter: "numerical"
+        align: "right"
+  shortcuts:
+    {%- for line in shortcut_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    "Label Selector":
+      key: "t"
+      read_only: true
+      helptext: "Show label selector"
+      widget: "windowwidget"
+      widget_args:
+        title: "Label Selector:"
+        itemgetter: "get_selector_list"
+        itemgetter_args:
+          path: "spec#selector#labels"

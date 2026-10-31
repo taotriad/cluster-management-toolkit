@@ -65,21 +65,8 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["label_selector", "ready", "phase"]
+        fields: ["resource_selector", "ready", "phase"]
     rows:
-      label_selector:
-        header: [["Label Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: ["spec#resourceSelector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
       phase:
         header: [["Phase:", ["main", "infoheader"]]]
         path: "status#phase"
@@ -119,7 +106,24 @@ infoview:
             - type: "numerical"
           field_separators:
             - type: "fraction"
+      resource_selector:
+        header: [["Resource Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#resourceSelector"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "selector"
   shortcuts:
+    "Resource Selector":
+      key: "t"
+      read_only: true
+      helptext: "Show resource selector"
+      widget: "windowwidget"
+      widget_args:
+        title: "Resource Selector:"
+        itemgetter: "get_selector_list"
+        itemgetter_args:
+          path: "spec#resourceSelector"
     "Elasticsearch Config":
       key: "e"
       modifier: "shift"

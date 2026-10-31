@@ -20,6 +20,7 @@ infoview:
     timestamps: false
     infogetter_args:
       paths:
+        - path: "jsonPatch#expression"
         - path: "applyConfiguration#expression"
         - path: "expression"
       formatter: "format_cel"

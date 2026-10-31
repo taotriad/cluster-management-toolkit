@@ -29,7 +29,7 @@ infoview:
         default: "<unset>"
         type: "str"
       match_excluded_namespaces:
-        header: [["  Excludeed Namespaces:", ["main", "infoheader"]]]
+        header: [["  Excluded Namespaces:", ["main", "infoheader"]]]
         path: "spec#match#excludedNamespaces"
         default: ["<none>"]
         type: "raw"

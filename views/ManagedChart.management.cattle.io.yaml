@@ -124,18 +124,10 @@ infoview:
       cluster_selector:
         header: "Cluster Selector:"
         paths:
-          - path: "clusterSelector#matchExpressions"
-            pathtype: "match_expression"
+          - path: "clusterSelector"
+            pathtype: "obj"
             default: "<none>"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "operator"
-            - type: "value"
-          field_separators:
-            - type: "space"
-            - type: "no_pad"
+        formatter: "selector"
   shortcuts:
     "Open Namespace":
       key: "d"

@@ -127,18 +127,10 @@ infoview:
       required_node_selector:
         header: "Required Node Selector:"
         paths:
-          - path: "requiredNodeSelectorTerm#matchExpressions"
-            pathtype: "match_expression"
+          - path: "requiredNodeSelectorTerm"
+            pathtype: "obj"
             default: "<none>"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "operator"
-            - type: "value"
-          field_separators:
-            - type: "space"
-            - type: "no_pad"
+        formatter: "selector"
       replicas:
         header: "Replicas:"
         path: "replicas"

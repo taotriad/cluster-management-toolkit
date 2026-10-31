@@ -13,38 +13,16 @@ listview:
   group: "Calico"
   field_indexes:
     Normal:
-      fields: ["namespace", "name",
-               "pod_label_selector", "pod_set_based_selector",
-               "types", "age"]
+      fields: ["namespace", "name", "pod_selector", "types", "age"]
       sortcolumn: "namespace"
   fields:
-    pod_label_selector:
-      header: "Pod Label Selector:"
+    pod_selector:
+      header: "Pod Selector:"
       paths:
-        - path: ["spec#podSelector#matchLabels"]
-          pathtype: "key_value"
-      formatter: "list"
-      formatting:
-        field_colors:
-          - type: "key"
-          - type: "value"
-        field_separators:
-          - type: "selector"
-    pod_set_based_selector:
-      header: "Pod Set-based Selector:"
-      paths:
-        - path: "spec#podSelector#matchExpressions"
-          pathtype: "match_expression"
+        - path: "spec#podSelector"
+          pathtype: "obj"
           default: "<none>"
-      formatter: "list"
-      formatting:
-        field_colors:
-          - type: "key"
-          - type: "operator"
-          - type: "value"
-        field_separators:
-          - type: "space"
-          - type: "no_pad"
+      formatter: "selector"
     types:
       header: "Types:"
       path: "spec#policyTypes"
@@ -56,37 +34,17 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["pod_label_selector", "pod_set_based_selector", "types"]
+        fields: ["pod_selector", "types"]
     rows:
-      pod_label_selector:
-        header: [["P", ["main", "infoheader_shortcut"]],
-                 ["od Label Selector:", ["main", "infoheader"]]]
+      pod_selector:
+        header: [["Pod Selec", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 ["or:", ["main", "infoheader"]]]
         paths:
-          - path: ["spec#podSelector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
-      pod_set_based_selector:
-        header: [["Pod Set-based Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: "spec#podSelector#matchExpressions"
-            pathtype: "match_expression"
+          - path: "spec#podSelector"
+            pathtype: "obj"
             default: "<none>"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "operator"
-            - type: "value"
-          field_separators:
-            - type: "space"
-            - type: "no_pad"
+        formatter: "selector"
       types:
         header: [["Types:", ["main", "infoheader"]]]
         path: "spec#policyTypes"
@@ -161,15 +119,13 @@ infoview:
           field_separators:
             - type: "selector"
   shortcuts:
-    "Pod Label Selector":
-      key: "p"
-      modifier: "shift"
+    "Pod Selector":
+      key: "t"
       read_only: true
-      helptext: "Show Pod label selector"
+      helptext: "Show Pod selector"
       widget: "windowwidget"
       widget_args:
-        title: "Pod Label Selector:"
-        headers: ["Key:", "Value:"]
-        itemgetter: "get_key_value"
+        title: "Pod Selector:"
+        itemgetter: "get_selector_list"
         itemgetter_args:
-          path: "spec#podSelector#matchLabels"
+          path: "spec#podSelector"

@@ -23,7 +23,7 @@ infoview:
       Normal:
         fields: ["common_name", "selector_header", "selector_issuer_ref",
                  "selector_namespace_header", "selector_namespace_match_names",
-                 "selector_namespace_match_labels", "ip_addresses", "is_ca",
+                 "selector_namespace_label_selector", "ip_addresses", "is_ca",
                  "dns_names", "email_addresses", "email_addresses_values",
                  "email_addresses_required", "uris", "usages",
                  "subject_header",
@@ -112,20 +112,16 @@ infoview:
         header: [["Selector:", ["main", "infoheader"]]]
       selector_namespace_header:
         header: [["  Namespace:", ["main", "infoheader"]]]
-      selector_namespace_match_labels:
-        header: [["    Match Labels:", ["main", "infoheader"]]]
+      selector_namespace_label_selector:
+        header: [["    Label Selec:", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 ["or:", ["main", "infoheader"]]]
         paths:
           - path: "spec#selector#namespace#matchLabels"
-            pathtype: "key_value"
-            default: ["<unset>"]
-        type: "raw"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
+            pathtype: "obj"
+            reparent: "matchLabels"
+            default: "<none>"
+        formatter: "selector"
       selector_namespace_match_names:
         header: [["    Match Names:", ["main", "infoheader"]]]
         path: "spec#selector#namespace#matchNames"
@@ -196,3 +192,15 @@ infoview:
         default: ["<unset>"]
         type: "raw"
         formatter: "list"
+  shortcuts:
+    "Namespace Label Selector":
+      key: "t"
+      read_only: true
+      helptext: "Show Namespace label selector"
+      widget: "windowwidget"
+      widget_args:
+        title: "Namespace Label Selector:"
+        itemgetter: "get_selector_list"
+        itemgetter_args:
+          path: "spec#selector#namespace#matchLabels"
+          reparent: "matchLabels"

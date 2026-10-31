@@ -328,6 +328,10 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
                       "apis/gateway.networking.k8s.io/v1alpha2/"],
         "api": "udproutes",
     },
+    ("XTelemetryPolicy", "gateway.networking.x-k8s.io"): {
+        "api_paths": ["apis/gateway.networking.x-k8s.io/v1alpha1/"],
+        "api": "xtelemetrypolicies",
+    },
     # groupsnapshot.storage.k8s.io
     ("VolumeGroupSnapshotClass", "groupsnapshot.storage.k8s.io"): {
         "api_paths": ["apis/groupsnapshot.storage.k8s.io/v1/",

@@ -89,17 +89,21 @@ infoview:
       targets_namespace_selector:
         header: [["  Namespace Label Selector:", ["main", "infoheader"]]]
         paths:
-          - path: ["spec#targets#namespaceLabelSelector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
+          - path: "spec#targets#namespaceLabelSelector"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "selector"
   shortcuts:
+    "Targets Namespace Label Selector":
+      key: "t"
+      read_only: true
+      helptext: "Show targets Namespace label selector"
+      widget: "windowwidget"
+      widget_args:
+        title: "Targets Namespace Label Selector:"
+        itemgetter: "get_selector_list"
+        itemgetter_args:
+          path: "spec#targets#namespaceLabelSelector"
     "Resource":
       key: "r"
       modifier: "shift"

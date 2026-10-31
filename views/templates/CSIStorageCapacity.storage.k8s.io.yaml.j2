@@ -24,9 +24,8 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["controller", "storage_class", "node_topology_header",
-                 "node_topology_label_selector",
-                 "node_topology_set_based_selector", "capacity"]
+        fields: ["controller", "storage_class",
+                 "node_topology_selector", "capacity"]
     rows:
       capacity:
         header: [["Capacity:", ["main", "infoheader"]]]
@@ -36,38 +35,15 @@ infoview:
       {%- for line in row_controller.split("\n") %}
       {{ line }}
       {%- endfor %}
-      node_topology_header:
-        header: [["Node Topology:", ["main", "infoheader"]]]
-      node_topology_label_selector:
-        header: [["  La", ["main", "infoheader"]],
-                 ["b", ["main", "infoheader_shortcut"]],
-                 ["el Selector:", ["main", "infoheader"]]]
+      node_topology_selector:
+        header: [["Node Topology Selec", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 ["or:", ["main", "infoheader"]]]
         paths:
-          - path: ["nodeTopology#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
-      node_topology_set_based_selector:
-        header: [["  Set-based Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: "nodeTopology#matchExpressions"
-            pathtype: "match_expression"
+          - path: "nodeTopology"
+            pathtype: "obj"
             default: "<none>"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "operator"
-            - type: "value"
-          field_separators:
-            - type: "space"
-            - type: "no_pad"
+        formatter: "selector"
       storage_class:
         header: [["S", ["main", "infoheader_shortcut"]],
                  ["torage Class:", ["main", "infoheader"]]]
@@ -75,17 +51,16 @@ infoview:
         default: "<none>"
         type: "str"
   shortcuts:
-    "Node Topology Label Selector":
-      key: "b"
+    "Node Topology Selector":
+      key: "t"
       read_only: true
-      helptext: "Show Node topology label selector"
+      helptext: "Show Node topology selector"
       widget: "windowwidget"
       widget_args:
-        title: "Node Topology Label Selector:"
-        headers: ["Key:", "Value:"]
-        itemgetter: "get_key_value"
+        title: "Node Topology Selector:"
+        itemgetter: "get_selector_list"
         itemgetter_args:
-          path: "nodeTopology#matchLabels"
+          path: "nodeTopology"
     {%- for line in shortcut_controller.split("\n") %}
     {{ line }}
     {%- endfor %}

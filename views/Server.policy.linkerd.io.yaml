@@ -25,22 +25,17 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["pod_selector", "set_based_pod_selector",
-                 "port", "proxy_protocol"]
+        fields: ["pod_selector", "port", "proxy_protocol"]
     rows:
       pod_selector:
-        header: [["Pod Selector:", ["main", "infoheader"]]]
+        header: [["Pod Selec", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 ["or:", ["main", "infoheader"]]]
         paths:
-          - path: ["spec#podSelector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
+          - path: "spec#podSelector"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "selector"
       port:
         header: [["Port:", ["main", "infoheader"]]]
         path: "spec#port"
@@ -49,18 +44,14 @@ infoview:
         header: [["Proxy Protocol:", ["main", "infoheader"]]]
         path: "spec#proxyProtocol"
         type: "str"
-      set_based_pod_selector:
-        header: [["Set-based Pod Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: "spec#podSelector#matchExpressions"
-            pathtype: "match_expression"
-            default: "<none>"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "operator"
-            - type: "value"
-          field_separators:
-            - type: "space"
-            - type: "no_pad"
+  shortcuts:
+    "Selector":
+      key: "t"
+      read_only: true
+      helptext: "Show selector"
+      widget: "windowwidget"
+      widget_args:
+        title: "Selector:"
+        itemgetter: "get_selector_list"
+        itemgetter_args:
+          path: "spec#podSelector"

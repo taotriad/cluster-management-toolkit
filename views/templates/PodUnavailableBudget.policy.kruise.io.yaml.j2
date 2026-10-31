@@ -78,24 +78,8 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["target_reference", "label_selector",
-                 "set_based_selector", "replicas"]
+        fields: ["target_reference", "selector", "replicas"]
     rows:
-      label_selector:
-        header: [["La", ["main", "infoheader"]],
-                 ["b", ["main", "infoheader_shortcut"]],
-                 ["el Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: ["spec#selector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
       replicas:
         header: [["Replicas:", ["main", "infoheader"]]]
         paths:
@@ -140,21 +124,9 @@ infoview:
             - type: "no_pad"
             - type: "fraction_spaced"
             - type: "no_pad"
-      set_based_selector:
-        header: [["Set-based Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: "spec#selector#matchExpressions"
-            pathtype: "match_expression"
-            default: "<none>"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "operator"
-            - type: "value"
-          field_separators:
-            - type: "space"
-            - type: "no_pad"
+      {%- for line in row_selector.split("\n") %}
+      {{ line }}
+      {%- endfor %}
       target_reference:
         header: [["Target ", ["main", "infoheader"]],
                  ["R", ["main", "infoheader_shortcut"]],
@@ -176,17 +148,9 @@ infoview:
             - type: "kind_api_group"
             - type: "kind"
   shortcuts:
-    "Label Selector":
-      key: "b"
-      read_only: true
-      helptext: "Show label selector"
-      widget: "windowwidget"
-      widget_args:
-        title: "Label Selector:"
-        headers: ["Key:", "Value:"]
-        itemgetter: "get_key_value"
-        itemgetter_args:
-          path: "spec#selector#matchLabels"
+    {%- for line in shortcut_selector.split("\n") %}
+    {{ line }}
+    {%- endfor %}
     "Open target reference":
       key: "r"
       modifier: "shift"

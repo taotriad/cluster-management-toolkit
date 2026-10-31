@@ -209,7 +209,7 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["label_selector",
+        fields: ["selector",
                  "rbac_ready",
                  "adapter_header",
                  "adapter_reference",
@@ -283,21 +283,6 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_not_ok"
-      label_selector:
-        header: [["La", ["main", "infoheader"]],
-                 ["b", ["main", "infoheader_shortcut"]],
-                 ["el Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: ["spec#selector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
       provisioner_ready:
         header: [["Provisioner:", ["main", "infoheader"]]]
         paths:
@@ -414,6 +399,9 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_not_ok"
+      {%- for line in row_selector.split("\n") %}
+      {{ line }}
+      {%- endfor %}
       suspended:
         header: [["Suspended:", ["main", "infoheader"]]]
         path: "spec#suspend"
@@ -480,17 +468,9 @@ infoview:
             default: "<none>"
             type: "str"
   shortcuts:
-    "Label Selector":
-      key: "b"
-      read_only: true
-      helptext: "Show label selector"
-      widget: "windowwidget"
-      widget_args:
-        title: "Label Selector:"
-        headers: ["Key:", "Value:"]
-        itemgetter: "get_key_value"
-        itemgetter_args:
-          path: "spec#selector#matchLabels"
+    {%- for line in shortcut_selector.split("\n") %}
+    {{ line }}
+    {%- endfor %}
     "Open Adapter Reference":
       key: "r"
       modifier: "shift"

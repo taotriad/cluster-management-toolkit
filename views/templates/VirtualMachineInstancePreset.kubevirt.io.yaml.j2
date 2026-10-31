@@ -1,0 +1,40 @@
+---
+kind: "VirtualMachineInstancePreset"
+api_family: "kubevirt.io"
+default_command: "virtualmachineinstancepresets"
+command:
+  - "kvvmipresets"
+  - "kvvmipreset"
+listview:
+  name: "Virtual Machine Instance Presets"
+  group: "Virtualization"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "age"]
+      sortcolumn: "namespace"
+infoview:
+  name: "Virtual Machine Instance Preset Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["selector"]
+    rows:
+      {%- for line in row_selector.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+  shortcuts:
+    {%- for line in shortcut_selector.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    "View domain presets":
+      key: "d"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show domain presets"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Domain Presets"
+        _named_title: true
+        _pass_obj: true
+        path: "spec#domain"

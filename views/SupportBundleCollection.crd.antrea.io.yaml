@@ -34,9 +34,12 @@ infoview:
     row_indexes:
       Normal:
         fields: ["nodes_header", "nodes_names",
-                 "nodes_match_label_selector", "external_nodes_header",
-                 "external_nodes_names", "external_nodes_namespace",
-                 "external_nodes_match_label_selector", "file_server",
+                 "nodes_node_selector",
+                 "external_nodes_header",
+                 "external_nodes_names",
+                 "external_nodes_namespace",
+                 "external_nodes_node_selector",
+                 "file_server",
                  "authentication_header", "authentication_secret",
                  "authentication_type", "expiration", "since"]
     rows:
@@ -60,6 +63,7 @@ infoview:
       authentication_type:
         header: [["  Type:", ["main", "infoheader"]]]
         path: "spec#authentication#authType"
+        default: "<unset>"
         type: "str"
       collected:
         header: [["Collected:", ["main", "infoheader"]]]
@@ -80,56 +84,49 @@ infoview:
             - type: "unit"
           field_separators:
             - type: "no_pad"
-      file_server:
-        header: [["File Server:", ["main", "infoheader"]]]
-        path: "spec#fileServer#url"
-        type: "str"
       external_nodes_header:
         header: [["External Nodes:", ["main", "infoheader"]]]
-      external_nodes_match_label_selector:
-        header: [["  Label Selector:", ["main", "infoheader"]]]
+      external_nodes_node_selector:
+        header: [["  ", ["main", "infoheader"]],
+                 ["N", ["main", "infoheader_shortcut"]],
+                 ["ode Selector:", ["main", "infoheader"]]]
         paths:
-          - path: ["spec#externalNodes#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
+          - path: "spec#externalNodes#nodeSelector"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "selector"
       external_nodes_names:
         header: [["  N", ["main", "infoheader"]],
                  ["o", ["main", "infoheader_shortcut"]],
                  ["de Names:", ["main", "infoheader"]]]
         path: "spec#externalNodes#nodeNames"
-        default: ["<unset>"]
+        default: ["<none>"]
         type: "raw"
         formatter: "list"
       external_nodes_namespace:
         header: [["  Namespace:", ["main", "infoheader"]]]
         path: "spec#externalNodes#namespace"
-        type: "str"
         default: "<unset>"
+        type: "str"
         formatting:
           field_colors:
             - type: "namespace"
+      file_server:
+        header: [["File Server:", ["main", "infoheader"]]]
+        path: "spec#fileServer#url"
+        default: "<unset>"
+        type: "str"
       nodes_header:
         header: [["Nodes:", ["main", "infoheader"]]]
-      nodes_match_label_selector:
-        header: [["  Label Selector:", ["main", "infoheader"]]]
+      nodes_node_selector:
+        header: [["  Node Selec", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 ["or:", ["main", "infoheader"]]]
         paths:
-          - path: ["spec#externalNodes#nodeSelector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
+          - path: "spec#nodes#nodeSelector"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "selector"
       nodes_names:
         header: [["  No", ["main", "infoheader"]],
                  ["d", ["main", "infoheader_shortcut"]],
@@ -141,9 +138,31 @@ infoview:
       since:
         header: [["Since:", ["main", "infoheader"]]]
         path: "spec#sinceTime"
+        default: "<unset>"
         type: "str"
         formatter: "age"
   shortcuts:
+    "Node Selector":
+      key: "t"
+      read_only: true
+      helptext: "Show Node selector"
+      widget: "windowwidget"
+      widget_args:
+        title: "Node Selector:"
+        itemgetter: "get_selector_list"
+        itemgetter_args:
+          path: "spec#nodes#nodeSelector"
+    "External Node Selector":
+      key: "n"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show external Node selector"
+      widget: "windowwidget"
+      widget_args:
+        title: "External Node Selector:"
+        itemgetter: "get_selector_list"
+        itemgetter_args:
+          path: "spec#externalNodes#nodeSelector"
     "Show Node list":
       key: "d"
       read_only: true
