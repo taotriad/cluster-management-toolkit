@@ -294,6 +294,7 @@
                     "address_with_port",
                     "numerical_with_units",
                     "selector",
+                    "toleration",
                     "uri",
                     "version"
                 ]
@@ -342,6 +343,7 @@
                 "status",
                 "timestamp",
                 "timestamp_with_age",
+                "toleration",
                 "uri",
                 "value_mapper",
                 "version"
