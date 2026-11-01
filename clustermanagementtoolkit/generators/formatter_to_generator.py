@@ -22,6 +22,7 @@ from clustermanagementtoolkit.generators.generator_selector import generator_sel
 from clustermanagementtoolkit.generators.generator_status import generator_status
 from clustermanagementtoolkit.generators.generator_timestamp import generator_timestamp
 from clustermanagementtoolkit.generators.generator_timestamp_with_age import generator_timestamp_with_age   # noqa: E501
+from clustermanagementtoolkit.generators.generator_toleration import generator_toleration
 from clustermanagementtoolkit.generators.generator_uri import generator_uri  # noqa: E501
 from clustermanagementtoolkit.generators.generator_value_mapper import generator_value_mapper  # noqa: E501
 from clustermanagementtoolkit.generators.generator_version import generator_version  # noqa: E501
@@ -64,6 +65,10 @@ formatter_to_generator: dict[str, dict[str, Any]] = {
     },
     "timestamp_with_age": {
         "generator": generator_timestamp_with_age,
+    },
+    "toleration": {
+        "generator": generator_toleration,
+        "field_separators_default": [],
     },
     "uri": {
         "generator": generator_uri,

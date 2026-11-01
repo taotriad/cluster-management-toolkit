@@ -18,7 +18,7 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["handler", "node_label_selector"]
+        fields: ["handler", "node_label_selector", "tolerations"]
     rows:
       handler:
         header: [["Handler:", ["main", "infoheader"]]]
@@ -39,6 +39,15 @@ infoview:
             - type: "value"
           field_separators:
             - type: "selector"
+      tolerations:
+        header: [["Tolera", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 ["ions:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#tolerations"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "toleration"
   listpad:
     listgetter: "listgetter_dict_list"
     listgetter_args:

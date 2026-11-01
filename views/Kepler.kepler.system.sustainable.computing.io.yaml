@@ -143,22 +143,14 @@ infoview:
           field_colors:
             - type: "port"
       exporter_tolerations:
-        header: [["  Tolerations:", ["main", "infoheader"]]]
+        header: [["  Tolera", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 ["ions:", ["main", "infoheader"]]]
         paths:
           - path: "spec#exporter#deployment#tolerations"
-            pathtype: "toleration"
+            pathtype: "obj"
             default: "<none>"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "operator"
-            - type: "value"
-            - type: "effect"
-          field_separators:
-            - type: "space"
-            - type: "no_pad"
-            - type: "keyvalue"
+        formatter: "toleration"
       nodes:
         header: [["Nodes:", ["main", "infoheader"]]]
         paths:
@@ -197,3 +189,17 @@ infoview:
             - type: "no_pad"
             - type: "fraction_spaced"
             - type: "no_pad"
+  shortcuts:
+    "Show Exporter Tolerations":
+      key: "t"
+      read_only: true
+      helptext: "Show exporter tolerations"
+      widget: "windowwidget"
+      widget_args:
+        title: "Exporter Tolerations:"
+        headers: ["Key:", "Operator:", "Value:", "Effect:", "Timeout:"]
+        itemgetter: "get_tolerations"
+        itemgetter_args:
+          path: ["spec#exporter#deployment#tolerations"]
+        # This isn't supported for now
+        sortcolumn: "key"

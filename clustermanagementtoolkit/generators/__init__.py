@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: MIT
 
 """
-This generates and post-processes elements for various more complex types
+This generates and post-processes elements for various more complex types.
 """
 
 # pylint: disable=line-too-long
@@ -18,12 +18,14 @@ from clustermanagementtoolkit.generators.format_numerical_with_units import form
 from clustermanagementtoolkit.generators.format_selector import format_selector
 from clustermanagementtoolkit.generators.format_special import format_special
 from clustermanagementtoolkit.generators.format_timestamp import format_timestamp
+from clustermanagementtoolkit.generators.format_toleration import format_toleration
 from clustermanagementtoolkit.generators.format_uri import format_uri
 from clustermanagementtoolkit.generators.format_version import format_version
 from clustermanagementtoolkit.generators.generator_address import generator_address
 from clustermanagementtoolkit.generators.generator_basic import generator_basic
 from clustermanagementtoolkit.generators.generator_hex import generator_hex
 from clustermanagementtoolkit.generators.generator_numerical_with_units import generator_numerical_with_units  # noqa: E501
+from clustermanagementtoolkit.generators.generator_toleration import generator_toleration
 from clustermanagementtoolkit.generators.generator_value_mapper import generator_value_mapper
 from clustermanagementtoolkit.generators.generator_version import generator_version
 from clustermanagementtoolkit.generators.get_formatter import get_formatter
@@ -43,12 +45,15 @@ __all__ = [
     "format_selector",
     "format_special",
     "format_timestamp",
+    "format_toleration",
     "format_uri",
     "format_version",
     "generator_address",
     "generator_basic",
     "generator_hex",
     "generator_numerical_with_units",
+    "generator_selector",
+    "generator_toleration",
     "generator_value_mapper",
     "generator_version",
     "get_formatter",

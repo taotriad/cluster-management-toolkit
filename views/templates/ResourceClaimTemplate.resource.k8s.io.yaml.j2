@@ -93,35 +93,17 @@ infoview:
       selectors:
         header: "Selectors:"
         paths:
-          - path: ["exactly#tolerations", "firstAvailable#selectors"]
-            pathtype: "selectors"
+          - path: ["exactly#selectors", "firstAvailable#selectors"]
+            pathtype: "obj"
             default: "<none>"
-        type: "str"
+        formatter: "selector"
       tolerations:
         header: "Tolerations:"
         paths:
           - path: ["exactly#tolerations", "firstAvailable#tolerations"]
-            pathtype: "toleration"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "operator"
-            - type: "value"
-            - type: "effect"
-            - type: "timeout"
-          field_separators:
-            - type: "space"
-            - type: "no_pad"
-            - type: "keyvalue"
-            - type: "timeout"
-          field_formatters:
-            - ""
-            - ""
-            - ""
-            - ""
-            - "numerical_with_units"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "toleration"
   shortcuts:
     {%- for line in shortcut_controller.split("\n") %}
     {{ line }}

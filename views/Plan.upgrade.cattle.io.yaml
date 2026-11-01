@@ -61,7 +61,7 @@ infoview:
                  "drain_disable_eviction",
                  "drain_skip_wait_for_delete_timeout", "channel",
                  "version", "latest_version",
-                 "node_selector",
+                 "node_selector", "tolerations",
                  "concurrency"]
     rows:
       channel:
@@ -147,6 +147,15 @@ infoview:
                  ["ervice Account:", ["main", "infoheader"]]]
         path: "spec#serviceAccountName"
         type: "str"
+      tolerations:
+        header: [["Tolera", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 ["ions:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#tolerations"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "toleration"
       upgrade:
         header: [["U", ["main", "infoheader_shortcut"]],
                  ["pgrade:", ["main", "infoheader"]]]

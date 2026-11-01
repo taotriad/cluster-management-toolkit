@@ -131,6 +131,7 @@ infoview:
       Normal:
         fields: ["hostname", "scheduler", "scheduling_group",
                  "node_label_selector",
+                 "tolerations",
                  "priority", "priority_class", "preemption_policy",
                  "qos_class", "host_ips", "pod_ips",
                  "termination_grace_period", "enable_service_links",
@@ -395,6 +396,15 @@ infoview:
             - type: "unit"
           field_separators:
             - type: "no_pad"
+      tolerations:
+        header: [["Tolera", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 ["ions:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#tolerations"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "toleration"
   listpad:
     listgetter: "get_pod_resource_list"
     listgetter_args:

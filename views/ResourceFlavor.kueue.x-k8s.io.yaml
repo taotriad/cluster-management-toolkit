@@ -72,6 +72,15 @@ infoview:
         path: "spec#topologyName"
         default: "<unset>"
         type: "str"
+      tolerations:
+        header: [["Tolera", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 ["ions:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#tolerations"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "toleration"
   shortcuts:
     "Open Topology":
       # If we add a listpad we'll need to use another shortcut

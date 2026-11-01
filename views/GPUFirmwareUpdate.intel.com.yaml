@@ -85,6 +85,7 @@ infoview:
       Normal:
         fields: ["node_label_selector", "amc_credentials", "image_pull_secret",
                  "update_method", "hold_after_canary", "update_taint",
+                 "tolerations",
                  "container_image", "firmware_images", "messages", "state"]
     rows:
       amc_credentials:
@@ -208,6 +209,15 @@ infoview:
                 field_colors:
                   - context: "types"
                     type: "unset"
+      tolerations:
+        header: [["Tolera", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 ["ions:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#infra#tolerations"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "toleration"
       update_method:
         header: [["Update Method:", ["main", "infoheader"]]]
         path: "spec#updateMethod"

@@ -81,19 +81,10 @@ infoview:
                  ["T", ["main", "infoheader_shortcut"]],
                  ["olerations:", ["main", "infoheader"]]]
         paths:
-          # FIXME: Pathtype toleration or obj, formatter toleration
           - path: "spec#infra#tolerations"
-            pathtype: "match_expression"
+            pathtype: "obj"
             default: "<none>"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "operator"
-            - type: "value"
-          field_separators:
-            - type: "space"
-            - type: "no_pad"
+        formatter: "toleration"
       phase:
         header: [["Phase:", ["main", "infoheader"]]]
         path: "status#phase"

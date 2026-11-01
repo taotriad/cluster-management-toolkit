@@ -95,22 +95,14 @@ infoview:
         default: "<unset>"
         type: "bool"
       tolerations:
-        header: [["Tolerations:", ["main", "infoheader"]]]
+        header: [["Tolera", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 ["ions:", ["main", "infoheader"]]]
         paths:
           - path: "spec#tolerations"
-            pathtype: "toleration"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "operator"
-            - type: "value"
-            - type: "effect"
-          field_separators:
-            - type: "space"
-            - type: "no_pad"
-            - type: "keyvalue"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "toleration"
   shortcuts:
     "Node Label Selector":
       key: "b"
