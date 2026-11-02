@@ -19,45 +19,24 @@ listview:
     namespace_selector:
       header: "Namespace Selector:"
       paths:
-        - path: ["spec#subject#namespaces"]
-          pathtype: "selectors"
-          fallback_on_empty: true
-          default: ["<none>"]
-      formatter: "list"
-      formatting:
-        field_colors:
-          - type: "key"
-          - type: "value"
-        field_separators:
-          - type: "selector"
+        - path: "spec#subject#namespaces"
+          pathtype: "obj"
+          default: "<none>"
+      formatter: "selector"
     pod_selector:
       header: "Pod Selector:"
       paths:
-        - path: ["spec#subject#pods#podSelector"]
-          pathtype: "selectors"
-          fallback_on_empty: true
-          default: ["<none>"]
-      formatter: "list"
-      formatting:
-        field_colors:
-          - type: "key"
-          - type: "value"
-        field_separators:
-          - type: "selector"
+        - path: "spec#subject#pods#podSelector"
+          pathtype: "obj"
+          default: "<none>"
+      formatter: "selector"
     pod_namespace_selector:
       header: "Pod Namespace Selector:"
       paths:
-        - path: ["spec#subject#pods#namespaceSelector"]
-          pathtype: "selectors"
-          fallback_on_empty: true
-          default: ["<none>"]
-      formatter: "list"
-      formatting:
-        field_colors:
-          - type: "key"
-          - type: "value"
-        field_separators:
-          - type: "selector"
+        - path: "spec#subject#pods#namespaceSelector"
+          pathtype: "obj"
+          default: "<none>"
+      formatter: "selector"
     priority:
       header: "Priority:"
       path: "spec#priority"
@@ -70,56 +49,52 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["pod_selector", "pod_namespace_selector",
-                 "namespace_selector", "priority"]
+        fields: ["priority",
+                 "subject_header",
+                 "subject_namespace_header",
+                 "subject_namespace_selector",
+                 "subject_pod_header",
+                 "subject_pod_selector",
+                 "subject_pod_namespace_selector"]
     rows:
-      namespace_selector:
-        header: [["Namespace Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: ["spec#subject#namespaces"]
-            pathtype: "selectors"
-            fallback_on_empty: true
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
-      pod_selector:
-        header: [["Pod Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: ["spec#subject#pods#podSelector"]
-            pathtype: "selectors"
-            fallback_on_empty: true
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
-      pod_namespace_selector:
-        header: [["Pod Namespace Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: ["spec#subject#pods#namespaceSelector"]
-            pathtype: "selectors"
-            fallback_on_empty: true
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
       priority:
         header: [["Priority:", ["main", "infoheader"]]]
         path: "spec#priority"
         type: "int"
         formatter: "numerical"
+      subject_header:
+        header: [["Subject:", ["main", "infoheader"]]]
+      subject_namespace_header:
+        header: [["  Namespace:", ["main", "infoheader"]]]
+      subject_namespace_selector:
+        header: [["    Selec", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 ["or:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#subject#namespaces"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "selector"
+      subject_pod_header:
+        header: [["  Pod:", ["main", "infoheader"]]]
+      subject_pod_selector:
+        header: [["    ", ["main", "infoheader"]],
+                 ["S", ["main", "infoheader_shortcut"]],
+                 ["elector:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#subject#pods#podSelector"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "selector"
+      subject_pod_namespace_selector:
+        header: [["    Names", ["main", "infoheader"]],
+                 ["p", ["main", "infoheader_shortcut"]],
+                 ["ace Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#subject#pods#namespaceSelector"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "selector"
   listpad:
     listgetter: "get_netpol_rule_list"
     infogetter: "generic_infogetter"
@@ -162,16 +137,10 @@ infoview:
       namespace_selectors:
         header: "Namespace Selector:"
         paths:
-          - path: ["namespace_selectors"]
-            pathtype: "selectors"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
+          - path: "namespace_selectors"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "selector"
       networks:
         header: "Networks:"
         path: "networks"
@@ -180,42 +149,24 @@ infoview:
       node_selectors:
         header: "Node Selector:"
         paths:
-          - path: ["node_selectors"]
-            pathtype: "selectors"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
+          - path: "node_selectors"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "selector"
       pod_selectors:
         header: "Pod Selector:"
         paths:
-          - path: ["pod_selectors"]
-            pathtype: "selectors"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
+          - path: "pod_selectors"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "selector"
       pod_namespace_selectors:
         header: "Pod Namespace Selectors:"
         paths:
-          - path: ["pod_namespace_selectors"]
-            pathtype: "selectors"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
+          - path: "pod_namespace_selectors"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "selector"
       ports:
         header: "Ports:"
         paths:
@@ -238,3 +189,35 @@ infoview:
         header: "Policy Type:"
         path: "policy_type"
         type: "str"
+  shortcuts:
+    "Subject Namespace Selector":
+      key: "t"
+      read_only: true
+      helptext: "Show subject Namespace selector"
+      widget: "windowwidget"
+      widget_args:
+        title: "Subject Namespace Selector:"
+        itemgetter: "get_selector_list"
+        itemgetter_args:
+          path: "spec#subject#namespaces"
+    "Subject Pod Selector":
+      key: "S"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show subject Pod selector"
+      widget: "windowwidget"
+      widget_args:
+        title: "Subject Pod Selector:"
+        itemgetter: "get_selector_list"
+        itemgetter_args:
+          path: "spec#subject#pods#podSelector"
+    "Subject Pod Namespace Selector":
+      key: "p"
+      read_only: true
+      helptext: "Show subject Pod Namespace selector"
+      widget: "windowwidget"
+      widget_args:
+        title: "Subject Pod Namespace Selector:"
+        itemgetter: "get_selector_list"
+        itemgetter_args:
+          path: "spec#subject#pods#namespaceSelector"

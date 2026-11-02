@@ -103,6 +103,7 @@ infoview:
                  "csi_volume_handle",
                  "csi_volume_attributes",
                  "storage_class", "reclaim_policy",
+                 "node_affinity_selector",
                  "volume_mode", "reason", "status"]
     rows:
       access_modes:
@@ -156,6 +157,15 @@ infoview:
         path: "spec#csi#volumeHandle"
         default: "<unset>"
         type: "str"
+      node_affinity_selector:
+        header: [["Node ", ["main", "infoheader"]],
+                 ["A", ["main", "infoheader_shortcut"]],
+                 ["ffinity Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#nodeAffinity#required#nodeSelectorTerms"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "selector"
       persistent_volume_claim:
         header: [["P", ["main", "infoheader_shortcut"]],
                  ["ersistent Volume Claim:", ["main", "infoheader"]]]
@@ -338,18 +348,17 @@ infoview:
         itemgetter: "get_list_as_list"
         itemgetter_args:
           path: "spec#mountOptions"
-    "Volume Node Affinity":
+    "Node Affinity Selector":
       key: "a"
       modifier: "shift"
       read_only: true
-      helptext: "Show volume node affinity selector"
-      action: "call"
-      action_call: "view_yaml"
-      action_args:
-        title: "Volume Node Affinity Selectors"
-        _pass_obj: true
-        path: "spec#nodeAffinity#required#nodeSelectorTerms"
-        include_root: true
+      helptext: "Show node affinity selector"
+      widget: "windowwidget"
+      widget_args:
+        title: "Node Affinity Selector:"
+        itemgetter: "get_selector_list"
+        itemgetter_args:
+          path: "spec#nodeAffinity#required#nodeSelectorTerms"
     "Persistent Volume Claim":
       key: "p"
       modifier: "shift"

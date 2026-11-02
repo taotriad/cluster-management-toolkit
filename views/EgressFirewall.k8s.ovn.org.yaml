@@ -60,16 +60,10 @@ infoview:
       node_selector:
         header: "Node Selector:"
         paths:
-          - path: ["to#nodeSelector"]
-            pathtype: "selectors"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
+          - path: "to#nodeSelector"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "selector"
       ports:
         header: "Ports:"
         paths:

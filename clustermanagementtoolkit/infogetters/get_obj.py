@@ -14,9 +14,6 @@ from typing import Any
 
 from clustermanagementtoolkit import cmtlib
 from clustermanagementtoolkit.cmtlib import age_to_seconds
-from clustermanagementtoolkit.cmtlib import make_cel_expression
-from clustermanagementtoolkit.cmtlib import make_label_selector
-from clustermanagementtoolkit.cmtlib import make_set_expression
 from clustermanagementtoolkit.cmtlib import make_set_expression_list
 from clustermanagementtoolkit.cmtlib import timestamp_to_datetime
 
@@ -29,6 +26,7 @@ from clustermanagementtoolkit.fieldgetters import fieldgetter_allowlist
 from clustermanagementtoolkit.datagetters import datagetter_allowlist
 
 from clustermanagementtoolkit.infogetters.filter_data import filter_data
+from clustermanagementtoolkit.infogetters.get_obj_dictlist import get_obj_dictlist
 from clustermanagementtoolkit.infogetters.get_obj_items import get_obj_items
 from clustermanagementtoolkit.infogetters.get_obj_key_value import get_obj_key_value
 from clustermanagementtoolkit.infogetters.get_obj_list import get_obj_list
@@ -153,12 +151,9 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                                            ipath=_path, values=_values, vtype=vtype,
                                            limit=limit)
                 elif ptype == "dictlist":
-                    _raw = deep_get_with_fallback(obj, path, default=default,
-                                                  fallback_on_empty=fallback_on_empty)
-                    transform = deep_get(_path, DictPath("transform"), {})
-                    if _raw is not None:
-                        for tmp in transform_list(_raw, transform=transform):
-                            _values.append((tmp, vtype))
+                    _values = get_obj_dictlist(obj=obj, path=path, default=default,
+                                               fallback_on_empty=fallback_on_empty,
+                                               ipath=_path, values=_values, vtype=vtype)
                 elif ptype == "ranges":
                     # This takes a list of paths as indata,
                     # and--for all numerical entries in the list-- builds range;
@@ -189,34 +184,6 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                 elif ptype == "key_value":
                     _values = get_obj_key_value(obj=obj, path=path, ipath=_path, default=default,
                                                 values=_values, vtype=vtype)
-                elif ptype == "selectors":
-                    value = []
-                    # This is a list of selectors
-                    # pylint: disable-next=too-many-boolean-expressions
-                    if not path and isinstance(obj, dict) and ("matchExpressions" in obj
-                                                               or "matchFields" in obj
-                                                               or "matchLabels" in obj
-                                                               or "cel" in obj):
-                        tmp = [obj]
-                    else:
-                        tmp = deep_get_with_fallback(obj, path, [])
-                    if isinstance(tmp, dict):
-                        tmp = [tmp]
-                    for selector in tmp:
-                        if "matchExpressions" in selector:
-                            value.append(make_set_expression(selector["matchExpressions"]))
-                        if "matchFields" in selector:
-                            value.append(make_set_expression(selector["matchFields"]))
-                        if "matchLabels" in selector:
-                            value.append(make_label_selector(selector["matchLabels"]))
-                        if "cel" in selector:
-                            value.append(make_cel_expression([selector["cel"]]))
-                    if not value and default:
-                        _values.append((default, "raw"))
-                    elif len(value) == 1:
-                        _values.append((value[0], "str"))
-                    else:
-                        _values.append((",".join(value), "str"))
                 elif ptype == "match_expression":
                     tmp = deep_get_with_fallback(obj, path)
                     if isinstance(tmp, list):

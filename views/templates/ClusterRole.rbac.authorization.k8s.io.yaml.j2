@@ -45,9 +45,9 @@ infoview:
                  ["S", ["main", "infoheader_shortcut"]],
                  ["electors:", ["main", "infoheader"]]]
         paths:
-          - path: ["aggregationRule#clusterRoleSelectors"]
-            pathtype: "selectors"
-            default: ["<none>"]
+          - path: "aggregationRule#clusterRoleSelectors"
+            pathtype: "obj"
+            default: "<none>"
         formatter: "selector"
       {%- for line in row_controller.split("\n") %}
       {{ line }}

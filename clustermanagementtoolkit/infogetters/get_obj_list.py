@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: MIT
 
 """
-Helper for get_obj() to get key/value data.
+Helper for get_obj() to get liists.
 """
 
 from typing import Any

@@ -1049,7 +1049,6 @@
                 "ranges",
                 "regex",
                 "remap",
-                "selectors",
                 "status_tuple",
                 "substitution",
                 "timediff",

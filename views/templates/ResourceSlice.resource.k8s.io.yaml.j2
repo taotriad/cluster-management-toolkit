@@ -81,9 +81,9 @@ infoview:
         header: [["Node Selector:", ["main", "infoheader"]]]
         paths:
           - path: "spec#nodeSelector#nodeSelectorTerms"
-            pathtype: "selectors"
-            default: ["<none>"]
-        formatter: "list"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "selector"
       pool:
         header: [["Pool:", ["main", "infoheader"]]]
         path: "spec#pool#name"
@@ -191,6 +191,16 @@ infoview:
     {%- for line in shortcut_controller.split("\n") %}
     {{ line }}
     {%- endfor %}
+    "Node Selector":
+      key: "t"
+      read_only: true
+      helptext: "Show Node selector"
+      widget: "windowwidget"
+      widget_args:
+        title: "Node Selector:"
+        itemgetter: "get_selector_list"
+        itemgetter_args:
+          path: "spec#nodeSelector#nodeSelectorTerms"
     "Open Node":
       key: "d"
       read_only: true

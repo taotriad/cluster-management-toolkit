@@ -54,7 +54,7 @@ def test_format_selector(verbose: bool = False) -> tuple[str, bool]:
 
     if result:
         # Indata format:
-        # (string, selected, expected_result, expected_exception)
+        # (string, selected, kwargs, expected_result, expected_exception)
         testdata: tuple = (
             (
                 {
@@ -123,6 +123,31 @@ def test_format_selector(verbose: bool = False) -> tuple[str, bool]:
             ),
             (
                 {
+                    "matchExpressions": [
+                        {
+                            "key": "gatekeeper.sh/operation",
+                            "operator": "In",
+                            "values": [
+                                1, 2,
+                            ],
+                        },
+                    ],
+                },
+                False,
+                {},
+                [ThemeStr("gatekeeper.sh/operation", ThemeAttr("types", "key"), False),
+                 ThemeRef("separators", "space", False),
+                 ThemeStr("In", ThemeAttr("types", "operator"), False),
+                 ThemeRef("separators", "space", False),
+                 ThemeRef("separators", "list_start", False),
+                 ThemeStr("1", ThemeAttr("types", "numerical"), False),
+                 ThemeRef("separators", "list", False),
+                 ThemeStr("2", ThemeAttr("types", "numerical"), False),
+                 ThemeRef("separators", "list_end", False)],
+                None,
+            ),
+            (
+                {
                     "matchFields": [
                         {
                             "key": "metadata.name",
@@ -132,6 +157,10 @@ def test_format_selector(verbose: bool = False) -> tuple[str, bool]:
                                 "worker2",
                             ],
                         },
+                    ],
+                    # This should just be ignored.
+                    "matchName": [
+                        "foo",
                     ],
                 },
                 False,
@@ -250,6 +279,168 @@ def test_format_selector(verbose: bool = False) -> tuple[str, bool]:
                 tmp = fun(items, selected, **kwargs)
                 if tmp != expected_result:
                     message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_format_toleration(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = generators.format_toleration
+
+    if result:
+        # Indata format:
+        # (tolerations, selected, kwargs, expected_result, expected_exception)
+        testdata: tuple = (
+            (
+                [
+                    {
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "effect": "NoExecute",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "effect": "NoExecute",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                False,
+                {},
+                [ThemeStr("node.kubernetes.io/not-ready", ThemeAttr("types", "key"), False),
+                 ThemeRef("separators", "space", False),
+                 ThemeStr("Exists", ThemeAttr("types", "operator"), False),
+                 ThemeRef("separators", "keyvalue", False),
+                 ThemeStr("NoExecute", ThemeAttr("types", "effect"), False),
+                 ThemeRef("separators", "list", False),
+                 ThemeStr("node.kubernetes.io/unreachable", ThemeAttr("types", "key"), False),
+                 ThemeRef("separators", "space", False),
+                 ThemeStr("Exists", ThemeAttr("types", "operator"), False),
+                 ThemeRef("separators", "keyvalue", False),
+                 ThemeStr("NoExecute", ThemeAttr("types", "effect"), False)],
+                None,
+            ),
+            (
+                {
+                    "key": "node.kubernetes.io/not-ready",
+                    "operator": "Exists",
+                    "effect": "NoExecute",
+                    "tolerationSeconds": 300
+                },
+                False,
+                {},
+                [ThemeStr("node.kubernetes.io/not-ready", ThemeAttr("types", "key"), False),
+                 ThemeRef("separators", "space", False),
+                 ThemeStr("Exists", ThemeAttr("types", "operator"), False),
+                 ThemeRef("separators", "keyvalue", False),
+                 ThemeStr("NoExecute", ThemeAttr("types", "effect"), False)],
+                None,
+            ),
+            (
+                {
+                    "key": "node.kubernetes.io/not-ready",
+                    "operator": "Equals",
+                    "value": "foo",
+                    "effect": "NoExecute",
+                },
+                False,
+                {},
+                [ThemeStr("node.kubernetes.io/not-ready", ThemeAttr("types", "key"), False),
+                 ThemeRef("separators", "space", False),
+                 ThemeStr("Equals", ThemeAttr("types", "operator"), False),
+                 ThemeRef("separators", "space", False),
+                 ThemeStr("foo", ThemeAttr("types", "generic"), False),
+                 ThemeRef("separators", "keyvalue", False),
+                 ThemeStr("NoExecute", ThemeAttr("types", "effect"), False)],
+                None,
+            ),
+            (
+                {
+                    "key": "node.kubernetes.io/not-ready",
+                    "operator": "In",
+                    "values": ["foo", "bar"],
+                    "effect": "NoSchedule",
+                },
+                False,
+                {},
+                [ThemeStr("node.kubernetes.io/not-ready", ThemeAttr("types", "key"), False),
+                 ThemeRef("separators", "space", False),
+                 ThemeStr("In", ThemeAttr("types", "operator"), False),
+                 ThemeRef("separators", "space", False),
+                 ThemeRef("separators", "list_start", False),
+                 ThemeStr("foo", ThemeAttr("types", "generic"), False),
+                 ThemeRef("separators", "list", False),
+                 ThemeStr("bar", ThemeAttr("types", "generic"), False),
+                 ThemeRef("separators", "list_end", False),
+                 ThemeRef("separators", "keyvalue", False),
+                 ThemeStr("NoSchedule", ThemeAttr("types", "effect"), False)],
+                None,
+            ),
+            (
+                {
+                    "key": "node.kubernetes.io/not-ready",
+                    "operator": "In",
+                    "values": [0, 1, 2, 3],
+                    "effect": "NoExecute",
+                },
+                False,
+                {},
+                [ThemeStr("node.kubernetes.io/not-ready", ThemeAttr("types", "key"), False),
+                 ThemeRef("separators", "space", False),
+                 ThemeStr("In", ThemeAttr("types", "operator"), False),
+                 ThemeRef("separators", "space", False),
+                 ThemeRef("separators", "list_start", False),
+                 ThemeStr("0", ThemeAttr("types", "numerical"), False),
+                 ThemeRef("separators", "list", False),
+                 ThemeStr("1", ThemeAttr("types", "numerical"), False),
+                 ThemeRef("separators", "list", False),
+                 ThemeStr("2", ThemeAttr("types", "numerical"), False),
+                 ThemeRef("separators", "list", False),
+                 ThemeStr("3", ThemeAttr("types", "numerical"), False),
+                 ThemeRef("separators", "list_end", False),
+                 ThemeRef("separators", "keyvalue", False),
+                 ThemeStr("NoExecute", ThemeAttr("types", "effect"), False)],
+                None,
+            ),
+            (
+                [],
+                False,
+                {},
+                [ThemeStr("", ThemeAttr("types", "generic"), False)],
+                None,
+            ),
+        )
+
+        for items, selected, kwargs, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(items, selected, **kwargs)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"            items: {items}\n" \
                               f"           result: {tmp}\n" \
                               f"  expected result: {expected_result}"
                     result = False
@@ -2292,6 +2483,10 @@ def test_get_formatter(verbose: bool = False) -> tuple[str, bool]:
 tests: dict[tuple[str], dict[str, Any]] = {
     ("format_selector()",): {
         "callable": test_format_selector,
+        "result": None,
+    },
+    ("format_toleration()",): {
+        "callable": test_format_toleration,
         "result": None,
     },
     ("format_special()",): {

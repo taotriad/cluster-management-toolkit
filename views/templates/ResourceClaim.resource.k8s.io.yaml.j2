@@ -97,6 +97,15 @@ infoview:
               - "name"
         default: "<none>"
         formatter: "list"
+      node_selector:
+        header: [["Node Selec", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 ["or:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#allocation#nodeSelector#nodeSelectorTerms"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "selector"
       reserved_for:
         header: [["R", ["main", "infoheader_shortcut"]],
                  ["eserved For:", ["main", "infoheader"]]]
@@ -117,18 +126,16 @@ infoview:
             - type: "kind"
           ellipsise: 3
   shortcuts:
-    "Node Selectors":
-      key: "s"
-      modifier: "shift"
+    "Node Selector":
+      key: "t"
       read_only: true
-      helptext: "Show node selectors"
-      action: "call"
-      action_call: "view_yaml"
-      action_args:
-        title: "Node Selectors"
-        _pass_obj: true
-        path: "status#allocation#nodeSelector#nodeSelectorTerms"
-        include_root: true
+      helptext: "Show Node selector"
+      widget: "windowwidget"
+      widget_args:
+        title: "Node Selector:"
+        itemgetter: "get_selector_list"
+        itemgetter_args:
+          path: "status#allocation#nodeSelector#nodeSelectorTerms"
     {%- for line in shortcut_controller.split("\n") %}
     {{ line }}
     {%- endfor %}

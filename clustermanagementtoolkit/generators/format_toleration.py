@@ -18,7 +18,7 @@ from clustermanagementtoolkit.curses_helper import ThemeStr
 from clustermanagementtoolkit.curses_helper import themearray_select
 
 
-# pylint: disable-next=too-many-branches
+# pylint: disable-next=too-many-branches,too-many-locals
 def format_toleration(items: dict | list[dict],
                       selected: bool, **kwargs: Any) -> list[ThemeRef | ThemeStr]:
     """
@@ -44,31 +44,41 @@ def format_toleration(items: dict | list[dict],
         _vlist: list[ThemeRef | ThemeStr] = []
         key = deep_get(toleration, DictPath("key"), "")
         operator = deep_get(toleration, DictPath("operator"), "")
-        values = deep_get(toleration, DictPath("values"), "")
+        values = deep_get(toleration, DictPath("values"), [])
+        value = deep_get(toleration, DictPath("value"), "")
+        if not values and value:
+            values = [value]
         effect = deep_get(toleration, DictPath("effect"), "")
         # Should we include this?
         # toleration_seconds = deep_get(toleration, DictPath("tolerationSeconds"), -1)
         if _vlist:
             _vlist.append(item_separator)
         values_joined: list[ThemeRef | ThemeStr] = []
-        for value in values:
+        for lvalue in values:
             if values_joined:
                 values_joined.append(item_separator)
-            if isinstance(value, (int, float)):
+            if isinstance(lvalue, (int, float)):
                 valueattr = ThemeAttr("types", "numerical")
             else:
                 valueattr = ThemeAttr("types", "generic")
-            if isinstance(value, (int, float)):
-                values_joined.append(ThemeStr(str(value), valueattr))
+            if isinstance(lvalue, (int, float)):
+                values_joined.append(ThemeStr(str(lvalue), valueattr))
             else:
-                values_joined.append(ThemeStr(str(value), valueattr))
+                values_joined.append(ThemeStr(str(lvalue), valueattr))
         if values_joined:
-            values_joined = [
-                ThemeRef("separators", "space"),
-                ThemeRef("separators", "list_start"),
-            ] + values_joined + [
-                ThemeRef("separators", "list_end"),
-            ]
+            # If this is a single value and not part of a list we need to skip
+            # the list brackets.
+            if value:
+                values_joined = [
+                    cast(ThemeRef | ThemeStr, ThemeRef("separators", "space")),
+                ] + values_joined
+            else:
+                values_joined = [
+                    ThemeRef("separators", "space"),
+                    ThemeRef("separators", "list_start"),
+                ] + values_joined + [
+                    ThemeRef("separators", "list_end"),
+                ]
 
         effect_array: list[ThemeRef | ThemeStr] = []
         if effect:

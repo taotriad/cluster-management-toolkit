@@ -58,13 +58,7 @@ infoview:
       pod_selector:
         header: "Pod Selector:"
         paths:
-          - path: ["podSelector"]
-            pathtype: "selectors"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
+          - path: "podSelector"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "selector"
