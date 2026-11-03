@@ -9,12 +9,10 @@ A multi-purpose helper for generic_infogetter().
 """
 
 from datetime import timedelta
-import re
 from typing import Any
 
 from clustermanagementtoolkit import cmtlib
 from clustermanagementtoolkit.cmtlib import age_to_seconds
-from clustermanagementtoolkit.cmtlib import make_set_expression_list
 from clustermanagementtoolkit.cmtlib import timestamp_to_datetime
 
 from clustermanagementtoolkit.cmttypes import DictPath
@@ -32,6 +30,7 @@ from clustermanagementtoolkit.infogetters.get_obj_key_value import get_obj_key_v
 from clustermanagementtoolkit.infogetters.get_obj_list import get_obj_list
 from clustermanagementtoolkit.infogetters.get_obj_lookup import get_obj_lookup
 from clustermanagementtoolkit.infogetters.get_obj_ranges import get_obj_ranges
+from clustermanagementtoolkit.infogetters.get_obj_regex import get_obj_regex
 from clustermanagementtoolkit.infogetters.get_obj_status_tuple import get_obj_status_tuple
 from clustermanagementtoolkit.infogetters.get_obj_tuple import get_obj_tuple
 from clustermanagementtoolkit.infogetters.process_value import process_value
@@ -184,22 +183,6 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                 elif ptype == "key_value":
                     _values = get_obj_key_value(obj=obj, path=path, ipath=_path, default=default,
                                                 values=_values, vtype=vtype)
-                elif ptype == "match_expression":
-                    tmp = deep_get_with_fallback(obj, path)
-                    if isinstance(tmp, list):
-                        value = []
-                        value = make_set_expression_list(tmp)
-                        if len(value) == 1:
-                            _values.append((value[0], "raw"))
-                        else:
-                            for tmp in value:
-                                _values.append((tmp, "raw"))
-                    elif isinstance(tmp, dict):
-                        # XXX: Is this code really used?
-                        value = make_set_expression_list([tmp])
-                        _values.append((value, "raw"))
-                    else:
-                        _values.append((default, "raw"))
                 elif ptype == "lookup":
                     _values, success = get_obj_lookup(obj=obj, path=path, ipath=_path,
                                                       default=default, values=_values,
@@ -382,29 +365,8 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                         count += len(deep_get(obj, DictPath(p), {}))
                     _values.append((count, vtype))
                 elif ptype == "regex":
-                    value = []
-                    _raw = deep_get_with_fallback(obj, path, "")
-                    _regexes = deep_get(_path, DictPath("regex"), [])
-                    _findalls = deep_get(_path, DictPath("findall"), [])
-                    if isinstance(_regexes, str):
-                        _regexes = [_regexes]
-                    if isinstance(_findalls, str):
-                        _findalls = [_findalls]
-                    if _raw is not None and _raw:
-                        for _regex in _regexes:
-                            if (re_tmp := re.match(_regex, _raw)) is not None:
-                                for group in re_tmp.groups():
-                                    if group is not None:
-                                        value.append(group)
-                                break
-                        for _findall in _findalls:
-                            if (fa_tmp := re.findall(_findall, _raw)) is not None:
-                                value += fa_tmp
-                                break
-                    elif default:
-                        value = default
-                    value = tuple(value)
-                    _values.append((value, "raw"))
+                    _values = get_obj_regex(obj=obj, path=path, ipath=_path,
+                                            values=_values, default=default)
                 elif ptype == "tuple":
                     _values, success = get_obj_tuple(obj=obj, path=path, ipath=_path,
                                                      default=default, values=_values,
