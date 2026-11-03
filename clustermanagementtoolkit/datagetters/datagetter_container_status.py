@@ -62,7 +62,7 @@ def get_container_status(src_statuses: list[dict],
                 status_group = StatusGroup.NOT_OK
 
                 if running is not None:
-                    reason = "Running"
+                    reason = "RunningNotReady"
                 elif deep_get(container_status, DictPath("state#terminated")) is not None:
                     reason = deep_get(container_status,
                                       DictPath("state#terminated#reason"), "ErrNotSet")
