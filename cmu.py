@@ -99,6 +99,7 @@ from clustermanagementtoolkit.cmtio_yaml import secure_read_yaml
 from clustermanagementtoolkit import cmtlib
 from clustermanagementtoolkit.cmtlib import check_allowlist
 from clustermanagementtoolkit.cmtlib import clamp
+from clustermanagementtoolkit.cmtlib import datetime_to_timestamp
 from clustermanagementtoolkit.cmtlib import decode_value
 from clustermanagementtoolkit.cmtlib import make_label_selector
 from clustermanagementtoolkit.cmtlib import make_label_selector_set_expression
@@ -374,10 +375,7 @@ def format_timestamp(timestamp: datetime,
     if timestamp is None:
         array = [ThemeRef("strings", "none")]
     else:
-        if localtimezone:
-            ftimestamp = f"{timestamp.astimezone():%Y-%m-%d %H:%M:%S}"
-        else:
-            ftimestamp = f"{timestamp:%Y-%m-%d %H:%M:%S}"
+        ftimestamp = datetime_to_timestamp(timestamp, localtimezone=localtimezone)
         array = generators.format_numerical_with_units(ftimestamp,
                                                        selected=False, ftype="timestamp")
 
@@ -520,11 +518,11 @@ def get_pod_log_by_name_namespace_container(name: str, namespace: str, container
         # Everything is successful
         internal_error = False
     elif status == 400:
-        # Not successful; error in rawmsg
+        # Not successful; error in rawmsg.
         rawmsg = f"{datetime.now(UTC):%Y-%m-%d %H:%M:%S} CRITICAL: {rawmsg}"
         internal_error = True
     elif status == 500:
-        # Not successful; error in rawmsg
+        # Not successful; error in rawmsg.
         internal_error = True
     else:
         rawmsg = f"{datetime.now(UTC):%Y-%m-%d %H:%M:%S} CRITICAL: Failed to fetch log " \
@@ -539,7 +537,7 @@ def get_pod_log_by_name_namespace_container(name: str, namespace: str, container
     return rawmsg, internal_error
 
 
-# To make the failure case easier, return both the ref and the name of the control plane
+# To make the failure case easier, return both the ref and the name of the control plane.
 def get_control_planes() -> list[tuple[dict[str, Any], str]]:
     """
     Returns name and object for all control planes.
@@ -702,11 +700,11 @@ def generate_list_header(uip: UIProps, field_dict: dict, is_taggable: bool = Fal
                                         ThemeAttr("types", "generic")))
         first = False
 
-    # We've got to account for the last entry
+    # We've got to account for the last entry.
     if field_dict:
         tabstops.append(tabstop)
 
-    # We've processed all fields, time to output the header
+    # We've processed all fields, time to output the header.
     uip.addthemearray(uip.headerpad, headerarray, y=0, x=0)
     uip.tabstops = tabstops
 
@@ -767,36 +765,43 @@ def generate_list_row(uip: UIProps, data: dict, field_dict: dict,
         uip.addthemearray(uip.listpad, tmp, y=ypos, x=pos + tagprefixlen, deleted=is_deleted)
 
 
-# noqa: E501 pylint: disable-next=too-many-arguments,too-many-positional-arguments,too-many-locals,too-many-return-statements,too-many-branches,too-many-statements
-def input_query(uip: UIProps, queryfunc: str | None,
-                queryval: str | None, query: str | None,
-                selection_vars: dict[str, Any], confirm: bool,
-                extravars: dict[str, Any], description: str) -> bool:
+# noqa: E501 pylint: disable-next=too-many-locals,too-many-return-statements,too-many-branches,too-many-statements
+def input_query(uip: UIProps, selection_vars: dict[str, Any],
+                extravars: dict[str, Any], **kwargs: Any) -> bool:
     """
     Query the user for input.
     TODO: Add support for asking multiple queries and/or having multiple fields.
 
         Parameters:
             uip (UIProps): The UIProps for the caller
-            queryfunc (str): The query type; valid functions are:
-                             int, str (will use an inputbox)
-                             confirm (will use a boolean statement)
-                             filechooser (will use a file chooser)
-            queryval (str): The variable to query a value for
-            query (str): The query to show
             selection_vars (dict[str, Any)): A dict to store the result in
-            confirm (bool): Ask for confirmation before performing action?
             extravars (dict[str, Any]): Extra variables
-            description (str): Description of action to use in confirmation dialog
+            **kwargs (dict[str, Any]): Keyword arguments
+                queryfunc (str): The query type; valid functions are:
+                                 int (will use an inputbox)
+                                 string (will use an inputbox)
+                                 confirm (will use a boolean statement)
+                                 filechooser (will use a file chooser)
+                                "yesno" (confirm)
+                queryval (str): The variable to query a value for
+                query (str): The query to show
+                confirm (bool): Ask for confirmation before performing action?
+                description (str): Description of action to use in confirmation dialog
         Returns:
             (bool): True if valid, False if aborted or invalid
     """
+    queryfunc: str = deep_get(kwargs, DictPath("queryfunc"), "string")
+    queryval: str = deep_get(kwargs, DictPath("queryval"), "")
+    query: str = deep_get(kwargs, DictPath("queryval"), "")
+    confirm: bool = deep_get(kwargs, DictPath("confirm"), False)
+    description: str = deep_get(kwargs, DictPath("description"), "")
+
     result: str | int | None = None
 
     # pylint: disable-next=too-many-nested-blocks
     if queryfunc and queryval and query:
         if queryfunc in ("int", "string"):
-            # Not supported by inputbox widget
+            # Not supported by inputbox widget.
             # querydefault = ""
             query_title: str = f"{query}: "
             if not (result := curses_helper.inputbox(uip.stdscr, title=query_title)):
@@ -806,8 +811,7 @@ def input_query(uip: UIProps, queryfunc: str | None,
                     result = int(result)
                 except ValueError:
                     message = f"Provided value for {queryval} is not an integer"
-                    curses_helper.alert(uip.stdscr, message=message,
-                                        wait_for_keypress=True)
+                    curses_helper.alert(uip.stdscr, message=message, wait_for_keypress=True)
                     return False
             deep_set(selection_vars, DictPath(f"{queryval}"), result, create_path=True)
         elif queryfunc == "confirm":
@@ -849,13 +853,13 @@ def input_query(uip: UIProps, queryfunc: str | None,
                     curses_helper.windowwidget(uip.stdscr, uip.maxy, uip.maxx,
                                                uip.maxy // 2, uip.maxx // 2, file_list,
                                                title=query, cursor=True)
-                if tmpselection is None or tmpselection == "":
-                    # This will break out of the loop
+                if not tmpselection:
+                    # This will break out of the loop.
                     basedir = None
                     selected_file = None
                     continue
                 selected_entry = tmpselection
-                # Find entry in tmp_file_list
+                # Find entry in tmp_file_list.
                 for item in tmp_file_list:
                     realpath, filename, ptype = item
                     if filename == selected_entry:
@@ -872,12 +876,12 @@ def input_query(uip: UIProps, queryfunc: str | None,
                 uip.force_update()
                 return False
             selection_vars = extravars
-            selection_vars["resource_path"] = (selected_file, selected_ptype)
+            deep_set(selection_vars, DictPath("resource_path"),
+                     (selected_file, selected_ptype), create_path=True)
 
     if confirm:
         query_title = f"Are you sure you want to perform “{description}“?"
-        if not curses_helper.confirmationbox(uip.stdscr, title=query_title,
-                                             default=False):
+        if not curses_helper.confirmationbox(uip.stdscr, title=query_title, default=False):
             return False
 
     return True

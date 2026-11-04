@@ -19,7 +19,8 @@ from clustermanagementtoolkit.cmttypes.exceptions import ProgrammingError
 
 
 # Will take datetime and convert it to a timestamp
-def datetime_to_timestamp(timestamp: datetime) -> str:
+def datetime_to_timestamp(timestamp: datetime,
+                          localtimezone: bool = False) -> str:
     """
     Given a timestamp in datetime format, convert it to a string.
 
@@ -51,10 +52,13 @@ def datetime_to_timestamp(timestamp: datetime) -> str:
         string = ""
     elif timestamp == datetime.fromtimestamp(0).astimezone():
         # Replace epoch with an empty string
-        # with the same length as a timestamp
+        # with the same length as a timestamp.
         string = "".ljust(len(str(datetime.fromtimestamp(0).astimezone())))
     elif isinstance(timestamp, datetime):
-        string = f"{timestamp.astimezone():%Y-%m-%d %H:%M:%S}"
+        if localtimezone:
+            string = f"{timestamp.astimezone():%Y-%m-%d %H:%M:%S}"
+        else:
+            string = f"{timestamp:%Y-%m-%d %H:%M:%S}"
     else:
         string = f"{timestamp:%Y-%m-%d}"
     return string
