@@ -972,7 +972,7 @@ Faulted:
 FeatureGatesInitialized:
   field_colors:
     - context: "main"
-      type: "status_ok"
+      type: "status_done"
 FeatureGatesModified:
   field_colors:
     - context: "main"
@@ -2524,7 +2524,7 @@ SystemOOM:
 TaintManagerEviction:
   field_colors:
     - context: "main"
-      type: "status_warning"
+      type: "status_pending"
 TargetConfigDeleted:
   field_colors:
     - context: "main"
