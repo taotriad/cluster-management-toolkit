@@ -357,7 +357,7 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                     _values = get_obj_items(obj=obj, mpaths=mpaths, ipath=_path,
                                             values=_values, default=default,
                                             fallback_on_empty=fallback_on_empty,
-                                            subpaths=subpaths,
+                                            subpaths=subpaths, limit=limit,
                                             action=action, pathtype=ptype, vtype=vtype)
                 elif ptype == "count":
                     count = 0
