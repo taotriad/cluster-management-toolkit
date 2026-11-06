@@ -46,6 +46,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_pending"
+            Replacing:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
             Succeeded:
               field_colors:
                 - context: "main"
@@ -59,6 +63,10 @@ listview:
       formatting:
         mapping:
           mappings:
+            BeingReplaced:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
             Copied:
               field_colors:
                 - context: "main"
@@ -138,6 +146,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_pending"
+              Replacing:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
               Succeeded:
                 field_colors:
                   - context: "main"
@@ -151,6 +163,10 @@ infoview:
         formatting:
           mapping:
             mappings:
+              BeingReplaced:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
               Copied:
                 field_colors:
                   - context: "main"
