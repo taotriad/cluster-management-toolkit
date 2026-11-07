@@ -13,6 +13,7 @@ from typing import Any
 from clustermanagementtoolkit.cmttypes import DictPath
 from clustermanagementtoolkit.cmttypes import deep_get
 from clustermanagementtoolkit.cmttypes import deep_set
+from clustermanagementtoolkit.cmttypes import deeper_get
 
 
 def populate_template(template: dict[str, Any], injections: dict[str, Any],
@@ -39,7 +40,7 @@ def populate_template(template: dict[str, Any], injections: dict[str, Any],
         # query is reserved for variables obtained through user queries.
         source = deep_get(data, DictPath("source"), "obj")
         dst_paths = deep_get(data, DictPath("paths"), [])
-        value = deep_get(kwargs, DictPath(f"{source}#{src_path}"), None)
+        value = deeper_get(kwargs, DictPath(f"{source}#{src_path}"), None)
         for dst_path in dst_paths:
             deep_set(template, DictPath(dst_path), value, create_path=True)
     return template
