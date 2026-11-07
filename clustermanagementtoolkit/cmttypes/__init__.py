@@ -10,10 +10,11 @@ This file contains custom types used to define types used by CMT.
 
 from clustermanagementtoolkit.cmttypes.deep_get import deep_get
 from clustermanagementtoolkit.cmttypes.deep_get_list import deep_get_list
+from clustermanagementtoolkit.cmttypes.deep_get_str_tuple_paths import deep_get_str_tuple_paths
 from clustermanagementtoolkit.cmttypes.deep_get_with_fallback import deep_get_with_fallback
 from clustermanagementtoolkit.cmttypes.deep_pop import deep_pop
 from clustermanagementtoolkit.cmttypes.deep_set import deep_set
-from clustermanagementtoolkit.cmttypes.deep_get_str_tuple_paths import deep_get_str_tuple_paths
+from clustermanagementtoolkit.cmttypes.deeper_get import deeper_get
 from clustermanagementtoolkit.cmttypes.dictpath import DictPath
 from clustermanagementtoolkit.cmttypes.filepath import FilePath
 from clustermanagementtoolkit.cmttypes.get_loglevel_names import get_loglevel_names
@@ -48,6 +49,7 @@ __all__ = [
     "deep_get_with_fallback",
     "deep_pop",
     "deep_set",
+    "deeper_get",
     "get_loglevel_names",
     "loglevel_mappings",
     "loglevel_to_name",
