@@ -14,6 +14,7 @@
 Setup or teardown a Kubernetes cluster.
 """
 
+import copy
 import errno
 import grp
 import os
@@ -57,7 +58,7 @@ try:
 except ModuleNotFoundError:  # pragma: no cover
     pass
 
-# This has to be first, since it checks for the correct Python version
+# This has to be first, since it checks for the correct Python version.
 from clustermanagementtoolkit import about
 
 from clustermanagementtoolkit.ansible_helper import (
@@ -67,6 +68,8 @@ from clustermanagementtoolkit.ansible_helper import (
     ansible_get_inventory_dict,
     ansible_print_play_results,
     ansible_run_playbook_on_selection,
+    ansible_set_groupvars,
+    ansible_set_hostvars,
     ansible_set_vars,
     get_playbook_path,
     populate_playbooks_from_filenames,
@@ -431,7 +434,7 @@ def get_control_plane_version(controlplane: str, k8s_distro: str) -> str:
     version = None
 
     if k8s_distro == "rke2":
-        # This will only work for running clusters
+        # This will only work for running clusters.
         if kh is None:
             kh = kubernetes_helper.KubernetesHelper(about.PROGRAM_SUITE_NAME,
                                                     about.PROGRAM_SUITE_VERSION, None)
@@ -455,7 +458,7 @@ def get_control_plane_version(controlplane: str, k8s_distro: str) -> str:
                 version = deep_get(node, DictPath("status#nodeInfo#kubeletVersion"))
                 break
     else:
-        # For kubeadm we try to use the package version
+        # For kubeadm we try to use the package version.
         get_versions_path = get_playbook_path(FilePath("get_versions.yaml"))
         retval, ansible_results = \
             ansible_run_playbook_on_selection(get_versions_path,
@@ -509,7 +512,7 @@ def rebuild_installation_info(state: str | None = None) -> None:
     controlplane = None
     cri = "<none>"
 
-    # This will only work for running clusters
+    # This will only work for running clusters.
     if kh is None:
         kh = kubernetes_helper.KubernetesHelper(about.PROGRAM_SUITE_NAME,
                                                 about.PROGRAM_SUITE_VERSION, None)
@@ -631,7 +634,7 @@ def get_installation_info(cluster_name: str | None = None,
     """
     info = None
 
-    # We are OK with the file not existing
+    # We are OK with the file not existings.
     security_checks = [
         SecurityChecks.PARENT_RESOLVES_TO_SELF,
         SecurityChecks.OWNER_IN_ALLOWLIST,
@@ -676,7 +679,7 @@ def get_installation_info(cluster_name: str | None = None,
             "cri": "<none>",
         }
     elif info.get("installation_target") is None and cluster_name is not None:
-        # Old format file; transition it
+        # Old format file; transition it.
         tmpinfo = info.copy()
         tmpinfo.pop("cluster_name")
         info = {}
@@ -911,7 +914,7 @@ def __upgrade_cni(cni: str, upgradetype: str, context: str,
         if (re_tmp := re.match(manual_candidate_version_regex, cni_version)) is None:
             check_and_print_status(False)
         # The type ignore below is necessary because mypy doesn't recognise that
-        # check_and_print_status always aborts with sys.exit() when called with False
+        # check_and_print_status always aborts with sys.exit() when called with False.
         candidate_version = list(re_tmp.groups())  # type: ignore
     elif candidate_version_url is not None:
         ansithemeprint([ANSIThemeStr("\n• ", "separator"),
@@ -938,7 +941,7 @@ def __upgrade_cni(cni: str, upgradetype: str, context: str,
 
     # pylint: disable-next=too-many-nested-blocks
     if "urls" in deep_get(cni_data, DictPath(f"{cni}#{upgradetype}"), {}):
-        # We should probably use semver here instead
+        # We should probably use semver here instead.
         if version is not None and candidate_version is not None:
             is_new_version = None
             for v1, v2 in zip(version, candidate_version):
@@ -1030,11 +1033,11 @@ def __upgrade_cni(cni: str, upgradetype: str, context: str,
                                         ANSIThemeStr(f"{filename}", "version")])
                         if verbose:
                             # This should check whether kubectl is >= 1.22;
-                            # otherwise we need to use create
+                            # otherwise we need to use create.
                             check_and_print_status(execute_command(args))
                         else:
                             # This should check whether kubectl is >= 1.22;
-                            # otherwise we need to use create
+                            # otherwise we need to use create.
                             _result, _retval = execute_command_with_response(args)
         else:
             ansithemeprint([ANSIThemeStr("No newer version available.", "default")])
@@ -1085,7 +1088,7 @@ def setup_cni(options: list[tuple[str, str]], args: list[str]) -> None:
     """
     global kh  # pylint: disable=global-statement
 
-    # default options
+    # Default options.
     confirm: bool = True
     reinstall: bool = False
     verbose: bool = False
@@ -1244,7 +1247,7 @@ def teardown_cni(options: list[tuple[str, str]], args: list[str]) -> None:
 
     directory = DEPLOYMENTS_DIR.joinpath("cni")
 
-    # This will only work for running clusters
+    # This will only work for running clusters.
     if kh is None:
         kh = kubernetes_helper.KubernetesHelper(about.PROGRAM_SUITE_NAME,
                                                 about.PROGRAM_SUITE_VERSION, None)
@@ -1292,7 +1295,7 @@ def teardown_cni(options: list[tuple[str, str]], args: list[str]) -> None:
 
     urls = deep_get(cni_data, DictPath(f"{cni}#CNI#urls"), [])
 
-    # We need to remove the files in reverse order
+    # We need to remove the files in reverse order.
     for url in reversed(urls):
         filename = deep_get(url, DictPath("filename"), "")
         substitutions = {
@@ -1301,7 +1304,7 @@ def teardown_cni(options: list[tuple[str, str]], args: list[str]) -> None:
         if "<<<version>>>" in filename:
             filename = substitute_string(filename, substitutions)
         cni_filenames.append(filename)
-    # We might use an uninstall command rather than files
+    # We might use an uninstall command rather than files.
     uninstall_command = deep_get(cni_data, DictPath(f"{cni}#CNI#uninstall"))
 
     if not cni_filenames and uninstall_command is None:
@@ -1346,14 +1349,14 @@ def teardown_cni(options: list[tuple[str, str]], args: list[str]) -> None:
     for cni_filename in cni_filenames:
         cni_path = FilePath(directory).joinpath(cni_filename)
 
-        # OK, we have paths to the CNI files; this should be enough to remove it
+        # OK, we have paths to the CNI files; this should be enough to remove it.
         kubectl_path = secure_which(FilePath("/usr/bin/kubectl"),
                                     fallback_allowlist=["/etc/alternatives"],
                                     security_policy=SecurityPolicy.ALLOWLIST_RELAXED)
         _result, _retval = execute_command_with_response([kubectl_path, "delete", "-f", cni_path])
 
     if uninstall_command is not None:
-        # In case we have an uninstall command we run that
+        # In case we have an uninstall command we run that.
         substitutions = {
             "<<<context>>>": context_name,
         }
@@ -1557,7 +1560,7 @@ def __setup_cni(cni: str, context_name: str, cluster_name: str, **kwargs: Any) -
                                                 about.PROGRAM_SUITE_VERSION, None)
 
     # upgrade_cni doesn't take a context, so we need to set the current context before calling it,
-    # otherwise we might end up performing the changes on the wrong cluster
+    # otherwise we might end up performing the changes on the wrong cluster.
     if not kh.set_context(name=context_name, unchanged_is_success=True):
         ansithemeprint([ANSIThemeStr("Warning", "warning"),
                         ANSIThemeStr(": Failed to change to context ", "default"),
@@ -1571,7 +1574,7 @@ def __setup_cni(cni: str, context_name: str, cluster_name: str, **kwargs: Any) -
     # during installation. upgrade_cni() will assume that the cluster is functional
     # if run with a CNI, and thus tries to get all information from the cluster.
     # This will most likely fail during installation, since the cluster
-    # hasn't started fully yet and thus cannot provide the necessary information
+    # hasn't started fully yet and thus cannot provide the necessary information.
     upgrade_cni(options=[("install", ""),
                          ("--verbose", verbose),
                          ("--cni-version", cni_version),
@@ -1624,7 +1627,7 @@ def add_ssh_keys_to_authorized_keys() -> bool:
     """
     retval: bool = False
 
-    # Since we run create_ssh_key() before this task we can safely assume that .ssh/ exists
+    # Since we run create_ssh_key() before this task we can safely assume that .ssh/ exists.
     for path in Path(SSH_DIR).glob("*.pub"):
         if (tmp := secure_read_string(FilePath(path))) and not (pubkey := tmp.splitlines()[0]):
             continue
@@ -1646,7 +1649,7 @@ def add_ssh_keys_to_authorized_keys() -> bool:
         if not exists:
             secure_write_string(authorized_keys_path, f"{pubkey}\n", write_mode="a")
 
-        # We've added at least one public key
+        # We've added at least one public key.
         retval = True
 
     return retval
@@ -1707,6 +1710,9 @@ def __task_scan_and_add_ssh_keys(installation_info: dict, **kwargs: Any) -> None
     scan_and_add_ssh_keys(hosts)
 
 
+additional_ssh_keys: list[str] = []
+
+
 # pylint: disable-next=unused-argument
 def __task_add_ssh_keys_to_inventory(installation_info: dict, **kwargs: Any) -> None:
     """
@@ -1744,6 +1750,11 @@ def __task_add_ssh_keys_to_inventory(installation_info: dict, **kwargs: Any) -> 
 
         found_key = True
 
+    for pubkey in additional_ssh_keys:
+        if pubkey not in __authorized_keys:
+            __authorized_keys.append(pubkey)
+            found_key = True
+
     if not found_key:
         ansithemeprint([ANSIThemeStr("Error", "error"),
                         ANSIThemeStr(": Could not find a valid public key in ", "default"),
@@ -1774,8 +1785,8 @@ def install_ansible_posix() -> bool:
         Returns:
             (bool): True on success, False on failure
     """
-    # Old versions of ansible-galaxy does not have the list command;
-    # if it does not work we just assume that ansible.posix is missing
+    # Old versions of ansible-galaxy do not have the list command;
+    # if it does not work we just assume that ansible.posix is missing.
     args = ["/usr/bin/ansible-galaxy", "collection", "list"]
     result, _retval = execute_command_with_response(args)
 
@@ -1905,7 +1916,7 @@ def check_versions(pkg_packages: list[str], version_checks: list[tuple[str, list
         kubernetes_upstream_version = "<unknown>"
 
     # Get the API-server version (if available)
-    # This will only work for running clusters
+    # This will only work for running clusters.
     if kh is None:
         kh = kubernetes_helper.KubernetesHelper(about.PROGRAM_SUITE_NAME,
                                                 about.PROGRAM_SUITE_VERSION, None)
@@ -1925,7 +1936,7 @@ def check_versions(pkg_packages: list[str], version_checks: list[tuple[str, list
                                                     args=["version"],
                                                     version_regex=crc_version_regex)[0]
 
-    # Now check versions that need special checks
+    # Now check versions that need special checks.
     for version_check in version_checks:
         tmp_software: str = version_check[0]
         args = version_check[1]
@@ -1950,15 +1961,15 @@ def check_versions(pkg_packages: list[str], version_checks: list[tuple[str, list
         other_versions.append((tmp_software, tmp_installed_version, "", []))
 
     # Finally, display the gathered version information;
-    # find the longest string of each type
+    # find the longest string of each type.
     # Create lists of header + all values belonging to that header,
-    # and get the length of the longest element
+    # and get the length of the longest element.
     slen = len(max(["Software:"] + [tmp[0] for tmp in pkg_versions + other_versions], key=len))
     slen = max(slen, len("Kubernetes (upstream)"))
     ilen = len(max(["Installed Version:"] + [tmp[1] for tmp in pkg_versions + other_versions],
                    key=len))
 
-    # Print a header
+    # Print a header.
     ansithemeprint([ANSIThemeStr("Software:", "header"),
                     ANSIThemeStr(f"{''.ljust(slen - len('Software:') + 2)}", "default"),
                     ANSIThemeStr("Installed Version:", "header"),
@@ -2016,7 +2027,7 @@ def run_playbook(playbookpath: FilePath, hosts: list[str], **kwargs: Any) -> tup
     quiet: bool = deep_get(kwargs, DictPath("quiet"), False)
     verbose: bool = deep_get(kwargs, DictPath("verbose"), False)
 
-    # Set necessary Ansible keys before running playbooks
+    # Set necessary Ansible keys before running playbooks.
     http_proxy = deep_get(cmtlib.cmtconfig, DictPath("Network#http_proxy"), "")
     https_proxy = deep_get(cmtlib.cmtconfig, DictPath("Network#https_proxy"), "")
     no_proxy = deep_get(cmtlib.cmtconfig, DictPath("Network#no_proxy"), "")
@@ -2075,7 +2086,7 @@ def run_playbooks(playbooks: list[tuple[list[ANSIThemeStr], FilePath]],
         retval, _ansible_results = \
             run_playbook(playbookpath, hosts=hosts, extra_values=extra_values, verbose=verbose)
 
-        # We do not want to continue executing playbooks if the first one failed
+        # We do not want to continue executing playbooks if the first one failed.
         if retval != 0:
             break
 
@@ -2097,9 +2108,9 @@ def __playbook_paths_from_path(playbook_path: FilePath) -> list[FilePath]:
 
     playbook_paths = []
 
-    # Populate list of playbooks
+    # Populate list of playbooks.
     # Note: cannot use glob, since glob neither supports
-    # "{pattern1,pattern2} nor ("pattern1", "pattern2)
+    # "{pattern1,pattern2} nor ("pattern1", "pattern2").
     for path in Path(playbook_path).iterdir():
         # Do not process backups, etc.
         if path.name.startswith(("~", ".")):
@@ -2111,7 +2122,7 @@ def __playbook_paths_from_path(playbook_path: FilePath) -> list[FilePath]:
     return playbook_paths
 
 
-# Add all playbooks in the directory
+# Add all playbooks in the directory.
 def populate_playbooks_from_dir(path: FilePath) -> list[tuple[list[ANSIThemeStr], FilePath]]:
     """
     Populate a playbook list from path.
@@ -2135,7 +2146,7 @@ def __task_request_ansible_password(installation_info: dict, **kwargs: Any) -> N
             installation_info (dict): A dict with installation information [unused]
             **kwargs (dict[str, Any]): Keyword arguments [unused]
     """
-    # Check whether ansible_password is defined or not
+    # Check whether ansible_password is defined or not.
     if AnsibleConfiguration.ansible_password is None and not no_password:
         ansithemeprint([ANSIThemeStr("Attention", "warning"),
                         ANSIThemeStr(": To be able to run playbooks you need to provide the "
@@ -2233,7 +2244,7 @@ def __task_run_prepreparation_playbooks(installation_info: dict, **kwargs: Any) 
             **kwargs (dict[str, Any]): Keyword arguments
     """
     # The default selection is control planes;
-    # the playbooks need to explicitly specify if the play should be run on other hosts
+    # the playbooks need to explicitly specify if the play should be run on other hosts.
     selection = __selection_control_planes()
     try:
         __generic_task_run_playbooks_on_selection(selection=selection,
@@ -2709,6 +2720,7 @@ def __task_adjust_kubeconfig_server_address(installation_info: dict, **kwargs: A
                         ANSIThemeStr("is invalid; aborting.", "default")], stderr=True)
         sys.exit(errno.EINVAL)
 
+    # pylint: disable-next=too-many-nested-blocks
     for i, cluster in enumerate(deep_get(d, DictPath("clusters"), [])):
         if deep_get(cluster, DictPath("name"), "") == cluster_name:
             # Is this cluster a localhost?
@@ -2737,21 +2749,35 @@ def __task_adjust_kubeconfig_server_address(installation_info: dict, **kwargs: A
 
                 obj = kh.get_ref_by_kind_name_namespace(("Node", ""), control_plane_name, "")
                 if obj is None:
-                    ansithemeprint([ANSIThemeStr("Error", "error"),
+                    ansithemeprint([ANSIThemeStr("Warning", "warning"),
                                     ANSIThemeStr(": Could not find control plane ", "default"),
                                     ANSIThemeStr(f"{control_plane_name}", "hostname"),
-                                    ANSIThemeStr("; aborting.", "default")], stderr=True)
-                    sys.exit(errno.ENOENT)
-                addresses = deep_get(obj, DictPath("status#addresses"), [])
-                internal_ip = None
-                for address in addresses:
-                    address_type = deep_get(address, DictPath("type"), "")
-                    if address_type == "InternalIP":
-                        internal_ip = deep_get(address, DictPath("address"), "")
-                        break
-                if internal_ip is not None and internal_ip and internal_ip != server_address:
+                                    ANSIThemeStr(";", "default")], stderr=True)
+                    ansithemeprint([ANSIThemeStr("attempting to use control plane IP-address "
+                                                 "used during installation.",
+                                                 "default")], stderr=True)
+
+                    internal_ip = socket.gethostbyname(control_plane_name)
+                else:
+                    addresses = deep_get(obj, DictPath("status#addresses"), [])
+                    internal_ip = None
+                    for address in addresses:
+                        address_type = deep_get(address, DictPath("type"), "")
+                        if address_type == "InternalIP":
+                            internal_ip = deep_get(address, DictPath("address"), "")
+                            break
+
+                if internal_ip and internal_ip != server_address:
                     d["clusters"][i]["cluster"]["server"] = \
                         f"{prefix}{internal_ip}{server_port_and_path}"
+                    break
+
+                ansithemeprint([ANSIThemeStr("Error", "error"),
+                                ANSIThemeStr(": Could not adjust IP-address for ",
+                                             "default"),
+                                ANSIThemeStr(f"{control_plane_name}", "hostname"),
+                                ANSIThemeStr("; aborting.", "default")], stderr=True)
+                sys.exit(errno.ENOENT)
 
     secure_write_yaml(KUBE_CONFIG_FILE, d, permissions=0o600, sort_keys=False)
 
@@ -3584,7 +3610,8 @@ def prepare_installation(options: list[tuple[str, Any]], args: list[str]) -> Non
     phase_skiplist = set(installation_info[cluster_name]["phase_skiplist"])
     verbose = False
     hide_next_step = False
-    nodes: list[str] = []
+    control_planes: list[str] | list[dict[str, str]] = []
+    nodes: list[str] | list[dict[str, str]] = []
 
     if state is not None and state not in ("<none>", "preparing", "prepared", "torn_down"):
         ansithemeprint([ANSIThemeStr("Error", "error"),
@@ -3609,8 +3636,9 @@ def prepare_installation(options: list[tuple[str, Any]], args: list[str]) -> Non
                                  state="preparing", phase=phase)
 
     controlplanes_ = get_control_planes(fail_on_empty=False)
-    controlplanes = [controlplane[0] for controlplane in controlplanes_]
-    if not controlplanes and "--control-plane" not in [tmp[0] for tmp in options]:
+    control_plane_list: list[str] = [controlplane[0] for controlplane in controlplanes_]
+
+    if not control_plane_list and "--control-plane" not in [tmp[0] for tmp in options]:
         input_retval = \
             ansithemeinput([ANSIThemeStr("\nWarning", "warning"),
                             ANSIThemeStr(": No control plane defined in the inventory; "
@@ -3632,10 +3660,7 @@ def prepare_installation(options: list[tuple[str, Any]], args: list[str]) -> Non
 
     for opt, optarg in options:
         if opt == "--control-plane":
-            ansible_add_hosts(inventory=ANSIBLE_INVENTORY, hosts=[optarg],
-                              group="controlplane", skip_all=False)
-            ansible_add_hosts(inventory=ANSIBLE_INVENTORY, hosts=[optarg],
-                              group=cluster_name, skip_all=True)
+            control_planes = optarg
         elif opt == "--no-password":
             no_password = True
         elif opt == "--start-at-task":
@@ -3669,9 +3694,41 @@ def prepare_installation(options: list[tuple[str, Any]], args: list[str]) -> Non
         elif opt == "-Y":
             confirm = False
 
+    if not control_plane_list:
+        # Get a list of all control planes in the cluster.
+        for control_plane in control_planes:
+            if isinstance(control_plane, dict):
+                control_plane = deep_get(control_plane, DictPath("name"))
+            control_plane_list.append(control_plane)
+
+    node_list: list[str] = []
+
+    # Get a list of all nodes in the cluster.
+    for node in nodes:
+        if isinstance(node, dict):
+            node = deep_get(node, DictPath("name"))
+        node_list.append(node)
+
+    ansible_add_hosts(inventory=ANSIBLE_INVENTORY, hosts=control_plane_list,
+                      group="controlplane", skip_all=False)
+    ansible_add_hosts(inventory=ANSIBLE_INVENTORY, hosts=control_plane_list,
+                      group=cluster_name, skip_all=True)
+
+    # If the control planes have ansible_vars specified we add them.
+    if control_planes and isinstance(control_planes[0], dict):
+        for control_plane in control_planes:
+            control_plane_name = deep_get(control_plane, DictPath("name"))
+            if not (ansible_vars := deep_get(control_plane, DictPath("ansibleVars"))):
+                continue
+            hostvars = []
+            for key, value in ansible_vars.items():
+                hostvars.append((key, value))
+            ansible_set_hostvars(inventory=ANSIBLE_INVENTORY, hosts=[control_plane_name],
+                                 hostvars=hostvars)
+
     installation_info = \
         update_installation_info(cluster_name=cluster_name,
-                                 control_planes=controlplanes, nodes=nodes)
+                                 control_planes=control_plane_list, nodes=nodes)
 
     if len(args) > 1:
         requested_version = args[1]
@@ -4431,8 +4488,8 @@ def add_nodes(options: list[tuple[str, Any]], args: list[Any]) -> None:
 
     configuration_path = merge_configurations(configuration_paths)
 
-    nodes: list[str] = args[0]
-    groups = args[1]
+    nodes: list[str] | list[dict[str, str]] = args[0]
+    groups: list[str] | dict[str, str] = args[1]
 
     control_plane_version = get_control_plane_version(control_planes[0], k8s_distro)
 
@@ -4448,8 +4505,37 @@ def add_nodes(options: list[tuple[str, Any]], args: list[Any]) -> None:
                                      "default")], stderr=True)
         sys.exit(errno.ENOENT)
 
-    # Add all nodes to the inventory
-    ansible_add_hosts(inventory=ANSIBLE_INVENTORY, hosts=nodes, skip_all=False)
+    # Create a group-list.
+    node_list = []
+
+    # Add all nodes to the inventory.
+    if nodes and isinstance(nodes[0], dict):
+        for node in nodes:
+            node_list.append(deep_get(node, DictPath("name")))
+    else:
+        node_list = copy.deepcopy(nodes)
+    ansible_add_hosts(inventory=ANSIBLE_INVENTORY, hosts=node_list, skip_all=False)
+
+    # If the nodes have ansible_vars specified we add them.
+    if isinstance(nodes, dict):
+        for node in nodes:
+            node_name = deep_get(node, DictPath("name"))
+            if not (ansible_vars := deep_get(node, DictPath("ansibleVars"))):
+                continue
+            hostvars = []
+            for key, value in ansible_vars.items():
+                hostvars.append((key, value))
+            ansible_set_hostvars(inventory=ANSIBLE_INVENTORY, hosts=[node_name],
+                                 hostvars=hostvars)
+
+    # Create a group-list.
+    group_list = []
+
+    if isinstance(groups, dict):
+        for group in groups:
+            group_list.append(deep_get(group, DictPath("name")))
+    else:
+        group_list = copy.deepcopy(groups)
 
     crio_major_version = None
     crio_minor_version = None
@@ -4537,7 +4623,7 @@ def add_nodes(options: list[tuple[str, Any]], args: list[Any]) -> None:
 
     playbooks = populate_playbooks_from_filenames(add_playbooks)
 
-    retval = run_playbooks(playbooks=playbooks, hosts=nodes,
+    retval = run_playbooks(playbooks=playbooks, hosts=node_list,
                            extra_values=extra_values, verbose=verbose)
     if retval:
         ansithemeprint([ANSIThemeStr("OK", "ok")])
@@ -4546,8 +4632,19 @@ def add_nodes(options: list[tuple[str, Any]], args: list[Any]) -> None:
                         ANSIThemeStr("; aborting.", "default")], stderr=True)
         sys.exit(errno.EINVAL)
 
-    for group in ["nodes"] + groups + [cluster_name]:
-        ansible_add_hosts(inventory=ANSIBLE_INVENTORY, hosts=nodes, group=group, skip_all=True)
+    for group in ["nodes"] + group_list + [cluster_name]:
+        ansible_add_hosts(inventory=ANSIBLE_INVENTORY, hosts=node_list, group=group, skip_all=True)
+
+    if isinstance(groups, dict):
+        for group in groups:
+            group_name = deep_get(group, DictPath("name"))
+            if not (ansible_vars := deep_get(group, DictPath("ansibleVars"))):
+                continue
+            groupvars = []
+            for key, value in ansible_vars:
+                groupvars.append((key, value))
+            ansible_set_groupvars(inventory=ANSIBLE_INVENTORY, groups=[group_name],
+                                  groupvars=groupvars)
 
 
 def set_context(cluster_name: str, context_name: str) -> None:
@@ -4584,6 +4681,7 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
             options (list[(opt, optarg)]): Options to use when executing this action
             args (list[str]): Arguments to use when executing this action
     """
+    global additional_ssh_keys  # pylint: disable=global-statement
     global kh  # pylint: disable=global-statement
     global no_password  # pylint: disable=global-statement
 
@@ -4626,11 +4724,13 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
                         ANSIThemeStr(f"{cluster_deployment_file}", "path"),
                         ANSIThemeStr(" does not exist; aborting.", "default")], stderr=True)
         sys.exit(errno.ENOENT)
-    elif not os.path.isfile(cluster_deployment_file):
+    elif not (os.path.isfile(cluster_deployment_file)
+              or os.path.isdir(cluster_deployment_file) and cluster_deployment_file.endswith(".d")):
         ansithemeprint([ANSIThemeStr("Error", "error"),
                         ANSIThemeStr(": ", "default"),
                         ANSIThemeStr(f"{cluster_deployment_file}", "path"),
-                        ANSIThemeStr(" is not a file; aborting.", "default")], stderr=True)
+                        ANSIThemeStr(" is not a file or configdir; aborting.", "default")],
+                       stderr=True)
         sys.exit(errno.ENOENT)
 
     security_checks = [
@@ -4640,14 +4740,25 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
         SecurityChecks.PARENT_PERMISSIONS,
         SecurityChecks.IS_FILE,
     ]
-    try:
-        cd = secure_read_yaml(cluster_deployment_file, checks=security_checks)
-    except (ruyaml.constructor.DuplicateKeyError, ruyaml.parser.ParserError):
-        ansithemeprint([ANSIThemeStr("Error", "error"),
-                        ANSIThemeStr(": ", "default"),
-                        ANSIThemeStr(f"{cluster_deployment_file}", "path"),
-                        ANSIThemeStr(" is not valid YAML; aborting.", "default")], stderr=True)
-        sys.exit(errno.ENOENT)
+    if os.path.isfile(cluster_deployment_file):
+        try:
+            cd = secure_read_yaml(cluster_deployment_file, checks=security_checks)
+        except (ruyaml.constructor.DuplicateKeyError, ruyaml.parser.ParserError):
+            ansithemeprint([ANSIThemeStr("Error", "error"),
+                            ANSIThemeStr(": ", "default"),
+                            ANSIThemeStr(f"{cluster_deployment_file}", "path"),
+                            ANSIThemeStr(" is not valid YAML; aborting.", "default")], stderr=True)
+            sys.exit(errno.ENOENT)
+    else:
+        try:
+            cd = cmtlib.read_configdir(Path(cluster_deployment_file))
+        except (ruyaml.constructor.DuplicateKeyError, ruyaml.parser.ParserError):
+            ansithemeprint([ANSIThemeStr("Error", "error"),
+                            ANSIThemeStr(": ", "default"),
+                            ANSIThemeStr("one of the configlets in ", "default"),
+                            ANSIThemeStr(f"{cluster_deployment_file}", "path"),
+                            ANSIThemeStr(" is not valid YAML; aborting.", "default")], stderr=True)
+            sys.exit(errno.ENOENT)
 
     cd_kind = deep_get(cd, DictPath("kind"), "")
     cd_api_version = deep_get(cd, DictPath("apiVersion"), "")
@@ -4662,7 +4773,8 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
                         ANSIThemeStr(" configuration; aborting.", "default")], stderr=True)
         sys.exit(errno.EINVAL)
 
-    if cd_api_version not in ("v1alpha1", "v1alpha2", "v1alpha3", "v1alpha4", "v1alpha5"):
+    if cd_api_version not in ("v1alpha1", "v1alpha2", "v1alpha3", "v1alpha4", "v1alpha5",
+                              "v1alpha6"):
         ansithemeprint([ANSIThemeStr("Error", "error"),
                         ANSIThemeStr(": ", "default"),
                         ANSIThemeStr("The apiVersion ", "default"),
@@ -4672,7 +4784,9 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
                         ANSIThemeStr(" is not supported; aborting.", "default")], stderr=True)
         sys.exit(errno.EINVAL)
 
-    # Fetch all configuration options
+    # Fetch all configuration options.
+    ssh_keys = deep_get(cd, DictPath("sshkeys"), [])
+    additional_ssh_keys += ssh_keys
     k8s_distro = deep_get(cd, DictPath("options#distro"), "kubeadm")
     requested_version = deep_get(cd, DictPath("options#version"), "latest")
     verbose = deep_get(cd, DictPath("options#verbose"), False)
@@ -4690,7 +4804,7 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
     suffix_admin = deep_get(cd, DictPath("options#suffixAdmin"), True)
 
     control_planes = deep_get(cd, DictPath("cluster#controlPlanes"))
-    if control_planes is None or not control_planes:
+    if not control_planes:
         ansithemeprint([ANSIThemeStr("Error", "error"),
                         ANSIThemeStr(": ", "default"),
                         ANSIThemeStr("The configuration in ", "default"),
@@ -4705,7 +4819,7 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
         cri_version = None
 
     cluster_name = deep_get(cd, DictPath("cluster#clusterName"))
-    if cluster_name is None or not cluster_name:
+    if not cluster_name:
         ansithemeprint([ANSIThemeStr("Error", "error"),
                         ANSIThemeStr(": ", "default"),
                         ANSIThemeStr("The configuration in ", "default"),
@@ -4714,7 +4828,7 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
                        stderr=True)
         sys.exit(errno.EINVAL)
 
-    # Create the admin name and context name
+    # Create the admin name and context name.
     if suffix_admin:
         admin_name: str = f"kubernetes-admin+{cluster_name}"
     else:
@@ -4753,14 +4867,27 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
                                  HOMEDIR.joinpath("templates", "config",
                                                   "kube_proxy_configuration.yaml.j2"))
 
-    nodes: list[str] = []
+    node_list: list[str] = []
+    control_plane_list: list[str] = []
 
-    # Get a list of all nodes in the cluster
+    # Get a list of all control planes in the cluster.
+    for control_plane in control_planes:
+        if isinstance(control_plane, dict):
+            control_plane = deep_get(control_plane, DictPath("name"))
+        control_plane_list.append(control_plane)
+
+    nodes: list[str] | list[dict[str, str]] = []
+
+    # Get a list of all nodes in the cluster.
     for data in deep_get(cd, DictPath("nodes#groups"), {}).values():
-        nodes += deep_get(data, DictPath("nodes"), [])
+        nodes.append(data)
+        for node in data:
+            if isinstance(node, dict):
+                node = deep_get(node, DictPath("name"))
+            node_list.append(node)
 
     prepare_options = [
-        ("--control-plane", control_planes[0]),
+        ("--control-plane", control_planes),
         ("--hide-next-step", None),
         ("--nodes", nodes),
     ]
@@ -7597,7 +7724,7 @@ COMMANDLINE: dict[str, CommandType] = {
                 "string": [
                     ANSIThemeStr("PATH", "argument")],
                 "validation": {
-                    "validator": "path",
+                    "validator": "path_file_or_dir",
                 },
             },
         ],
@@ -8430,16 +8557,16 @@ def main() -> None:
     """
     Main function for the program.
     """
-    # Before doing anything else, make sure that the user is not running as root
+    # Before doing anything else, make sure that the user is not running as root.
     if os.geteuid() == 0:
         sys.exit("CRITICAL: This program should not be run as the root user; aborting.")
 
-    # Now check if all necessary paths exist
+    # Now check if all necessary paths exist.
     if (violations := cmtio.setup_paths()) != [SecurityStatus.OK]:
         violations_joined = cmtio.join_securitystatus_set(",", set(violations))
         sys.exit(f"Failed to create necessary directories; violated rules: {violations_joined}")
 
-    # Then initialise the configuration file
+    # Then initialise the configuration file.
     cmtlib.cmtconfig = cmtlib.read_cmtconfig()
 
     command, options, args = \
@@ -8455,7 +8582,7 @@ def main() -> None:
                                              quiet_on_ok=True, user=getuser())
         checks.check_netrc_permissions(verbose=False, exit_on_error=True, quiet_on_ok=True)
 
-    # Used by the ansible module
+    # Used by the ansible module.
     AnsibleConfiguration.ansible_forks = \
         deep_get(cmtlib.cmtconfig, DictPath("Ansible#forks"), 10)
     ansible_user = deep_get(cmtlib.cmtconfig, DictPath("Ansible#ansible_user"))

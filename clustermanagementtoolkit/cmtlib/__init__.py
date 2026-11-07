@@ -37,6 +37,7 @@ from clustermanagementtoolkit.cmtlib.normalise_mem_bytes_to_str import normalise
 from clustermanagementtoolkit.cmtlib.normalise_mem_to_bytes import normalise_mem_to_bytes
 from clustermanagementtoolkit.cmtlib.populate_template import populate_template
 from clustermanagementtoolkit.cmtlib.read_cmtconfig import read_cmtconfig
+from clustermanagementtoolkit.cmtlib.read_configdir import read_configdir
 from clustermanagementtoolkit.cmtlib.reformat_timestamp import reformat_timestamp
 from clustermanagementtoolkit.cmtlib.replace_newlines import replace_newlines
 from clustermanagementtoolkit.cmtlib.replace_quotes import replace_quotes
@@ -81,6 +82,7 @@ __all__ = [
     "normalise_mem_to_bytes",
     "populate_template",
     "read_cmtconfig",
+    "read_configdir",
     "reformat_timestamp",
     "replace_newlines",
     "replace_quotes",

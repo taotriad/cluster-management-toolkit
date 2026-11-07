@@ -67,7 +67,13 @@ N/A
 
 ## Deprecations in v0.8.11
 
-* The `kiosk.sh` Kubernetes API was deprecated in CMT v0.8.8, and will be removed in v0.9.0.
+* The `kiosk.sh` Kubernetes API was deprecated in CMT v0.8.8, and will be removed in _v0.9.0_.
+* _cmtadm_ `ClusterDeployment` template API-versions v1alpha1 through v1alpha4 were
+  deprecated in CMT v0.8.11 and will be removed in _v0.9.0_.
+* _cmtadm_ `ClusterDeployment` template API-version v1alpha5 was
+  deprecated in CMT v0.8.11 and will be removed in _v0.9.2_.
+* The _cmtadm_ `prepare` and `setup-control-plane` commands were
+  deprecated in CMT v0.8.11 and will be removed in _v1.0.0_.
 
 ## Changes by Component in v0.8.11
 
@@ -79,6 +85,16 @@ N/A
 
 * Add support for expansion of `~/` to `cmtadm create-cluster`.
 * The sudo-path used by new versions of Ubuntu is now supported.
+* When using the v1alpha6 template for creating clusters _cmtadm_ can now
+  set Ansible variables for the control planes, groups, and hosts.
+* When using the v1alpha6 template for creating clusters _cmtadm_ can now
+  add public ssh-keys that are not taken from .ssh.
+* The template-file can now optionally be specified using configlet-directory
+  instead of a monolithic configuration file.
+* The code for replacing localhost with the IP-address of the API-server
+  has been adjusted; previously it would only work when run locally;
+  now it will hopefully also work remotely, as long as the IP-address
+  used for installation is the same as the address used by the API-server.
 
 ### Changes to _cmtinv_ in v0.8.11
 
@@ -113,14 +129,19 @@ No known regressions, but the large amount of refactoring may have introduced is
 
 ## Known Issues in v0.8.11
 
-* The Markdown formatter doesn't handle brackets in mentions, such as `@dependabot[bot]`; this is an upstream
-  issue in Pygments and has been reported as [Pygments Issue #3252](https://github.com/pygments/pygments/issues/3252).
+* The Markdown formatter doesn't handle brackets in mentions, such as `@dependabot[bot]`;
+  this is an upstream issue in Pygments and has been reported as
+  [Pygments Issue #3252](https://github.com/pygments/pygments/issues/3252).
 * Due to the way `cmu` works the file-viewer needs a backing listview,
   so `Debug Logs` was picked for the purpose (since it's always available
   even when the cluster is unavailable (or `--disable-kubernetes` is used).
 * Nested lists and lists with checkboxes in Markdown have some formatting issues.
 * When changing views or reloading data the screen still looks a bit buggy;
   this is a long-standing issue, and is purely cosmetic.
+* Updating the version cache is very slow, since it serialises the requests;
+  this is by design, to avoid getting rate-limited by GitHub, but when
+  having a token for GitHub in .netrc it would probably make sense to use parallel
+  requests instead.
 
 ## Dependencies for v0.8.11
 

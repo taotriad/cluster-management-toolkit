@@ -112,10 +112,8 @@
 ## cmtadm
 
 * [ ] v0.9.x:
-  * [ ] Add support for installing the ssh-keys from the template instead of the current method.
-  * [ ] Make it possible to read the rest of the template from separate files too
-        (drop-in directory for workloads, for instance).
-  * [ ] Add ansible_user for control planes and nodes.
+  * [ ] Add an option to uninstall/install when upgrading/reinstalling workloads,
+        since some workloads don't like to be replaced.
   * [ ] Catch incorrect Ansible inventory and output an error message instead
         of throwing an exception.
   * [ ] prepare_passwordless_ansible won't work on localhost; we're not passing the password,

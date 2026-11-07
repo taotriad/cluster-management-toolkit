@@ -1,10 +1,12 @@
 ---
-apiVersion: "v1alpha5"
+apiVersion: "v1alpha6"
 kind: "ClusterDeployment"
 
 # yamllint disable rule:comments-indentation
 
-# Note: templated installs are only supported for kubeadm and rke2 at the moment
+# Note: templated installs are only supported for kubeadm
+# and rke2 at the moment.
+#
 # This configuration uses:
 #   ClusterConfiguration kubeadm.k8s.io/v1beta4 [Kubernetes 1.31+]
 #   InitConfiguration kubeadm.k8s.io/v1beta4 [Kubernetes 1.31+]
@@ -41,7 +43,7 @@ options:
   # cilium
   # flannel
   # kube-router
-  # weave [no longer maintained upstream; not recommended on production systems]
+  # weave [no longer maintained upstream; NOT recommended on production systems]
   # none [no cni will be installed]
   # [optional; default: cilium]
   # cni: "cilium"
@@ -78,13 +80,24 @@ options:
   # [optional; default: true]
   # suffixAdmin: true
 
-# Cluster-wide configuration and configuration for the control plane(s)
+# Public SSH-keys to add to the control plane(s) and worker node(s).
+sshkeys:
+  # A list of SSH-keys.
+  # - ssh-ed25519 ...
+  # - ecdsa-sha2-nistp521 ...
+
+# Cluster-wide configuration and configuration for the control plane(s).
 cluster:
   # Control plane(s) for the cluster:
-  # Note: Currently only one control plane is supported
+  # Note: Currently only one control plane is supported.
   # [mandatory]
   controlPlanes:
-    - "mycontrolplane"
+    - name: "mycontrolplane"
+      # A dict of Ansible variables for the control-plane.
+      # This can, for instance, be used to set
+      # ansible_user, ansible_pass, etc.
+      # these override the global Ansible variables.
+      # ansibleVars:
 
   # CRI to use for the control plane(s); valid options:
   # containerd
@@ -115,75 +128,75 @@ cluster:
   #
   # Note: you can add any valid cluster configuration here; the configuration
   # here is just the equivalent of the default configuration used by
-  # cmtadm/cmt, as well as the extra options provided by cmtadm
+  # cmtadm/cmt, as well as the extra options provided by cmtadm.
   configurationTemplates:
     rke2Configuration:
       # Embedded cluster configuration template:
       data: |
         cni:
           - none
-        # This will be auto-populated from the cluster settings
+        # This will be auto-populated from the cluster settings.
         cluster-cidr: "{{ pod_network_cidr }}"
 
-        # This will be auto-populated from the cluster settings
+        # This will be auto-populated from the cluster settings.
         container-runtime-endpoint: "{{ cri_socket }}"
 
         # disable is a comma-separated list of built-in features to disable;
         # unless you want to use rke2-canal as your CNI you should keep it here
-        # if you make changes
+        # if you make changes.
         # [optional; default: "rke2-canal"]
         # disable: "rke2-canal"
 
         # disable-cloud-controller: true
         #kube-apiserver-arg:
-        # feature-gates is a comma-separated string
+        # feature-gates is a comma-separated string.
         # To Enable Dynamic Resource Allocations use the following:
         # Note: also requires alpha APIs and the matching feature gates
         # to be enabled for controllerManager, kubeProxy and scheduler in
         # cluster_configuration, kube_proxy_configuration, and
-        # kubelet_configuration
+        # kubelet_configuration.
         # [optional; default: null]
         #   - feature-gates=DynamicResourceAllocation=true
         # runtime-config is a comma-separated string;
         # [optional; default: null]
         #   - runtime-config=api/alpha=true
         #kube-controller-manager-arg:
-        # feature-gates is a comma-separated string
+        # feature-gates is a comma-separated string.
         # To Enable Dynamic Resource Allocations use the following:
         # Note: also requires alpha APIs and the matching feature gates
         # to be enabled for apiServer and scheduler in cluster_configuration,
-        # as well as in kube_proxy_configuration, and kubelet_configuration
+        # as well as in kube_proxy_configuration, and kubelet_configuration.
         # [optional; default: null]
         #   - feature-gates=DynamicResourceAllocation=true
         kubelet-arg:
-        # feature-gates is a comma-separated string
+        # feature-gates is a comma-separated string.
         # To Enable Dynamic Resource Allocations use the following:
         # Note: also requires alpha APIs and the matching feature gates
         # to be enabled for apiServer and scheduler in cluster_configuration,
-        # as well as in kube_proxy_configuration, and kubelet_configuration
+        # as well as in kube_proxy_configuration, and kubelet_configuration.
         # [optional; default: null]
         #   - feature-gates=DynamicResourceAllocation=true
         # The cgroup driver to use
           - cgroup-driver=systemd
         #kube-proxy-arg:
-        # feature-gates is a comma-separated string
+        # feature-gates is a comma-separated string.
         # To Enable Dynamic Resource Allocations use the following:
         # Note: also requires alpha APIs and the matching feature gates
         # to be enabled for apiServer and scheduler in cluster_configuration,
-        # as well as in kube_proxy_configuration, and kubelet_configuration
+        # as well as in kube_proxy_configuration, and kubelet_configuration.
         # [optional; default: ""]
         #   - feature-gates=DynamicResourceAllocation=true
         #kube-scheduler-arg:
-        # feature-gates is a comma-separated string
+        # feature-gates is a comma-separated string.
         # To Enable Dynamic Resource Allocations use the following:
         # Note: also requires alpha APIs and the matching feature gates
         # to be enabled for apiServer and scheduler in cluster_configuration,
-        # as well as in kube_proxy_configuration, and kubelet_configuration
+        # as well as in kube_proxy_configuration, and kubelet_configuration.
         # [optional; default: ""]
         #   - feature-gates=DynamicResourceAllocation=true
 
-      # Path to cluster configuration template, relative to the playbook
-      # directory:
+      # Path to cluster configuration template,
+      # relative to the playbook directory:
       # path: "templates/config/rke2_configuration.yaml.j2"
     clusterConfiguration:
       # Embedded cluster configuration template:
@@ -192,30 +205,30 @@ cluster:
         kind: ClusterConfiguration
         apiServer:
           extraArgs:
-            # feature-gates is a comma-separated string
+            # feature-gates is a comma-separated string.
             # - name: "feature-gates"
             #   value: "GangScheduling=true"
-            # runtime-config is a comma-separated string
+            # runtime-config is a comma-separated string.
             # - name: runtime-config
             #   value: "api/alpha=true"
-        # This will be auto-populated from the cluster settings
+        # This will be auto-populated from the cluster settings.
         clusterName: "{{ cluster_name }}"
         controllerManager:
           extraArgs:
-            # feature-gates is a comma-separated string
+            # feature-gates is a comma-separated string.
             # - name: "feature-gates"
             #   value: "GangScheduling=true"
         networking:
-          # This will be auto-populated from the cluster settings
+          # This will be auto-populated from the cluster settings.
           podSubnet: "{{ pod_network_cidr }}"
         scheduler:
           extraArgs:
-            # feature-gates is a comma-separated string
+            # feature-gates is a comma-separated string.
             # - name: "feature-gates"
             #   value: "GangScheduling=true"
 
-      # Path to cluster configuration template, relative to the playbook
-      # directory:
+      # Path to cluster configuration template,
+      # relative to the playbook directory:
       # path: "templates/config/cluster_configuration.yaml.j2"
 
     initConfiguration:
@@ -224,12 +237,12 @@ cluster:
         apiVersion: "{{ init_configuration_api_version }}"
         kind: InitConfiguration
         nodeRegistration:
-          # This will be auto-populated from the cluster settings
+          # This will be auto-populated from the cluster settings.
           criSocket: "{{ cri_socket }}"
-          # Use this to add labels to the control planes
+          # Use this to add labels to the control planes.
           # kubeletExtraArgs:
           #   node-labels: "foo=bar"
-          # This will be auto-populated
+          # This will be auto-populated.
         {% if taint_control_plane %}
           taints:
             - key: node-role.kubernetes.io/control-plane
@@ -238,8 +251,8 @@ cluster:
           taints: []
         {% endif %}
 
-      # Path to cluster configuration template, relative to the playbook
-      # directory:
+      # Path to cluster configuration template,
+      # relative to the playbook directory:
       # path: "templates/config/init_configuration.yaml.j2"
 
     kubeletConfiguration:
@@ -249,11 +262,11 @@ cluster:
         kind: KubeletConfiguration
         featureGates:
           # GangScheduling: true
-        # This will be auto-populated from the cluster settings
+        # This will be auto-populated from the cluster settings.
         containerRuntimeEndpoint: "{{ cri_socket }}"
 
-      # Path to cluster configuration template, relative to the playbook
-      # directory:
+      # Path to cluster configuration template,
+      # relative to the playbook directory:
       # path: "templates/config/kubelet_configuration.yaml.j2"
 
     kubeProxyConfiguration:
@@ -264,13 +277,13 @@ cluster:
         featureGates:
           # GangScheduling: true
 
-      # Path to cluster configuration template, relative to the playbook
-      # directory:
+      # Path to cluster configuration template,
+      # relative to the playbook directory:
       # path: "templates/config/kube_proxy_configuration.yaml.j2"
 
-# Configuration for nodes
+# Configuration for nodes.
 nodes:
-  # Global node options
+  # Global node options.
   options:
     # CRI to use for the nodes; valid options:
     # containerd
@@ -312,35 +325,35 @@ nodes:
       rke2Configuration:
         # Embedded cluster configuration template:
         data: |
-          # This will be auto-populated from the cluster settings
+          # This will be auto-populated from the cluster settings.
           server: "https://{{ control_plane_ip }}:9345"
-          # This will be auto-populated from the cluster settings
+          # This will be auto-populated from the cluster settings.
           container-runtime-endpoint: "{{ cri_socket }}"
-          # This will be auto-populated from the newly generated cluster
+          # This will be auto-populated from the newly generated cluster.
           token: "{{ node_token }}"
-          # Arguments to pass to kubelet
+          # Arguments to pass to kubelet.
           kubelet-arg:
-          # feature-gates is a comma-separated string
+          # feature-gates is a comma-separated string.
           # To Enable Dynamic Resource Allocations use the following:
           # Note: also requires alpha APIs and the matching feature gates
           # to be enabled for apiServer and scheduler in cluster_configuration,
-          # as well as in kube_proxy_configuration, and kubelet_configuration
+          # as well as in kube_proxy_configuration, and kubelet_configuration.
           # [optional; default: ""]
           #   - feature-gates=DynamicResourceAllocation=true
-          # The cgroup driver to use
+          # The cgroup driver to use.
             - cgroup-driver=systemd
-          # Arguments to pass to kube-proxy
+          # Arguments to pass to kube-proxy.
           #kube-proxy-arg:
-          # feature-gates is a comma-separated string
+          # feature-gates is a comma-separated string.
           # To Enable Dynamic Resource Allocations use the following:
           # Note: also requires alpha APIs and the matching feature gates
           # to be enabled for apiServer and scheduler in cluster_configuration,
-          # as well as in kube_proxy_configuration, and kubelet_configuration
+          # as well as in kube_proxy_configuration, and kubelet_configuration.
           # [optional; default: ""]
           #   - feature-gates=DynamicResourceAllocation=true
 
-        # Path to node configuration template, relative to the playbook
-        # directory:
+        # Path to node configuration template,
+        # relative to the playbook directory:
         # path: "templates/config/rke2_agent_configuration.yaml.j2"
 
       joinConfiguration:
@@ -350,14 +363,14 @@ nodes:
           apiVersion: "{{ join_configuration_api_version }}"
           kind: JoinConfiguration
           nodeRegistration:
-            # This will be auto-populated from the node settings; only change
-            # if you know what you're doing
+            # This will be auto-populated from the node settings;
+            # only change if you know what you're doing.
             criSocket: "{{ cri_socket }}"
-            # Use this to add labels to the nodes
+            # Use this to add labels to the nodes.
             # kubeletExtraArgs:
             #   node-labels: "foo=bar"
-            # A list of taints; an empty list means no taints
-            # This will be auto-populated; add extra taints below if wanted
+            # A list of taints; an empty list means no taints.
+            # This will be auto-populated; add extra taints below if wanted.
           {% if cordon_nodes_on_join %}
             taints:
               - key: node.kubernetes.io/unschedulable
@@ -367,33 +380,45 @@ nodes:
           {% endif %}
           discovery:
             bootstrapToken:
-              # This will be auto-populated; only change if you know what
-              # you're doing
+              # This will be auto-populated;
+              # only change if you know what you're doing.
               token: "{{ join_token }}"
               caCertHashes:
-              # This will be auto-populated; only change if you know what
-              # you're doing
+              # This will be auto-populated;
+              # only change if you know what you're doing.
               - "sha256:{{ ca_cert_hash }}"
-              # This will be auto-populated; only change if you know what
-              # you're doing
+              # This will be auto-populated;
+              # only change if you know what you're doing.
               apiServerEndpoint: "{{ control_plane_ip }}:{{ control_plane_port }}{{ control_plane_path }}"
         # yamllint enable rule:line-length
 
-        # Path to node configuration template, relative to the playbook
-        # directory:
+        # Path to node configuration template,
+        # relative to the playbook directory:
         # path: "templates/config/join_configuration.yaml.j2"
 
   # Every group of nodes has their own group name;
   # they will be added to that group in the ansible inventory
-  # (as well as the nodes group and the group for the cluster);
+  # as well as the nodes group and the group for the cluster.
   # Currently different Ansible groups are *not* processed in parallel.
   groups:
     # <group name1>:
-    #   # A list of all nodes that belong to this group; leave empty
-    #   # if only configuring a control plane at this time,
-    #   # or using virtualised nodes.
+    #   # A dict of Ansible variables for the node group.
+    #   # This can, for instance, be used to set
+    #   # ansible_user, ansible_pass, etc.
+    #   # These override the global Ansible variables.
+    #   # ansibleVars:
+    #
+    #   # A list of all nodes that belong to this group;
+    #   # leave empty if only configuring a control plane at this time,
+    #   # or if using virtualised nodes.
     #   nodes:
-    #     - "<node 1>"
+    #     - name: "<node 1>"
+    #   # A dict of Ansible variables for the node.
+    #   # This can, for instance, be used to set
+    #   # ansible_user, ansible_pass, etc.
+    #   # These override the global Ansible variables
+    #   # and the Ansible variables for the node-group.
+    #   # ansibleVars:
     #
     #   # Set this to true if the nodes are virtualised;
     #   # if so the "nodes" should be empty or unset.
@@ -405,17 +430,17 @@ nodes:
     #   # [mandatory if virtualised nodes are used]
     #   # vmHost: "vmhost"
     #
-    #   # Virtualised nodes names are templated;
+    #   # Virtualised node names are templated;
     #   # item.0 is the high-byte of the range, item.1 is the low-byte.
     #   # [optional; default: "vmnode-<<<item.0>>>-<<<item.1>>>"]
     #   # vmNameTemplate: "vmnode-<<<item.0>>>-<<<item.1>>>"
     #
-    #   # Virtualised nodes IP-addresses are templated;
+    #   # Virtualised node IP-addresses are templated;
     #   # item.0 is the high-byte of the range, item.1 is the low-byte.
     #   # [optional; default: "192.168.<<<item.0>>>.<<<item.1>>>"]
     #   ipTemplate: "192.168.<<<item.0>>>.<<<item.1>>>"
     #
-    #   # Virtualised nodes MAC-addresses are templated;
+    #   # Virtualised node MAC-addresses are templated;
     #   # item.0 is the high-byte of the range, item.1 is the low-byte.
     #   # (Note: for MAC-addresses the low- and high-byte are converted to hex).
     #   # [optional; default: "52:54:00:42:<<<item.0>>>:<<<item.1>>>"]
@@ -465,7 +490,7 @@ nodes:
     #   # [optional; default: "template"]
     #   # vmTemplateImageName: "template"
 
-    #   # Group specific options
+    #   # Node group specific options.
     #   options:
     #     # CRI to use for the nodes in this group; valid options:
     #     # containerd
@@ -509,35 +534,35 @@ nodes:
     #       rke2Configuration:
     #         # Embedded cluster configuration template:
     #         data: |
-    #           # This will be auto-populated from the cluster settings
+    #           # This will be auto-populated from the cluster settings.
     #           server: "https://{{ control_plane_ip }}:9345"
-    #           # This will be auto-populated from the cluster settings
+    #           # This will be auto-populated from the cluster settings.
     #           container-runtime-endpoint: "{{ cri_socket }}"
-    #           # This will be auto-populated from the newly generated cluster
+    #           # This will be auto-populated from the newly generated cluster.
     #           token: "{{ node_token }}"
     #           kubelet-arg:
-    #           # feature-gates is a comma-separated string
+    #           # feature-gates is a comma-separated string.
     #           # To Enable Dynamic Resource Allocations use the following:
     #           # Note: also requires alpha APIs and the matching feature gates
     #           # to be enabled for apiServer and scheduler in
     #           # cluster_configuration, as well as in
-    #           kube_proxy_configuration, and kubelet_configuration
+    #           kube_proxy_configuration, and kubelet_configuration.
     #           # [optional; default: ""]
     #           # - feature-gates=DynamicResourceAllocation=true
-    #           # The cgroup driver to use
+    #           # The cgroup driver to use.
     #           - cgroup-driver=systemd
     #           kube-proxy-arg:
-    #           # feature-gates is a comma-separated string
+    #           # feature-gates is a comma-separated string.
     #           # To Enable Dynamic Resource Allocations use the following:
     #           # Note: also requires alpha APIs and the matching feature gates
     #           # to be enabled for apiServer and scheduler in
     #           # cluster_configuration, as well as in
-    #           # kube_proxy_configuration, and kubelet_configuration
+    #           # kube_proxy_configuration, and kubelet_configuration.
     #           # [optional; default: ""]
     #           # - feature-gates=DynamicResourceAllocation=true
 
-    #         # Path to node configuration template, relative to the playbook
-    #         # directory:
+    #         # Path to node configuration template,
+    #         # relative to the playbook directory:
     #         # path: "templates/config/rke2_agent_configuration.yaml.j2"
 
     #       joinConfiguration:
@@ -548,14 +573,14 @@ nodes:
     #           kind: JoinConfiguration
     #           nodeRegistration:
     #             # This will be auto-populated from the node group settings;
-    #             # only change if you know what you're doing
+    #             # only change if you know what you're doing.
     #             criSocket: "{{ cri_socket }}"
-    #             # Use this to add labels to the nodes
+    #             # Use this to add labels to the nodes.
     #             # kubeletExtraArgs:
     #             #   node-labels: "foo=bar"
-    #             # A list of taints; an empty list means no taints
+    #             # A list of taints; an empty list means no taints.
     #             # This will be auto-populated from the node group settings;
-    #             # add extra taints below if wanted
+    #             # add extra taints below if wanted.
     #           {% if cordon_nodes_on_join %}
     #             taints:
     #             - key: node.kubernetes.io/unschedulable
@@ -565,30 +590,30 @@ nodes:
     #           {% endif %}
     #           discovery:
     #             bootstrapToken:
-    #               # This will be auto-populated; only change if you know what
-    #               # you're doing
+    #               # This will be auto-populated;
+    #               # only change if you know what you're doing.
     #               token: "{{ join_token }}"
     #               caCertHashes:
-    #               # This will be auto-populated; only change if you know what
-    #               # you're doing
+    #               # This will be auto-populated;
+    #               # only change if you know what you're doing.
     #               - "sha256:{{ ca_cert_hash }}"
-    #               # This will be auto-populated; only change if you know what
-    #               # you're doing
+    #               # This will be auto-populated;
+    #               # only change if you know what you're doing.
     #               apiServerEndpoint: "{{ control_plane_ip }}:{{ control_plane_port }}{{ control_plane_path }}"
               # yamllint enable rule:line-length
 
-    #         # Path to node configuration template, relative to the playbook
-    #         # directory:
+    #         # Path to node configuration template,
+    #         # relative to the playbook directory:
     #         # path: "templates/config/join_configuration.yaml.j2"
 workloads:
-  # The name of the workload
+  # The name of the workload.
   # [mandatory]
   - name: "node-feature-discovery"
-    # Workloads can be disabled by setting skip to true
+    # Workloads can be disabled by setting skip to true.
     # [optional; default: false]
     skip: false
     # A more elaborate description of the workload;
-    # only displayed when verbose is set
+    # only displayed when verbose is set.
     # [optional; default: ""]
     description: |
       node-feature-discovery helps detect hardware features and system
@@ -598,12 +623,12 @@ workloads:
     # abort [abort installation on errors]
     # [optional; default: ignore]
     errorPolicy: "ignore"
-    # The deployments that this workload consists of
+    # The deployments that this workload consists of.
     # [mandatory]
     deployments:
       # Each deployment can be deployed either using kubectl or helm;
       # repositories can be checked out using git.
-      # Hence kubectl, helm, and git are valid targets
+      # Hence kubectl, helm, and git are valid targets.
       - kubectl:
           # The deployment method; valid options:
           # apply [apply --server-side]
@@ -621,14 +646,14 @@ workloads:
           # [optional; default: ""]
           version: "v0.20.1"
           # The URI[s] to the data;
-          # this field can be either a string (a single URI) or a list
-          # (a single or multiple URIs)
-          # All URIs need to be prefixed with their type
+          # this field can be either be a string (a single URI) or a list
+          # (a single or multiple URIs).
+          # All URIs need to be prefixed with their type.
           # Valid prefixes:
           # http:// [highly discouraged due to security reasons]
           # https://
           # file://
-          # {HOME} is substituted for the path to the home directory of the user
+          # {HOME} is substituted for the path to the user's home directory.
           # [mandatory]
           # yamllint disable-line rule:line-length
           uri: "https://github.com/kubernetes-sigs/node-feature-discovery/deployment/overlays/default?ref=<<<version>>>"
@@ -645,19 +670,19 @@ workloads:
           # yamllint disable-line rule:line-length
           uri: "https://github.com/cert-manager/cert-manager/releases/download/<<<version>>>/cert-manager.crds.yaml"
       - helm:
-          # The name of the helm repo to add
+          # The name of the helm repo to add.
           repoName: "jetstack"
-          # The URL to the helm repo
+          # The URL to the helm repo.
           repoURL: "https://charts.jetstack.io"
-          # The namespace to use
+          # The namespace to use.
           namespace: "cert-manager"
-          # The name of the component to install
+          # The name of the component to install.
           name: "cert-manager"
-          # The name of the chart to install
+          # The name of the chart to install.
           chart: "jetstack/cert-manager"
           # Create the namespace if it doesn't exist?
           createNamespace: true
-          # The version to install
+          # The version to install.
           version: "v1.21.3"
           # Extra arguments to pass to helm.
           # To allow logical grouping of options each option is its own list;
@@ -673,23 +698,23 @@ workloads:
       across a Kubernetes cluster.
     deployments:
       - helm:
-          # The name of the helm repo to add
+          # The name of the helm repo to add.
           repoName: "jetstack"
-          # The URL to the helm repo
+          # The URL to the helm repo.
           repoURL: "https://charts.jetstack.io"
-          # The namespace to use
+          # The namespace to use.
           namespace: "cert-manager"
-          # The name of the component to install
+          # The name of the component to install.
           name: "trust-manager"
-          # The name of the chart to install
+          # The name of the chart to install.
           chart: "jetstack/trust-manager"
           # Create the namespace if it doesn't exist?
           createNamespace: true
-          # The version to install
+          # The version to install.
           version: "v0.26.0"
   - name: "intel-resource-drivers-for-kubernetes"
     # If you enable this you need to enable DRA support too and use
-    # Kubernetes 1.31 or newer
+    # Kubernetes 1.31 or newer.
     skip: true
     description: |
       Intel GPU resource driver is a better alternative for Intel GPU device
@@ -697,22 +722,22 @@ workloads:
       Kubernetes cluster worker nodes.
     deployments:
       - git:
-          # The repository to clone (if not already available locally)
+          # The repository to clone (if not already available locally).
           # [optional; the program will exit if no local checkout exists]
           # yamllint disable-line rule:line-length
           repo: "https://github.com/intel/intel-resource-drivers-for-kubernetes.git"
-          # The directory to store the repository in
+          # The directory to store the repository in.
           # [mandatory]
           destination: "{HOME}/git/intel-resource-drivers-for-kubernetes"
           # Should git fetch be called each time the ClusterDeployment is
-          # applied
+          # applied?
           # [optional; default: false]
           fetch: true
       - kubectl:
           method: "apply"
           type: "file"
-          # Multiple applies can be defined at once as long as they are the same
-          # type
+          # Multiple applies can be defined at once
+          # as long as they are the same type.
           uri:
             - "file://{HOME}/git/intel-resource-drivers-for-kubernetes/deployments/gpu/static/crds/"
             - "file://{HOME}/git/intel-resource-drivers-for-kubernetes/deployments/gpu/resource-class.yaml"
