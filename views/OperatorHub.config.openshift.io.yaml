@@ -33,3 +33,36 @@ infoview:
         headers: ["Name:", "Status:", "Disabled:"]
         # Not supported for now
         sortcolumn: "status"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "status#sources"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["name", "disabled", "status"]
+        sortcolumn: "status"
+    fields:
+      disabled:
+        header: "Disabled:"
+        path: "disabled"
+        default: "<unset>"
+        type: "str"
+      name:
+        header: "Name:"
+        path: "name"
+        default: "<unset>"
+        type: "str"
+      status:
+        header: "Status:"
+        path: "status"
+        default: "<unset>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              Success:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
