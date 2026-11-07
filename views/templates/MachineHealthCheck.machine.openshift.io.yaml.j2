@@ -10,12 +10,14 @@ listview:
   group: "OpenShift"
   field_indexes:
     Wide:
-      fields: ["namespace", "name", "controller", "max_unhealthy",
-               "expected_machines", "current_healthy", "age"]
+      fields: ["namespace", "name", "controller",
+               "paused",
+               "max_unhealthy", "expected_machines", "current_healthy", "age"]
       sortcolumn: "namespace"
     Normal:
-      fields: ["namespace", "name", "max_unhealthy",
-               "expected_machines", "current_healthy", "age"]
+      fields: ["namespace", "name",
+               "paused",
+               "max_unhealthy", "expected_machines", "current_healthy", "age"]
       sortcolumn: "namespace"
   fields:
     {%- for line in field_controller.split("\n") %}
@@ -41,6 +43,54 @@ listview:
       type: "raw"
       formatter: "numerical"
       align: "right"
+    paused:
+      header: "Paused:"
+      paths:
+        - path: "metadata#annotations"
+          pathtype: "substitution"
+          when:
+            - key: "cluster.x-k8s.io/paused"
+              notnone: true
+          else: "Running"
+          substitute: "Paused"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "Running":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "Paused":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+  actions:
+    actionlist:
+      "Pause Healthchecks":
+        description: "Pause Healthchecks"
+        category: "Resource Level"
+        actionfunc: "patch_resource"
+        extravars:
+          action_str: "Pausing Healthchecks"
+          args:
+            patch:
+              metadata:
+                annotations:
+                  cluster.x-k8s.io/paused: ""
+            strategic_merge: false
+      "Resume Healthchecks":
+        description: "Resume Healthchecks"
+        category: "Resource Level"
+        actionfunc: "patch_resource"
+        extravars:
+          action_str: "Resume Healthchecks"
+          args:
+            patch:
+              metadata:
+                annotations:
+                  cluster.x-k8s.io/paused: null
+            strategic_merge: false
 infoview:
   name: "Machine Health Check Info"
   infopad:
@@ -49,7 +99,7 @@ infoview:
         fields: ["controller", "selector",
                  "max_unhealthy", "expected_machines",
                  "current_healthy", "remediations_allowed",
-                 "node_startup_timeout"]
+                 "node_startup_timeout", "paused"]
     rows:
       {%- for line in row_controller.split("\n") %}
       {{ line }}
@@ -79,6 +129,28 @@ infoview:
         path: "spec#nodeStartupTimeout"
         type: "raw"
         formatter: "numerical"
+      paused:
+        header: [["Paused:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#annotations"
+            pathtype: "substitution"
+            when:
+              - key: "cluster.x-k8s.io/paused"
+                notnone: true
+            else: "Running"
+            substitute: "Paused"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "Running":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "Paused":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
       remediations_allowed:
         header: [["Remediations Allowed:", ["main", "infoheader"]]]
         path: "status#remediationsAllowed"
