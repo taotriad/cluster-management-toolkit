@@ -6709,6 +6709,54 @@ def listviewdispatch(**kwargs: Any) -> Retval:
 
 
 # pylint: disable-next=too-many-locals
+def patch_objects(**kwargs: Any) -> Retval:
+    """
+    Patch Kubernetes objects.
+
+        Parameters:
+            **kwargs (dict[str, Any]): Keyword arguments
+        Returns:
+            (Retval): The return value
+    """
+    actionfunc_args: dict[str, Any] = deep_get(kwargs, DictPath("action#actionfunc_args"), {})
+
+    if "resources" in kwargs:
+        resources = deep_get(kwargs, DictPath("resources"), [])
+    else:
+        resources = deep_get(actionfunc_args, DictPath("resources"), [])
+    # If we're not using the object as a source we still need to pass something to the loop
+    # to ensure that it doesn't terminate without doing anything.
+    items: list[dict[str, Any] | None] = [None]
+    if "values" in kwargs:
+        items = deep_get(kwargs, DictPath("values#_tagged_items"), items)
+    elif "obj" in kwargs:
+        items = [{"ref": deep_get(kwargs, DictPath("obj"), {})}]
+
+    # We might want to perform this on multiple objects.
+    for item in items:
+        for resource in resources:
+            obj = deep_get(item, DictPath("ref"), {})
+            kind: str = deep_get(obj, DictPath("kind"))
+            api_version: str = deep_get(obj, DictPath("apiVersion")).split("/")[0]
+            name: str = deep_get(obj, DictPath("metadata#name"))
+            namespace: str = deep_get(obj, DictPath("metadata#namespace"))
+            injections: dict[str, dict[str, str | list[str]]] = \
+                deep_get(resource, DictPath("injections"), {})
+            # We want a pristine copy for every new item.
+            template: dict[str, Any] = \
+                copy.deepcopy(deep_get(resource, DictPath("template"), {}))
+            patch = populate_template(template, injections, obj=obj)
+            subresource: str = deep_get(resource, DictPath("subresource"), "")
+            strategic_merge: bool = deep_get(resource, DictPath("strategic_merge"), False)
+            # We've got a patch now; patch the object.
+            _message, _status = \
+                kh.patch_obj_by_kind_name_namespace((kind, api_version), name, namespace, patch,
+                                                    subresource=subresource,
+                                                    strategic_merge=strategic_merge)
+    return Retval.RETURNDONE
+
+
+# pylint: disable-next=too-many-locals
 def patch_object(**kwargs: Any) -> Retval:
     """
     Patch an object.
@@ -7640,7 +7688,7 @@ def create_objects(**kwargs: Any) -> Retval:
 
     query = deep_get(kwargs, DictPath("action#extravars"), {})
 
-    # We might want to perform this on multiple objects
+    # We might want to perform this on multiple objects.
     for item in items:
         for resource in resources:
             obj = deep_get(item, DictPath("ref"), {})
@@ -7686,7 +7734,7 @@ def delete_resource(**kwargs: Any) -> Retval:
             namespace = ""
             name = item
 
-        # Should we delete the controller too? If so we first need to lookup the object
+        # Should we delete the controller too? If so we first need to lookup the object.
         if delete_owner:
             obj = kh.get_ref_by_kind_name_namespace(kind, name, namespace)
             owner_reference: list[dict[str, Any]] = \
@@ -7708,7 +7756,7 @@ def delete_resource(**kwargs: Any) -> Retval:
 
         message, status = kh.delete_obj_by_kind_name_namespace(kind, name, namespace, force=force)
         if status != 200:
-            # Status messages can be very verbose; delete everything from URL and on
+            # Status messages can be very verbose; delete everything from URL and on.
             match_tmp = re.match(r"^(.+?), URL:.*", message)
             if match_tmp is not None:
                 message = match_tmp[1]
@@ -7716,7 +7764,7 @@ def delete_resource(**kwargs: Any) -> Retval:
             success = False
             break
 
-    # We successfully deleted everything
+    # We successfully deleted everything.
     if success:
         win = curses_helper.notice(stdscr,
                                    message="Successfully deleted all specified resources")
@@ -9583,6 +9631,7 @@ action_call_allowlist: dict[str, Callable] = {
     "export_data": export_data,
     "listviewdispatch": listviewdispatch,
     "patch_object": patch_object,
+    "patch_objects": patch_objects,
     "resourceinfodispatch_from_pod_resource_list": resourceinfodispatch_from_pod_resource_list,
     "resourceinfodispatch_with_lookup": resourceinfodispatch_with_lookup,
     "resourceinfodispatch_from_selection": resourceinfodispatch_from_selection,
@@ -9606,6 +9655,7 @@ actionfunc_allowlist: dict[str, Callable] = {
     "delete_logs": delete_logs,
     "delete_resource": delete_resource,
     "drain_node": drain_node,
+    "patch_objects": patch_objects,
     "patch_resource": patch_resource,
     "rescale_resource": rescale_resource,
     "restart_resource_rescale": restart_resource_rescale,
