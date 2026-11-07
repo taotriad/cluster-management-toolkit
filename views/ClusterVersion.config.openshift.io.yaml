@@ -100,6 +100,30 @@ listview:
               eq: "Completed"
       type: "raw"
       formatter: "version"
+  actions:
+    actionlist:
+      "Upgrade Cluster":
+        description: "Upgrade Cluster"
+        category: "Cluster Level"
+        confirm: true
+        actionfunc: "patch_objects"
+        actionfunc_args:
+          resources:
+            - injections:
+                "status#availableUpdates#0#version":
+                  "source": "obj"
+                  "paths": [
+                    "spec#desiredUpdate#version"
+                  ]
+                "status#availableUpdates#0#image":
+                  "source": "obj"
+                  "paths": [
+                    "spec#desiredUpdate#image"
+                  ]
+              template:
+                spec:
+                  desiredUpdate: {}
+              strategic_merge: false
 infoview:
   name: "Cluster Version Info"
   infopad:
