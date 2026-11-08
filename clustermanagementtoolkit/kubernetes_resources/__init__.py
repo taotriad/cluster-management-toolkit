@@ -259,6 +259,15 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/fileintegrity.openshift.io/v1alpha1/"],
         "api": "fileintegritynodestatuses",
     },
+    # filerestore.kubevirt.io
+    ("FileRestoreOperator", "filerestore.kubevirt.io"): {
+        "api_paths": ["apis/filerestore.kubevirt.io/v1alpha1/"],
+        "api": "filerestoreoperators",
+    },
+    ("VirtualMachineFileRestore", "filerestore.kubevirt.io"): {
+        "api_paths": ["apis/filerestore.kubevirt.io/v1alpha1/"],
+        "api": "virtualmachinefilerestores",
+    },
     # flowcontrol.apiserver.k8s.io
     ("FlowSchema", "flowcontrol.apiserver.k8s.io"): {
         "api_paths": ["apis/flowcontrol.apiserver.k8s.io/v1/",
