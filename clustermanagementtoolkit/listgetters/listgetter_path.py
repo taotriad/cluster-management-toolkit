@@ -10,7 +10,7 @@ Return data from a path or list of paths.
 
 import copy
 from itertools import zip_longest
-from typing import Any, cast
+from typing import Any, cast, Literal
 
 from clustermanagementtoolkit.cmttypes import DictPath
 from clustermanagementtoolkit.cmttypes import deep_get
@@ -47,12 +47,11 @@ def listgetter_path(obj: dict, **kwargs: Any) -> tuple[dict | list[dict], int]:
     paths: list[str] = deep_get(kwargs, DictPath("paths"))
     multipath: str = deep_get(kwargs, DictPath("multipath"))
     join_key: str = deep_get(kwargs, DictPath("join_key"))
-    # "standard", "reverse", ""
-    enumeration: str = deep_get(kwargs, DictPath("enumeration"), "")
+    enumeration: Literal["standard", "reverse", ""] = deep_get(kwargs, DictPath("enumeration"), "")
     hierarchical: bool = deep_get(kwargs, DictPath("hierarchical"), False)
 
-    # A multipath is a path to a dict that in turn contains lists, where you'd want the name
-    # of the path containing the lists as a newly created key
+    # A multipath is a path to a dict that in turn contains lists,
+    # where you'd want the name of the path containing the lists as a newly created key.
     if multipath:
         for d in deep_get(kwargs, DictPath("subpaths"), []):
             path = deep_get(d, DictPath("path"))
@@ -99,7 +98,7 @@ def listgetter_path(obj: dict, **kwargs: Any) -> tuple[dict | list[dict], int]:
             for tmp in vlists:
                 vlist += tmp
         else:
-            # XXX: What was intended here? join_key isn't used
+            # XXX: What was intended here? join_key isn't used.
             for tmp in vlists:
                 vlist = [{**u, **v} for u, v in cast(dict, zip_longest(vlist, tmp, fillvalue={}))]
         return vlist, 200
@@ -108,7 +107,7 @@ def listgetter_path(obj: dict, **kwargs: Any) -> tuple[dict | list[dict], int]:
     subpath = deep_get(kwargs, DictPath("subpath"))
     path_fields = deep_get(kwargs, DictPath("path_fields"))
 
-    # As a special case passing the empty string as path will return the object instead of a list
+    # As a special case passing the empty string as path will return the object instead of a list.
     if not path:
         return obj, 200
 
@@ -148,7 +147,7 @@ def listgetter_path(obj: dict, **kwargs: Any) -> tuple[dict | list[dict], int]:
                         deep_set(item, DictPath("_extra_data#enumeration"), i,
                                  create_path=True)
                     elif enumeration == "reverse":
-                        deep_set(item, DictPath("_extra_data#enumeration"), len(tmp2) - i,
+                        deep_set(item, DictPath("_extra_data#enumeration"), len(tmp2) - i - 1,
                                  create_path=True)
                     hierarchy_prefix: str = ""
                     if hierarchical and i > 0:

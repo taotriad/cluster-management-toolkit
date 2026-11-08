@@ -27,6 +27,7 @@ from clustermanagementtoolkit.listgetters.listgetter_join_dicts_to_list import l
 from clustermanagementtoolkit.listgetters.listgetter_join_lists import listgetter_join_lists
 from clustermanagementtoolkit.listgetters.listgetter_matchrules import listgetter_matchrules
 from clustermanagementtoolkit.listgetters.listgetter_noop import listgetter_noop
+from clustermanagementtoolkit.listgetters.listgetter_path import listgetter_path
 from clustermanagementtoolkit.listgetters.listgetter_policy_rules import listgetter_policy_rules
 from clustermanagementtoolkit.listgetters.split_matchlist import split_matchlist
 # pylint: enable=line-too-long
@@ -50,6 +51,7 @@ __all__ = [
     "listgetter_join_lists",
     "listgetter_matchrules",
     "listgetter_noop",
+    "listgetter_path",
     "listgetter_policy_rules",
     "split_matchlist",
 ]
