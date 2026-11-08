@@ -63,17 +63,25 @@ tests have been added for the moved code.
     * [x] Distribute as:
         * [x] Source code.
 
-## Q4 roadmap
+## Q4.1 roadmap
 
 * _General_:
+    * [ ] Release __CMT__ v0.8.10.
+    * [x] tests: Achieve 55% test coverage for `clustermanagementtoolkit/*.py`.
+    * [x] views: Templetise as much as possible, both to decrease future workloads,
+          but also to standardise look and feel.
+    * [ ] Distribute as:
+        * [ ] Source code.
+
+## Q4.2 roadmap
+
+* _General_:
+    * [ ] Release __CMT__ v0.9.0.
     * [ ] Refactor libraries in a way that makes a __CMT__ release possible. This includes:
         * [ ] Rewrite all logging to use Python's builtin logging and register a MemoryHandler;
           this way we get flushing whenever the severity is high enough.
     * [ ] Turn all non-fatal errors into log messages.
     * [ ] Go through all input helpers, formatters, etc., to see which, if any, we can merge.
-    * [ ] tests: Achieve 55% test coverage for `*.py`.
-    * [ ] views: Templetise as much as possible, both to decrease future workloads,
-          but also to standardise look and feel.
     * [ ] Distribute as:
         * [ ] Source code.
         * [ ] Debian package.
