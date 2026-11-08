@@ -3110,6 +3110,529 @@ def test_listgetter_feature_gates(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
+def test_listgetter_path(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = listgetters.listgetter_path
+
+    if result:
+        # Indata format:
+        # (obj, pv_type, expected_result, expected_exception)
+        testdata: tuple = (
+            (
+                {
+                    "subjects": [
+                        {
+                            "kind": "ServiceAccount",
+                            "name": "pipeline",
+                            "namespace": "assisted-installer"
+                        },
+                        {
+                            "kind": "ServiceAccount",
+                            "name": "pipeline",
+                            "namespace": "default"
+                        },
+                        {
+                            "kind": "ServiceAccount",
+                            "name": "pipeline",
+                            "namespace": "dynatrace"
+                        },
+                        {
+                            "kind": "ServiceAccount",
+                            "name": "pipeline",
+                            "namespace": "korrel8r"
+                        },
+                        {
+                            "kind": "ServiceAccount",
+                            "name": "pipeline",
+                            "namespace": "nvidia-gpu-operator"
+                        },
+                        {
+                            "kind": "ServiceAccount",
+                            "name": "pipeline",
+                            "namespace": "openshift"
+                        },
+                        {
+                            "kind": "ServiceAccount",
+                            "name": "pipeline",
+                            "namespace": "tempo-operator-system"
+                        },
+                    ],
+                },
+                {
+                    "path": "subjects",
+                },
+                (
+                    [
+                        {
+                            "kind": "ServiceAccount",
+                            "name": "pipeline",
+                            "namespace": "assisted-installer"
+                        },
+                        {
+                            "kind": "ServiceAccount",
+                            "name": "pipeline",
+                            "namespace": "default"
+                        },
+                        {
+                            "kind": "ServiceAccount",
+                            "name": "pipeline",
+                            "namespace": "dynatrace",
+                        },
+                        {
+                            "kind": "ServiceAccount",
+                            "name": "pipeline",
+                            "namespace": "korrel8r",
+                        },
+                        {
+                            "kind": "ServiceAccount",
+                            "name": "pipeline",
+                            "namespace": "nvidia-gpu-operator",
+                        },
+                        {
+                            "kind": "ServiceAccount",
+                            "name": "pipeline",
+                            "namespace": "openshift",
+                        },
+                        {
+                            "kind": "ServiceAccount",
+                            "name": "pipeline",
+                            "namespace": "tempo-operator-system",
+                        },
+                    ],
+                    200),
+                None,
+            ),
+            (
+                # path is not set.
+                {
+                    "subjects": [
+                        {
+                            "kind": "ServiceAccount",
+                            "name": "pipeline",
+                            "namespace": "assisted-installer"
+                        },
+                        {
+                            "kind": "ServiceAccount",
+                            "name": "pipeline",
+                            "namespace": "default"
+                        },
+                        {
+                            "kind": "ServiceAccount",
+                            "name": "pipeline",
+                            "namespace": "dynatrace"
+                        },
+                        {
+                            "kind": "ServiceAccount",
+                            "name": "pipeline",
+                            "namespace": "korrel8r"
+                        },
+                        {
+                            "kind": "ServiceAccount",
+                            "name": "pipeline",
+                            "namespace": "nvidia-gpu-operator"
+                        },
+                        {
+                            "kind": "ServiceAccount",
+                            "name": "pipeline",
+                            "namespace": "openshift"
+                        },
+                        {
+                            "kind": "ServiceAccount",
+                            "name": "pipeline",
+                            "namespace": "tempo-operator-system"
+                        },
+                    ],
+                },
+                {},
+                (
+                    {
+                        "subjects": [
+                            {
+                                "kind": "ServiceAccount",
+                                "name": "pipeline",
+                                "namespace": "assisted-installer"
+                            },
+                            {
+                                "kind": "ServiceAccount",
+                                "name": "pipeline",
+                                "namespace": "default"
+                            },
+                            {
+                                "kind": "ServiceAccount",
+                                "name": "pipeline",
+                                "namespace": "dynatrace"
+                            },
+                            {
+                                "kind": "ServiceAccount",
+                                "name": "pipeline",
+                                "namespace": "korrel8r"
+                            },
+                            {
+                                "kind": "ServiceAccount",
+                                "name": "pipeline",
+                                "namespace": "nvidia-gpu-operator"
+                            },
+                            {
+                                "kind": "ServiceAccount",
+                                "name": "pipeline",
+                                "namespace": "openshift"
+                            },
+                            {
+                                "kind": "ServiceAccount",
+                                "name": "pipeline",
+                                "namespace": "tempo-operator-system"
+                            },
+                        ],
+                    },
+                    200),
+                None,
+            ),
+            (
+                {
+                    "subjects": [
+                        {
+                            "kind": "ServiceAccount",
+                            "name": "pipeline",
+                            "namespace": "assisted-installer"
+                        },
+                        {
+                            "kind": "ServiceAccount",
+                            "name": "pipeline",
+                            "namespace": "default"
+                        },
+                    ],
+                },
+                {
+                    "path": "subjects",
+                    "flatten_dicts": True,
+                },
+                (
+                    [
+                        {
+                            "key": "namespace",
+                            "value": "assisted-installer"
+                        },
+                        {
+                            "key": "namespace",
+                            "value": "assisted-installer"
+                        },
+                        {
+                            "key": "namespace",
+                            "value": "assisted-installer"
+                        },
+                        {
+                            "key": "namespace",
+                            "value": "default"
+                        },
+                        {
+                            "key": "namespace",
+                            "value": "default"
+                        },
+                        {
+                            "key": "namespace",
+                            "value": "default"
+                        }
+                    ],
+                    200),
+                None,
+            ),
+            (
+                {
+                    "list": [1, 2, 3],
+                },
+                {
+                    "path": "list",
+                    "rename_bare": "number",
+                },
+                (
+                    [
+                        {
+                            "number": 1,
+                            "uuid": 0,
+                        },
+                        {
+                            "number": 2,
+                            "uuid": 1,
+                        },
+                        {
+                            "number": 3,
+                            "uuid": 2,
+                        },
+                    ],
+                    200),
+                None,
+            ),
+            (
+                {
+                    "subjects": [
+                        {
+                            "kind": "ServiceAccount",
+                            "name": "pipeline",
+                            "namespace": "assisted-installer"
+                        },
+                        {
+                            "kind": "ServiceAccount",
+                            "name": "pipeline",
+                            "namespace": "default"
+                        },
+                    ],
+                },
+                {
+                    "path": "subjects",
+                    "enumeration": "standard",
+                },
+                (
+                    [
+                        {
+                            "kind": "ServiceAccount",
+                            "name": "pipeline",
+                            "namespace": "assisted-installer",
+                            "_extra_data": {
+                                "enumeration": 0,
+                                "prefix": ""
+                            }
+                        },
+                        {
+                            "kind": "ServiceAccount",
+                            "name": "pipeline",
+                            "namespace": "default",
+                            "_extra_data": {
+                                "enumeration": 1,
+                                "prefix": ""
+                            }
+                        }
+                    ],
+                    200),
+                None,
+            ),
+            (
+                {
+                    "subjects": [
+                        {
+                            "kind": "ServiceAccount",
+                            "name": "pipeline",
+                            "namespace": "assisted-installer"
+                        },
+                        {
+                            "kind": "ServiceAccount",
+                            "name": "pipeline",
+                            "namespace": "default"
+                        },
+                    ],
+                },
+                {
+                    "path": "subjects",
+                    "enumeration": "standard",
+                    "hierarchical": True,
+                },
+                (
+                    [
+                        {
+                            "kind": "ServiceAccount",
+                            "name": "pipeline",
+                            "namespace": "assisted-installer",
+                            "_extra_data": {
+                                "enumeration": 0,
+                                "prefix": ""
+                            }
+                        },
+                        {
+                            "kind": "ServiceAccount",
+                            "name": "pipeline",
+                            "namespace": "default",
+                            "_extra_data": {
+                                "enumeration": 1,
+                                "prefix": "└── "
+                            }
+                        }
+                    ],
+                    200),
+                None,
+            ),
+            (
+                {
+                    "subjects": [
+                        {
+                            "kind": "ServiceAccount",
+                            "name": "pipeline",
+                            "namespace": "assisted-installer"
+                        },
+                        {
+                            "kind": "ServiceAccount",
+                            "name": "pipeline",
+                            "namespace": "default"
+                        },
+                    ],
+                },
+                {
+                    "path": "subjects",
+                    "enumeration": "reverse",
+                },
+                (
+                    [
+                        {
+                            "kind": "ServiceAccount",
+                            "name": "pipeline",
+                            "namespace": "assisted-installer",
+                            "_extra_data": {
+                                "enumeration": 1,
+                                "prefix": ""
+                            }
+                        },
+                        {
+                            "kind": "ServiceAccount",
+                            "name": "pipeline",
+                            "namespace": "default",
+                            "_extra_data": {
+                                "enumeration": 0,
+                                "prefix": ""
+                            }
+                        }
+                    ],
+                    200),
+                None,
+            ),
+            (
+                {
+                    "data": {
+                        "asubjects": [
+                            {
+                                "kind": "ServiceAccount",
+                                "name": "pipeline",
+                                "namespace": "assisted-installer"
+                            },
+                        ],
+                        "bsubjects": [
+                            {
+                                "kind": "ServiceAccount",
+                                "name": "pipeline",
+                                "namespace": "default"
+                            },
+                        ],
+                    }
+                },
+                {
+                    "multipath": "data",
+                    "subpaths": [
+                        {
+                            "path": "asubjects",
+                            "key_name": "key",
+                            "key_value": "a",
+                            "value_name": "value",
+                        },
+                        {
+                            "path": "bsubjects",
+                            "key_name": "key",
+                            "key_value": "b",
+                            "value_name": "value",
+                        },
+                    ],
+                },
+                (
+                    [
+                        {
+                            "kind": "ServiceAccount",
+                            "name": "pipeline",
+                            "namespace": "assisted-installer",
+                            "value": "a"
+                        },
+                        {
+                            "kind": "ServiceAccount",
+                            "name": "pipeline",
+                            "namespace": "default",
+                            "value": "b"
+                        }],
+                    200),
+                None,
+            ),
+            (
+                {
+                    "data": {
+                        "asubjects": [1, 2, 3],
+                        "bsubjects": [4, 5, 6],
+                    }
+                },
+                {
+                    "multipath": "data",
+                    "subpaths": [
+                        {
+                            "path": "asubjects",
+                            "key_name": "key",
+                            "key_value": "a",
+                            "value_name": "value",
+                        },
+                        {
+                            "path": "bsubjects",
+                            "key_name": "key",
+                            "key_value": "b",
+                            "value_name": "value",
+                        },
+                    ],
+                },
+                (
+                    [
+                        {
+                            "key": "a",
+                            "value": 1,
+                        },
+                        {
+                            "key": "a",
+                            "value": 2,
+                        },
+                        {
+                            "key": "a",
+                            "value": 3,
+                        },
+                        {
+                            "key": "b",
+                            "value": 4,
+                        },
+                        {
+                            "key": "b",
+                            "value": 5,
+                        },
+                        {
+                            "key": "b",
+                            "value": 6,
+                        },
+                    ],
+                    200),
+                None,
+            ),
+        )
+
+        for obj, kwargs, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(obj, **kwargs)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
 def test_listgetter_policy_rules(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -3620,20 +4143,20 @@ def test_get_kubernetes_list(verbose: bool = False) -> tuple[str, bool]:
 
 
 tests: dict[tuple[str, ...], dict[str, Any]] = {
-    ("check_matchlists()",): {
-        "callable": test_check_matchlists,
-        "result": None,
-    },
     ("check_matchlist()", "split_matchlist()"): {
         "callable": test_check_matchlist,
         "result": None,
     },
-    ("get_device_model()",): {
-        "callable": test_get_device_model,
+    ("check_matchlists()",): {
+        "callable": test_check_matchlists,
         "result": None,
     },
     ("filter_list_entry()",): {
         "callable": test_filter_list_entry,
+        "result": None,
+    },
+    ("get_device_model()",): {
+        "callable": test_get_device_model,
         "result": None,
     },
     ("get_ingress_rule_list()",): {
@@ -3660,6 +4183,10 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
         "callable": test_listgetter_dict_list,
         "result": None,
     },
+    ("listgetter_feature_gates()",): {
+        "callable": test_listgetter_feature_gates,
+        "result": None,
+    },
     ("listgetter_join_dicts_to_list()",): {
         "callable": test_listgetter_join_dicts_to_list,
         "result": None,
@@ -3676,8 +4203,8 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
         "callable": test_listgetter_noop,
         "result": None,
     },
-    ("listgetter_feature_gates()",): {
-        "callable": test_listgetter_feature_gates,
+    ("listgetter_path()",): {
+        "callable": test_listgetter_path,
         "result": None,
     },
     ("listgetter_policy_rules()",): {
