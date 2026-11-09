@@ -66,11 +66,9 @@ infoview:
         - path: "spec#podGroupTemplates"
           key_name: "kind"
           key_value: "PodGroup"
-          type: "list"
         - path: "spec#compositePodGroupTemplates"
           key_name: "kind"
           key_value: "CompositePodGroup"
-          type: "list"
     infogetter: "generic_infogetter"
     field_indexes:
       Normal:

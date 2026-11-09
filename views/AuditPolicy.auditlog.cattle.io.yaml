@@ -216,11 +216,9 @@ infoview:
         - path: "spec#filters"
           key_name: "type"
           key_value: "Filter"
-          type: "list"
         - path: "spec#additionalRedactions"
           key_name: "type"
           key_value: "Additional Redaction"
-          type: "list"
     infogetter: "generic_infogetter"
     field_indexes:
       Normal:

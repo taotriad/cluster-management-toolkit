@@ -21,15 +21,12 @@ infoview:
     listgetter_args:
       paths:
         - path: "spec#sync#syncOnly"
-          type: "list"
           key_name: "type"
           key_value: "SyncOnly"
         - path: "spec#match"
-          type: "list"
           key_name: "type"
           key_value: "Match"
         - path: "spec#validation#traces"
-          type: "list"
           key_name: "type"
           key_value: "Validation"
     infogetter: "generic_infogetter"

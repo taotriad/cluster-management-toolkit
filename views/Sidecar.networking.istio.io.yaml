@@ -41,11 +41,9 @@ infoview:
     listgetter_args:
       paths:
         - path: "spec#ingress"
-          type: "list"
           key_name: "traffic_type"
           key_value: "Ingress"
         - path: "spec#egress"
-          type: "list"
           key_name: "traffic_type"
           key_value: "Egress"
     infogetter: "generic_infogetter"

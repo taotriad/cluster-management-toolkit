@@ -186,11 +186,9 @@ infoview:
       paths:
         - key_name: "type"
           key_value: "Policy"
-          type: "list"
           path: "spec#resourcePolicy#containerPolicies"
         - key_name: "type"
           key_value: "Recommendation"
-          type: "list"
           path: "status#recommendation#containerRecommendations"
     infogetter: "generic_infogetter"
     field_indexes:

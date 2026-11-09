@@ -55,7 +55,6 @@ infoview:
     listgetter_args:
       paths:
         - path: "properties"
-          type: "list"
           key_name: "__type"
           key_value: "Basic"
     infogetter: "generic_infogetter"

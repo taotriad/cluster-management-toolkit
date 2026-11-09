@@ -169,11 +169,9 @@ infoview:
     listgetter_args:
       paths:
         - path: "spec#roles"
-          type: "list"
           key_name: "__type"
           key_value: "Role"
         - path: "spec#clusterRoles"
-          type: "list"
           key_name: "__type"
           key_value: "ClusterRole"
     infogetter: "generic_infogetter"

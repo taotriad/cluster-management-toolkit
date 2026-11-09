@@ -29,11 +29,9 @@ infoview:
     listgetter_args:
       paths:
         - path: "spec#pods"
-          type: "list"
           key_name: "type"
           key_value: "Pods"
         - path: "spec#machines"
-          type: "list"
           key_name: "type"
           key_value: "Machines"
     infogetter: "generic_infogetter"

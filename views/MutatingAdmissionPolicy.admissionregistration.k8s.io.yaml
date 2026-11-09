@@ -107,15 +107,12 @@ infoview:
     listgetter_args:
       paths:
         - path: "spec#matchConditions"
-          type: "list"
           key_name: "type"
           key_value: "Match Condition"
         - path: "spec#mutations"
-          type: "list"
           key_name: "type"
           key_value: "Mutation"
         - path: "spec#variables"
-          type: "list"
           key_name: "type"
           key_value: "Variable"
     infogetter: "generic_infogetter"

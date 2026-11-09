@@ -23,7 +23,7 @@ def listgetter_path(obj: dict, **kwargs: Any) -> tuple[dict | list[dict], int]:
     Listgetter for paths.
 
         Parameters:
-            obj (Dict): The object to extract a list of data from
+            obj (dict): The object to extract a list of data from
             **kwargs (dict[str, Any]): Keyword arguments
                 enumeration (str): How to enumerate items ("standard", "reverse", "")
                 flatten_dicts (bool): Should dicts be flattened?
@@ -71,29 +71,19 @@ def listgetter_path(obj: dict, **kwargs: Any) -> tuple[dict | list[dict], int]:
                 vlist.append(tmp)
         return vlist, 200
 
-    # pylint: disable-next=too-many-nested-blocks
     if paths is not None:
         for path in paths:
             ppath = deep_get(path, DictPath("path"))
-            ptype = deep_get(path, DictPath("type"), "value")
             key_name = deep_get(path, DictPath("key_name"))
             key_value = deep_get(path, DictPath("key_value"))
 
-            if ptype == "list":
-                tmp = []
-                for item in deep_get(obj, DictPath(ppath), []):
-                    tmpitem = copy.deepcopy(item)
-                    if key_name is not None and key_value is not None:
-                        tmpitem[key_name] = key_value
-                    tmp.append(tmpitem)
-                vlists.append(tmp)
-            else:
-                for key in deep_get(obj, DictPath(ppath), []):
-                    for item in deep_get(obj, DictPath(f"{ppath}#{key}"), []):
-                        tmpitem = copy.deepcopy(item)
-                        if key_name is not None and key_value is not None:
-                            tmpitem[key_name] = key_value
-                        vlist.append(tmpitem)
+            tmp = []
+            for item in deep_get(obj, DictPath(ppath), []):
+                tmpitem = copy.deepcopy(item)
+                if key_name is not None and key_value is not None:
+                    tmpitem[key_name] = key_value
+                tmp.append(tmpitem)
+            vlists.append(tmp)
         if join_key is None:
             for tmp in vlists:
                 vlist += tmp

@@ -43,11 +43,9 @@ infoview:
     listgetter_args:
       paths:
         - path: "spec#resources"
-          type: "list"
           key_name: "type"
           key_value: "Resource"
         - path: "spec#attachments"
-          type: "list"
           key_name: "type"
           key_value: "Attachment"
     infogetter: "generic_infogetter"

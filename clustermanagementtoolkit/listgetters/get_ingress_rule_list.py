@@ -20,7 +20,7 @@ def get_ingress_rule_list(obj: dict, **kwargs: Any) -> tuple[list[dict[str, Any]
     Listgetter for Ingress rules.
 
         Parameters:
-            obj (Dict): The object to extract ingress rule information from
+            obj (dict): The object to extract ingress rule information from
             **kwargs (dict[str, Any]): Keyword arguments
         Returns:
             (([dict], int)):

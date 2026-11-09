@@ -80,11 +80,9 @@ infoview:
         - path: "spec#ingress"
           key_name: "type"
           key_value: "ingress"
-          type: "list"
         - path: "spec#egress"
           key_name: "type"
           key_value: "egress"
-          type: "list"
     infogetter: "generic_infogetter"
     field_indexes:
       Normal:

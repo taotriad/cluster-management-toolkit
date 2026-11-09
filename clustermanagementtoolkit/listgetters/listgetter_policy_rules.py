@@ -27,7 +27,7 @@ def listgetter_policy_rules(obj: dict, **kwargs: Any) -> tuple[list[dict], int]:
     Listgetter for Role & ClusterRole policy rules.
 
         Parameters:
-            obj (Dict): The object to extract Role & ClusterRole policy rule information from
+            obj (dict): The object to extract Role & ClusterRole policy rule information from
             **kwargs (dict[str, Any]): Keyword arguments [unused]
         Returns:
             (([dict], int)):

@@ -63,11 +63,9 @@ infoview:
     listgetter_args:
       paths:
         - path: "spec#egress"
-          type: "list"
           key_name: "policy_type"
           key_value: "Egress"
         - path: "spec#ingress"
-          type: "list"
           key_name: "policy_type"
           key_value: "Ingress"
     infogetter: "generic_infogetter"

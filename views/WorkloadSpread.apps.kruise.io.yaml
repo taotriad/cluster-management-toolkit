@@ -79,10 +79,8 @@ infoview:
       join_key: "name"
       paths:
         - path: "spec#subsets"
-          type: "list"
           key_name: "name"
         - path: "status#subsetStatuses"
-          type: "list"
           key_name: "name"
     infogetter: "generic_infogetter"
     field_indexes:

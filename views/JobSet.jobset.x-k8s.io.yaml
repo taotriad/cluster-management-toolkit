@@ -127,9 +127,7 @@ infoview:
       join_key: "name"
       paths:
         - path: "spec#replicatedJobs"
-          type: "list"
         - path: "status#replicatedJobsStatus"
-          type: "list"
     infogetter: "generic_infogetter"
     on_activation:
       call: "resourceinfodispatch"

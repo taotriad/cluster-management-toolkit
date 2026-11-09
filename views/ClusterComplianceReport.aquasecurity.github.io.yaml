@@ -114,11 +114,9 @@ infoview:
       join_key: "id"
       paths:
         - path: "spec#compliance#controls"
-          type: "list"
           key_name: "__type"
           key_value: "Basic"
         - path: "status#summaryReport#controlCheck"
-          type: "list"
           key_name: "__type"
           key_value: "Basic"
     infogetter: "generic_infogetter"
