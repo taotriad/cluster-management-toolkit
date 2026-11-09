@@ -3601,6 +3601,285 @@ def test_listgetter_path(verbose: bool = False) -> tuple[str, bool]:
                     200),
                 None,
             ),
+            (
+                {
+                    "asubjects": [
+                        {
+                            "kind": "ServiceAccount",
+                            "name": "pipeline",
+                            "namespace": "assisted-installer"
+                        },
+                    ],
+                    "bsubjects": [
+                        {
+                            "kind": "ServiceAccount",
+                            "name": "pipeline",
+                            "namespace": "default"
+                        },
+                    ],
+                },
+                {
+                    "paths": [
+                        {
+                            "path": "asubjects",
+                            "key_name": "key",
+                            "key_value": "a",
+                            "type": "list",
+                        },
+                        {
+                            "path": "bsubjects",
+                            "key_name": "key",
+                            "key_value": "b",
+                            "type": "list",
+                        },
+                    ],
+                },
+                (
+                    [
+                        {
+                            "kind": "ServiceAccount",
+                            "name": "pipeline",
+                            "namespace": "assisted-installer", "key": "a",
+                        },
+                        {
+                            "kind": "ServiceAccount",
+                            "name": "pipeline",
+                            "namespace": "default", "key": "b",
+                        },
+                    ],
+                    200),
+                None,
+            ),
+            (
+                {
+                    "asubjects": [
+                        {
+                            "kind": "ServiceAccount",
+                            "name": "pipeline",
+                            "namespace": "assisted-installer"
+                        },
+                    ],
+                    "bsubjects": [
+                        {
+                            "kind": "ServiceAccount",
+                            "name": "pipeline",
+                            "namespace": "default"
+                        },
+                    ],
+                },
+                {
+                    "paths": [
+                        {
+                            "path": "asubjects",
+                            "key_name": "key",
+                            "key_value": "a",
+                        },
+                        {
+                            "path": "bsubjects",
+                            "key_name": "key",
+                            "key_value": "b",
+                        },
+                    ],
+                },
+                (
+                    [
+                        {
+                            "kind": "ServiceAccount",
+                            "name": "pipeline",
+                            "namespace": "assisted-installer", "key": "a",
+                        },
+                        {
+                            "kind": "ServiceAccount",
+                            "name": "pipeline",
+                            "namespace": "default", "key": "b",
+                        },
+                    ],
+                    200),
+                None,
+            ),
+            (
+                {
+                    "data": [
+                        {
+                            "name": "foo",
+                        },
+                        {
+                            "name": "bar",
+                        },
+                    ],
+                    "status": [
+                        {
+                            "name": "foo",
+                            "status": "OK"
+                        },
+                        {
+                            "name": "bar",
+                            "status": "NotOK"
+                        },
+                    ],
+                },
+                {
+                    "join_key": "name",
+                    "paths": [
+                        {
+                            "path": "data",
+                        },
+                        {
+                            "path": "status",
+                        },
+                    ],
+                },
+                (
+                    [
+                        {
+                            "name": "foo",
+                            "status": "OK",
+                        },
+                        {
+                            "name": "bar",
+                            "status": "NotOK",
+                        },
+                    ],
+                    200),
+                None,
+            ),
+            (
+                {
+                    "status": {
+                        "gatherStatus": {
+                            "gatherers": [
+                                {
+                                    "conditions": [
+                                        {
+                                            "lastTransitionTime": "2026-11-09T16:36:21Z",
+                                            "message": "",
+                                            "reason": "NoData",
+                                            "status": "False",
+                                            "type": "DataGathered",
+                                            "lastGatherDuration": "0s",
+                                            "name": "clusterconfig/sap_datahubs"
+                                        }
+                                    ],
+                                    "lastGatherDuration": "0s",
+                                    "name": "clusterconfig/sap_datahubs"
+                                },
+                                {
+                                    "conditions": [
+                                        {
+                                            "lastTransitionTime": "2026-11-09T16:36:21Z",
+                                            "message": "Created 19 records in the archive.",
+                                            "reason": "GatheredOK",
+                                            "status": "True",
+                                            "type": "DataGathered",
+                                            "lastGatherDuration": "0s",
+                                            "name": "clusterconfig/subscriptions"
+                                        }
+                                    ],
+                                    "lastGatherDuration": "0s",
+                                    "name": "clusterconfig/subscriptions"
+                                },
+                            ],
+                        },
+                    },
+                },
+                {
+                    "path": "status#gatherStatus#gatherers",
+                    "subpath": "conditions",
+                    "path_fields": [
+                        "lastGatherDuration",
+                        "name",
+                    ],
+                },
+                (
+                    [
+                        {
+                            "lastTransitionTime": "2026-11-09T16:36:21Z",
+                            "message": "",
+                            "reason": "NoData",
+                            "status": "False",
+                            "type": "DataGathered",
+                            "lastGatherDuration": "0s",
+                            "name": "clusterconfig/sap_datahubs",
+                        },
+                        {
+                            "lastTransitionTime": "2026-11-09T16:36:21Z",
+                            "message": "Created 19 records in the archive.",
+                            "reason": "GatheredOK",
+                            "status": "True",
+                            "type": "DataGathered",
+                            "lastGatherDuration": "0s",
+                            "name": "clusterconfig/subscriptions",
+                        }
+                    ],
+                    200),
+                None,
+            ),
+            (
+                {
+                    "spec": {
+                        "resourceFields": {
+                            "accessKeyId": {
+                                "create": True,
+                                "default": {
+                                    "boolValue": False,
+                                    "intValue": 0,
+                                    "stringSliceValue": None,
+                                    "stringValue": ""
+                                },
+                                "type": "string",
+                                "update": True,
+                            },
+                            "accessKeySecret": {
+                                "create": True,
+                                "default": {
+                                    "boolValue": False,
+                                    "intValue": 0,
+                                    "stringSliceValue": None,
+                                    "stringValue": ""
+                                },
+                                "type": "password",
+                                "update": True
+                            },
+                        },
+                    },
+                },
+                {
+                    "path": "spec#resourceFields",
+                    "flatten_dicts": True,
+                    "rename_bare": "name",
+                },
+                (
+                    [
+                        {
+                            "name": "accessKeyId",
+                            "uuid": 0,
+                            "create": True,
+                            "default": {
+                                "boolValue": False,
+                                "intValue": 0,
+                                "stringSliceValue": None,
+                                "stringValue": ""
+                            },
+                            "type": "string",
+                            "update": True
+                        },
+                        {
+                            "name": "accessKeySecret",
+                            "uuid": 1,
+                            "create": True,
+                            "default": {
+                                "boolValue": False,
+                                "intValue": 0,
+                                "stringSliceValue": None,
+                                "stringValue": ""
+                            },
+                            "type": "password",
+                            "update": True
+                        }
+                    ],
+                    200),
+                None,
+            ),
         )
 
         for obj, kwargs, expected_result, expected_exception in testdata:
