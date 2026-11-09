@@ -46,6 +46,297 @@ def test_callback(options: list[tuple[str, str]], args: list[str]) -> tuple[str,
     return ("callback", len(args))
 
 
+def test_format_list(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = generators.format_list
+
+    if result:
+        # Indata format:
+        # (items, fieldlen, pad, kwargs, expected_result, expected_exception)
+        testdata: tuple = (
+            (
+                # items
+                [],
+                # fieldlen
+                2,
+                # pad
+                2,
+                # kwargs
+                {},
+                # expected_result
+                [ThemeStr("  ", ThemeAttr("types", "generic"), False),
+                 ThemeRef("separators", "pad", False)],
+                # expected_exception
+                None,
+            ),
+            (
+                # items
+                ["foo"],
+                # fieldlen
+                0,
+                # pad
+                2,
+                # kwargs
+                {
+                    "field_prefixes": [
+                        [
+                            ThemeRef("separators", "markdownbullet"),
+                            ThemeRef("separators", "quote"),
+                        ],
+                    ],
+                    "field_suffixes": [
+                        [
+                            ThemeRef("separators", "quote"),
+                            ThemeRef("separators", "markdownbullet"),
+                        ],
+                    ],
+                },
+                # expected_result
+                [ThemeRef("separators", "markdownbullet", False),
+                 ThemeRef("separators", "quote", False),
+                 ThemeStr("foo", ThemeAttr("types", "field"), False),
+                 ThemeRef("separators", "quote", False),
+                 ThemeRef("separators", "markdownbullet", False),
+                 ThemeRef("separators", "pad", False)],
+                # expected_exception
+                None,
+            ),
+            (
+                # items
+                ["1m", "3m"],
+                # fieldlen
+                5,
+                # pad
+                2,
+                # kwargs
+                {
+                    "field_formatters": [
+                        generators.format_numerical_with_units,
+                    ],
+                },
+                # expected_result
+                [ThemeStr("1", ThemeAttr("types", "numerical"), False),
+                 ThemeStr("m", ThemeAttr("types", "unit"), False),
+                 ThemeRef("separators", "list", False),
+                 ThemeStr("3", ThemeAttr("types", "numerical"), False),
+                 ThemeStr("m", ThemeAttr("types", "unit"), False),
+                 ThemeRef("separators", "pad", False)],
+                # expected_exception
+                None,
+            ),
+            (
+                # items
+                [("1m", "3m")],
+                # fieldlen
+                5,
+                # pad
+                2,
+                # kwargs
+                {
+                    "field_formatters": [
+                        generators.format_numerical_with_units,
+                        None,
+                    ],
+                },
+                # expected_result
+                [ThemeStr("1", ThemeAttr("types", "numerical"), False),
+                 ThemeStr("m", ThemeAttr("types", "unit"), False),
+                 ThemeRef("separators", "field", False),
+                 ThemeStr("3m", ThemeAttr("types", "field"), False),
+                 ThemeRef("separators", "pad", False)],
+                # expected_exception
+                None,
+            ),
+            (
+                # items
+                [1, 2, 3],
+                # fieldlen
+                5,
+                # pad
+                2,
+                # kwargs
+                {},
+                # expected_result
+                [ThemeStr("1", ThemeAttr("types", "field"), False),
+                 ThemeRef("separators", "list", False),
+                 ThemeStr("2", ThemeAttr("types", "field"), False),
+                 ThemeRef("separators", "list", False),
+                 ThemeStr("3", ThemeAttr("types", "field"), False),
+                 ThemeRef("separators", "pad", False)],
+                # expected_exception
+                None,
+            ),
+            (
+                # items
+                [1, 2, 3, 4],
+                # fieldlen
+                5,
+                # pad
+                2,
+                # kwargs
+                {
+                    "args": {
+                        "collate": 2,
+                    },
+                },
+                # expected_result
+                [ThemeStr("1", ThemeAttr("types", "field"), False),
+                 ThemeRef("separators", "field", False),
+                 ThemeStr("2", ThemeAttr("types", "field"), False),
+                 ThemeRef("separators", "list", False),
+                 ThemeStr("3", ThemeAttr("types", "field"), False),
+                 ThemeRef("separators", "field", False),
+                 ThemeStr("4", ThemeAttr("types", "field"), False),
+                 ThemeRef("separators", "pad", False)],
+                # expected_exception
+                None,
+            ),
+            (
+                # items
+                [1, 2, 3, 4, 5],
+                # fieldlen
+                5,
+                # pad
+                2,
+                # kwargs
+                {
+                    "args": {
+                        "collate": 2,
+                    },
+                },
+                # expected_result
+                [ThemeStr("1", ThemeAttr("types", "field"), False),
+                 ThemeRef("separators", "field", False),
+                 ThemeStr("2", ThemeAttr("types", "field"), False),
+                 ThemeRef("separators", "list", False),
+                 ThemeStr("3", ThemeAttr("types", "field"), False),
+                 ThemeRef("separators", "field", False),
+                 ThemeStr("4", ThemeAttr("types", "field"), False),
+                 ThemeRef("separators", "list", False),
+                 ThemeStr("5", ThemeAttr("types", "field"), False),
+                 ThemeRef("separators", "pad", False)],
+                # expected_exception
+                None,
+            ),
+            (
+                # items
+                [1, 2, 3, 4],
+                # fieldlen
+                5,
+                # pad
+                2,
+                # kwargs
+                {
+                    "ellipsise": 3,
+                },
+                # expected_result
+                [ThemeStr("1", ThemeAttr("types", "field"), False),
+                 ThemeRef("separators", "list", False),
+                 ThemeStr("2", ThemeAttr("types", "field"), False),
+                 ThemeRef("separators", "list", False),
+                 ThemeStr("3", ThemeAttr("types", "field"), False),
+                 ThemeRef("separators", "list", False),
+                 ThemeRef("separators", "ellipsis", False),
+                 ThemeRef("separators", "pad", False)],
+                # expected_exception
+                None,
+            ),
+            (
+                # items
+                ["<none>"],
+                # fieldlen
+                0,
+                # pad
+                2,
+                # kwargs
+                {},
+                # expected_result
+                [ThemeStr("<none>", ThemeAttr("types", "none"), False),
+                 ThemeRef("separators", "pad", False)],
+                # expected_exception
+                None,
+            ),
+            (
+                # items
+                1,
+                # fieldlen
+                0,
+                # pad
+                2,
+                # kwargs
+                {},
+                # expected_result
+                [ThemeStr("1", ThemeAttr("types", "field"), False),
+                 ThemeRef("separators", "pad", False)],
+                # expected_exception
+                None,
+            ),
+            (
+                # items
+                [],
+                # fieldlen
+                2,
+                # pad
+                2,
+                # kwargs
+                {
+                    "field_separators": 42,
+                },
+                # expected_result
+                None,
+                # expected_exception
+                TypeError,
+            ),
+            (
+                # items
+                [],
+                # fieldlen
+                2,
+                # pad
+                2,
+                # kwargs
+                {
+                    "field_colors": "foo",
+                },
+                # expected_result
+                None,
+                # expected_exception
+                TypeError,
+            ),
+        )
+
+        for items, fieldlen, pad, kwargs, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(items, fieldlen, pad, **kwargs)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
 def test_format_selector(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -1278,7 +1569,6 @@ def test_align_and_pad(verbose: bool = False) -> tuple[str, bool]:
                 False,
                 [
                     ThemeStr("Foo", ThemeAttr("main", "default"), False),
-                    ThemeStr("", ThemeAttr("types", "generic"), False),
                 ],
                 None,
             ),
@@ -2481,6 +2771,10 @@ def test_get_formatter(verbose: bool = False) -> tuple[str, bool]:
 
 
 tests: dict[tuple[str], dict[str, Any]] = {
+    ("format_list()",): {
+        "callable": test_format_list,
+        "result": None,
+    },
     ("format_selector()",): {
         "callable": test_format_selector,
         "result": None,

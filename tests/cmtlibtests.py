@@ -1891,6 +1891,96 @@ def test_get_package_versions(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
+def test_populate_template(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = cmtlib.populate_template
+
+    if result:
+        # Indata format:
+        # (template, injections, kwargs, expected_result, expected_exception
+        testdata: tuple[Any, ...] = (
+            (
+                # template
+                {
+                    "apiVersion": "harvesterhci.io",
+                    "kind": "Upgrade",
+                    "metadata": {
+                        "generateName": "hvst-upgrade-",
+                        "namespace": "harvester-system",
+                    },
+                },
+                # injections
+                {
+                    "metadata#name": {
+                        "source": "obj",
+                        "paths": [
+                            "spec#version",
+                        ],
+                    },
+                },
+                # kwargs
+                {
+                    "obj": {
+                        "metadata": {
+                            "name": "v1.10.0-dev-20261025",
+                        },
+                    },
+                },
+                # expected_result
+                {
+                    "apiVersion": "harvesterhci.io",
+                    "kind": "Upgrade",
+                    "metadata": {
+                        "generateName": "hvst-upgrade-",
+                        "namespace": "harvester-system",
+                    },
+                    "spec": {
+                        "version": "v1.10.0-dev-20261025",
+                    },
+                },
+                # expected_exception
+                None,
+            ),
+        )
+
+        for template, injections, kwargs, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(template, injections, **kwargs)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"       template: {template}\n" \
+                              f"     injections: {injections}\n" \
+                              f"         kwargs: {kwargs}\n" \
+                              f"         output: {tmp}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"       template: {template}\n" \
+                                  f"     injections: {injections}\n" \
+                                  f"         kwargs: {kwargs}\n" \
+                                  f"      exception: {type(e)}\n" \
+                                  f"       expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"       template: {template}\n" \
+                              f"     injections: {injections}\n" \
+                              f"         kwargs: {kwargs}\n" \
+                              f"      exception: {type(e)}\n"
+                    result = False
+                    break
+    return message, result
+
+
 def test___extract_version(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -2315,6 +2405,10 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
     },
     ("make_set_expression()",): {
         "callable": test_make_set_expression,
+        "result": None,
+    },
+    ("populate_template()",): {
+        "callable": test_populate_template,
         "result": None,
     },
     ("__extract_version()",): {
