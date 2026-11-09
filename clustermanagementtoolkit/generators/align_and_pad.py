@@ -32,8 +32,8 @@ def align_and_pad(array: list[ThemeRef | ThemeStr], fieldlen: int,
     tmp_array: list[ThemeRef | ThemeStr] = []
     stringlen = themearray_len(array)
 
-    # If the string is exactly the size of the field we don't need to realign.
-    if fieldlen != stringlen:
+    # If fieldlen <= stringlen we don't need to pad.
+    if fieldlen > stringlen:
         if ralign:
             tmp_array.append(ThemeStr("".ljust(fieldlen - stringlen),
                                       ThemeAttr("types", "generic"), selected))

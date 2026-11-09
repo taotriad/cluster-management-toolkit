@@ -69,11 +69,11 @@ def format_list(items: Any, fieldlen: int, pad: bool, **kwargs: Any) -> list[The
 
     if not isinstance(field_separators, list):
         raise TypeError("field_separators should be a list of ThemeRef, "
-                        f"not a single tuple; {field_separators}")
+                        f"got {field_separators} (type: {type(field_separators)})")
 
     if not isinstance(field_colors, list):
         raise TypeError("field_colors should be a list of ThemeAttr, "
-                        f"not a single tuple; {field_colors}")
+                        f"got {field_colors} (type: {type(field_colors)})")
 
     if not isinstance(items, list):
         items = [items]
