@@ -46,6 +46,7 @@ views/Channel.messaging.knative.dev.yaml
 views/Cluster.cluster.x-k8s.io.yaml
 views/Cluster.management.cattle.io.yaml
 views/Cluster.postgresql.cnpg.io.yaml
+views/ClusterComplianceReport.aquasecurity.github.io.yaml
 views/ClusterConfigAuditReport.aquasecurity.github.io.yaml
 views/ClusterImagePolicy.config.openshift.io.yaml
 views/ClusterInfraAssessmentReport.aquasecurity.github.io.yaml

@@ -193,6 +193,10 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                     value = []
                     substitutions = deep_get(_path, DictPath("substitutions"), "")
                     tmp = deep_get_with_fallback(obj, path)
+                    if not when_filter(_path, item=obj):
+                        if default is not None:
+                            value.append(default)
+                        continue
                     if tmp is None:
                         tmp = []
 
