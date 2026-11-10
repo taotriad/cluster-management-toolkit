@@ -31,6 +31,7 @@ from clustermanagementtoolkit.infogetters.get_obj_list import get_obj_list
 from clustermanagementtoolkit.infogetters.get_obj_lookup import get_obj_lookup
 from clustermanagementtoolkit.infogetters.get_obj_ranges import get_obj_ranges
 from clustermanagementtoolkit.infogetters.get_obj_regex import get_obj_regex
+from clustermanagementtoolkit.infogetters.get_obj_remap import get_obj_remap
 from clustermanagementtoolkit.infogetters.get_obj_status_tuple import get_obj_status_tuple
 from clustermanagementtoolkit.infogetters.get_obj_tuple import get_obj_tuple
 from clustermanagementtoolkit.infogetters.process_value import process_value
@@ -190,38 +191,10 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                     if not success:
                         continue
                 elif ptype == "remap":
-                    value = []
-                    substitutions = deep_get(_path, DictPath("substitutions"), "")
-                    tmp = deep_get_with_fallback(obj, path)
-                    if not when_filter(_path, item=obj):
-                        if default is not None:
-                            value.append(default)
+                    _values, success = get_obj_remap(obj=obj, path=path, ipath=_path,
+                                                     default=default, values=_values, vtype=vtype)
+                    if not success:
                         continue
-                    if tmp is None:
-                        tmp = []
-
-                    if type(tmp) in (bool, int, str):
-                        tmp = [tmp]
-
-                    if isinstance(tmp, list):
-                        for _tmp in tmp:
-                            if isinstance(_tmp, bool):
-                                _tmp = f"__{_tmp!s}"
-
-                            if _tmp in substitutions:
-                                value.append(substitutions.get(_tmp))
-                            elif "__default" in substitutions:
-                                value.append(substitutions.get("__default"))
-                            else:
-                                value.append(_tmp)
-                    else:
-                        raise ValueError(f"remap is not supported yet for type {type(tmp)}")
-                    if not value:
-                        if default is None:
-                            continue
-                        value.append(default)
-                    for tmp in value:
-                        _values.append((tmp, vtype))
                 elif ptype == "substitution":
                     value = []
                     substitute = deep_get(_path, DictPath("substitute"), "")

@@ -5,6 +5,7 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+import copy
 from datetime import datetime, UTC
 from pathlib import PurePath
 import sys
@@ -2040,6 +2041,172 @@ def test_get_key_value_info(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
+def test_get_obj_remap(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = infogetters.get_obj_remap
+
+    if result:
+        # Indata format:
+        # (obj, path, ipath, values, kwargs, expected_result, expected_exception)
+        testdata: tuple = (
+            # No matches
+            (
+                # obj
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0048"
+                        }
+                    ],
+                    "commands": [
+                        {
+                            "id": "CMD-0001"
+                        }
+                    ],
+                    "description": "Ensure that the API server pod specification file "
+                                   "has permissions of 600 or more restrictive",
+                    "id": "1.1.1",
+                    "name": "Ensure that the API server pod specification file "
+                            "permissions are set to 600 or more restrictive",
+                    "severity": "HIGH",
+                    "__type": "Basic",
+                    "totalFail": 0
+                },
+                # path
+                ["severity"],
+                # ipath
+                {
+                    "path": "severity",
+                    "pathtype": "remap",
+                    "substitutions": {
+                        "CRITICAL": "Critical",
+                        "HIGH": "High",
+                        "LOW": "Low",
+                        "MEDIUM": "Medium",
+                        "UNKNOWN": "Unknown"
+                    },
+                    "when": [
+                        {
+                            "key": "totalFail",
+                            "gt": 0
+                        }
+                    ]
+                },
+                # values
+                [],
+                # kwargs
+                {
+                    "default": None,
+                    "vtype": "raw"
+                },
+                ([([], None)], True),
+                None,
+            ),
+            # At least one match
+            (
+                # obj
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0048"
+                        }
+                    ],
+                    "commands": [
+                        {
+                            "id": "CMD-0001"
+                        }
+                    ],
+                    "description": "Ensure that the API server pod specification file "
+                                   "has permissions of 600 or more restrictive",
+                    "id": "1.1.1",
+                    "name": "Ensure that the API server pod specification file "
+                            "permissions are set to 600 or more restrictive",
+                    "severity": "HIGH",
+                    "__type": "Basic",
+                    "totalFail": 1
+                },
+                # path
+                ["severity"],
+                # ipath
+                {
+                    "path": "severity",
+                    "pathtype": "remap",
+                    "substitutions": {
+                        "CRITICAL": "Critical",
+                        "HIGH": "High",
+                        "LOW": "Low",
+                        "MEDIUM": "Medium",
+                        "UNKNOWN": "Unknown"
+                    },
+                    "when": [
+                        {
+                            "key": "totalFail",
+                            "gt": 0
+                        }
+                    ]
+                },
+                # values
+                [],
+                # kwargs
+                {
+                    "default": None,
+                    "vtype": "raw"
+                },
+                ([("High", None)], True),
+                None,
+            ),
+        )
+
+        for obj, path, ipath, values, kwargs, expected_result, expected_exception in testdata:
+            values_in = copy.deepcopy(values)
+            try:
+                tmp = fun(obj=obj, path=path, ipath=ipath, values=values, kwargs=kwargs)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"              obj: {obj}\n" \
+                              f"             path: {path}\n" \
+                              f"            ipath: {ipath}\n" \
+                              f"           kwargs: {kwargs}\n" \
+                              f"      values (in): {values_in}\n" \
+                              f"     values (out): {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"              obj: {obj}\n" \
+                                  f"             path: {path}\n" \
+                                  f"            ipath: {ipath}\n" \
+                                  f"           kwargs: {kwargs}\n" \
+                                  f"      values (in): {values_in}\n" \
+                                  f"     values (out): {tmp}\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"              obj: {obj}\n" \
+                              f"             path: {path}\n" \
+                              f"            ipath: {ipath}\n" \
+                              f"           kwargs: {kwargs}\n" \
+                              f"      values (in): {values_in}\n" \
+                              f"     values (out): {tmp}\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
 def test_get_promrules_info(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -2924,6 +3091,10 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
     },
     ("get_key_value_info()",): {
         "callable": test_get_key_value_info,
+        "result": None,
+    },
+    ("get_obj_remap()",): {
+        "callable": test_get_obj_remap,
         "result": None,
     },
     ("get_promrules_info()",): {
