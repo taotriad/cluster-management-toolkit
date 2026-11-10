@@ -1656,6 +1656,7 @@ separators:
   namespace: [["::", ["types", "separator_namespace"]]]
   container: [[":", ["types", "separator_container"]]]
   list: [[", ", ["types", "separator_list"]]]
+  list_semicolon: [["; ", ["types", "separator_list"]]]
   selector_list: [[",", ["types", "separator_list"]]]
   field: [["/", ["types", "separator_field"]]]
   ellipsis: [["...", ["types", "separator_ellipsis"]]]
