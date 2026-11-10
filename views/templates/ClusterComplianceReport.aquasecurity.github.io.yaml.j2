@@ -5,6 +5,8 @@ default_command: "clustercompliancereports"
 command:
   - "clustercompliances"
   - "clustercompliance"
+  - "clrcompliances"
+  - "clrcompliance"
 listview:
   name: "Cluster Compliance Reports"
   group: "Security"
@@ -60,15 +62,20 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["title", "version", "description", "severity_header",
-                 "severity_pass", "severity_fail", "cron_schedule"]
+        fields: ["controller", "title", "version", "description",
+                 "severity_header", "severity_pass",
+                 "severity_fail", "cron_schedule"]
     rows:
+      {%- for line in row_controller.split("\n") %}
+      {{ line }}
+      {%- endfor %}
       cron_schedule:
         header: [["Cron Schedule:", ["main", "infoheader"]]]
         path: "spec#cron"
         type: "str"
       description:
-        header: [["Description:", ["main", "infoheader"]]]
+        header: [["D", ["main", "infoheader_shortcut"]],
+                 ["escription:", ["main", "infoheader"]]]
         path: "spec#compliance#description"
         type: "str"
       severity_pass:
@@ -121,10 +128,17 @@ infoview:
           key_value: "Basic"
     infogetter: "generic_infogetter"
     field_indexes:
+      Wide:
+        fields: ["id", "name", "severity", "total_fail", "description"]
+        sortcolumn: "severity"
       Normal:
         fields: ["id", "name", "severity", "total_fail"]
         sortcolumn: "severity"
     fields:
+      description:
+        header: "Description:"
+        path: "description"
+        type: "str"
       id:
         header: "ID:"
         path: "id"
@@ -144,6 +158,10 @@ infoview:
               "LOW": "Low"
               "MEDIUM": "Medium"
               "UNKNOWN": "Unknown"
+            when:
+              - key: "totalFail"
+                gt: 0
+        default: "Unaffected"
         type: "str"
         formatter: "value_mapper"
         formatting:
@@ -163,12 +181,17 @@ infoview:
                 index: 4
                 field_colors:
                   - context: "main"
-                    type: "severity_low"
+                    type: "status_admin"
               "Medium":
                 index: 2
                 field_colors:
                   - context: "main"
                     type: "severity_medium"
+              "Unaffected":
+                index: 5
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
               "Unknown":
                 index: 3
                 field_colors:
@@ -182,14 +205,19 @@ infoview:
         formatter: "numerical"
         align: "right"
   shortcuts:
-    "Open controller":
-      key: "c"
+    {%- for line in shortcut_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    "Show Description":
+      key: "d"
       modifier: "shift"
       read_only: true
-      helptext: "Open info page for controller"
-      action: "call"
-      action_call: "resourceinfodispatch_with_lookup"
-      action_args:
-        _pass_obj: true
-        namespace_path: "metadata#namespace"
-        owner_reference_path: "metadata#ownerReferences"
+      helptext: "Show description"
+      widget: "windowwidget"
+      widget_args:
+        title: "Description"
+        # If the data is one single line we reformat it.
+        wrap_lines: true
+        itemgetter: "get_strings_from_string"
+        itemgetter_args:
+          path: "spec#compliance#description"

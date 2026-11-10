@@ -266,6 +266,10 @@ infoview:
               "HIGH": "High"
               "LOW": "Low"
               "MEDIUM": "Medium"
+            when:
+              - key: "success"
+                eq: false
+        default: "Unaffected"
         type: "str"
         formatter: "value_mapper"
         formatting:
@@ -282,11 +286,16 @@ infoview:
               "Low":
                 field_colors:
                   - context: "main"
-                    type: "severity_low"
+                    type: "status_admin"
               "Medium":
                 field_colors:
                   - context: "main"
                     type: "severity_medium"
+              "Unaffected":
+                index: 5
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
       test_case:
         header: "Test Case:"
         path: "title"

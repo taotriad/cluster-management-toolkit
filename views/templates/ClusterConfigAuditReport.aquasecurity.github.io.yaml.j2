@@ -5,6 +5,10 @@ default_command: "clusterconfigauditreports"
 command:
   - "clusterconfigaudits"
   - "clusterconfigaudit"
+  - "clrconfigaudits"
+  - "clrconfigaudit"
+  - "clrconfaudits"
+  - "clrconfaudit"
 listview:
   name: "Cluster Config Audit Reports"
   group: "Security"
@@ -262,27 +266,40 @@ infoview:
               "HIGH": "High"
               "LOW": "Low"
               "MEDIUM": "Medium"
+            when:
+              - key: "success"
+                eq: false
+        default: "Unaffected"
         type: "str"
         formatter: "value_mapper"
         formatting:
           mapping:
             mappings:
               "Critical":
+                index: 0
                 field_colors:
                   - context: "main"
                     type: "severity_critical"
               "High":
+                index: 1
                 field_colors:
                   - context: "main"
                     type: "severity_high"
               "Low":
+                index: 4
                 field_colors:
                   - context: "main"
-                    type: "severity_low"
+                    type: "status_admin"
               "Medium":
+                index: 2
                 field_colors:
                   - context: "main"
                     type: "severity_medium"
+              "Unaffected":
+                index: 5
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
       test_case:
         header: "Test Case:"
         path: "title"

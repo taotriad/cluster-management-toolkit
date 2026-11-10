@@ -5,6 +5,8 @@ default_command: "clusterrbacassessmentreports"
 command:
   - "clusterrbacassessments"
   - "clusterrbacassessment"
+  - "clrrbacassessments"
+  - "clrrbacassessment"
 listview:
   name: "Cluster RBAC Assessment Reports"
   group: "Security"
@@ -263,6 +265,10 @@ infoview:
               "LOW": "Low"
               "MEDIUM": "Medium"
               "UNKNOWN": "Unknown"
+            when:
+              - key: "success"
+                eq: false
+        default: "Unaffected"
         type: "str"
         formatter: "value_mapper"
         formatting:
@@ -282,12 +288,17 @@ infoview:
                 index: 4
                 field_colors:
                   - context: "main"
-                    type: "severity_low"
+                    type: "status_admin"
               "Medium":
                 index: 2
                 field_colors:
                   - context: "main"
                     type: "severity_medium"
+              "Unaffected":
+                index: 5
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
               "Unknown":
                 index: 3
                 field_colors:

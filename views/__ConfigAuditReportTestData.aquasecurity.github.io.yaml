@@ -9,8 +9,9 @@ infoview:
     creation_timestamp_path: null
     row_indexes:
       Normal:
-        fields: ["test_case", "check_id", "category", "severity",
-                 "result", "description_header", "description"]
+        fields: ["test_case", "check_id", "description", "category",
+                 "messages",
+                 "severity", "result"]
     rows:
       category:
         header: [["Category:", ["main", "infoheader"]]]
@@ -21,11 +22,21 @@ infoview:
         path: "checkID"
         type: "str"
       description:
-        header: [["  ", ["main", "infoheader"]]]
+        header: [["D", ["main", "infoheader_shortcut"]],
+                 ["escription:", ["main", "infoheader"]]]
         path: "description"
         type: "str"
-      description_header:
-        header: [["Description:", ["main", "infoheader"]]]
+      messages:
+        header: [["Messa", ["main", "infoheader"]],
+                 ["g", ["main", "infoheader_shortcut"]],
+                 ["es:", ["main", "infoheader"]]]
+        path: "messages"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+        formatting:
+          field_separators:
+            - type: "list_semicolon"
       result:
         header: [["Result:", ["main", "infoheader"]]]
         paths:
@@ -56,6 +67,10 @@ infoview:
               "HIGH": "High"
               "LOW": "Low"
               "MEDIUM": "Medium"
+            when:
+              - key: "success"
+                eq: false
+        default: "Unaffected"
         type: "str"
         formatter: "value_mapper"
         formatting:
@@ -75,12 +90,17 @@ infoview:
                 index: 4
                 field_colors:
                   - context: "main"
-                    type: "severity_low"
+                    type: "status_admin"
               "Medium":
                 index: 2
                 field_colors:
                   - context: "main"
                     type: "severity_medium"
+              "Unaffected":
+                index: 5
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
               "Unknown":
                 index: 3
                 field_colors:
@@ -91,7 +111,34 @@ infoview:
         path: "title"
         type: "str"
   logpad:
+    title: "Remediation:"
     infogetter: "logpad_formatted"
     infogetter_args:
-      path: "messages"
+      path: "remediation"
     timestamps: false
+  shortcuts:
+    "Show Description":
+      key: "d"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show description"
+      widget: "windowwidget"
+      widget_args:
+        title: "Description"
+        # If the data is one single line we reformat it.
+        wrap_lines: true
+        itemgetter: "get_strings_from_string"
+        itemgetter_args:
+          path: "description"
+    "List Messages":
+      key: "g"
+      read_only: true
+      helptext: "List messages"
+      widget: "windowwidget"
+      widget_args:
+        title: "Messages:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "messages"
+        # This isn't supported for now
+        sortcolumn: "message"

@@ -44,7 +44,8 @@ infoview:
           field_separators:
             - type: "id_prefix"
   logpad:
-    infogetter: "logpad_msg_getter"
+    title: "Remediation:"
+    infogetter: "logpad_formatted"
     infogetter_args:
       path: "remediation"
     timestamps: false

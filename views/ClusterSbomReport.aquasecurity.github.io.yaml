@@ -29,6 +29,7 @@ listview:
     repository:
       header: "Repository:"
       path: "report#artifact#repository"
+      default: "<unset>"
       type: "str"
     scanner:
       header: "Scanner:"
@@ -77,10 +78,12 @@ infoview:
       digest:
         header: [["Digest:", ["main", "infoheader"]]]
         path: "report#artifact#digest"
+        default: "<unset>"
         type: "str"
       repository:
         header: [["Repository:", ["main", "infoheader"]]]
         path: "report#artifact#repository"
+        default: "<unset>"
         type: "str"
       scanner:
         header: [["Scanner:", ["main", "infoheader"]]]

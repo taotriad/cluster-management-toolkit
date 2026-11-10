@@ -22,7 +22,8 @@ infoview:
             default: ["<unspecified>"]
         formatter: "list"
       description:
-        header: [["Description:", ["main", "infoheader"]]]
+        header: [["D", ["main", "infoheader_shortcut"]],
+                 ["escription:", ["main", "infoheader"]]]
         path: "description"
         type: "str"
       id:
@@ -44,6 +45,10 @@ infoview:
               "LOW": "Low"
               "MEDIUM": "Medium"
               "UNKNOWN": "Unknown"
+            when:
+              - key: "totalFail"
+                gt: 0
+        default: "Unaffected"
         type: "str"
         formatter: "value_mapper"
         formatting:
@@ -63,12 +68,17 @@ infoview:
                 index: 4
                 field_colors:
                   - context: "main"
-                    type: "severity_low"
+                    type: "status_admin"
               "Medium":
                 index: 2
                 field_colors:
                   - context: "main"
                     type: "severity_medium"
+              "Unaffected":
+                index: 5
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
               "Unknown":
                 index: 3
                 field_colors:
@@ -80,3 +90,17 @@ infoview:
         default: "Manual check needed"
         type: "int"
         formatter: "numerical"
+  shortcuts:
+    "Show Description":
+      key: "d"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show description"
+      widget: "windowwidget"
+      widget_args:
+        title: "Description"
+        # If the data is one single line we reformat it.
+        wrap_lines: true
+        itemgetter: "get_strings_from_string"
+        itemgetter_args:
+          path: "description"
