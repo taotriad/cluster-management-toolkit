@@ -3023,7 +3023,6 @@
                             "enum": [
                                 "logpad_files",
                                 "logpad_formatted",
-                                "logpad_msg_getter",
                                 "get_cmt_log",
                                 "get_journalctl_log",
                                 "get_task_log",
@@ -3191,34 +3190,6 @@
                                             }
                                         ],
                                         "additionalProperties": false
-                                    },
-                                    "timestamps": {
-                                        "description": "Should the timestamp column be displayed",
-                                        "type": "boolean"
-                                    },
-                                    "title": {
-                                        "description": "The title of the logpad",
-                                        "type": "string"
-                                    }
-                                },
-                                "additionalProperties": false
-                            }
-                        }, {
-                            "if": {
-                                "properties": {
-                                    "infogetter": { "const": "logpad_msg_getter" }
-                                }
-                            }, "then": {
-                                "properties": {
-                                    "infogetter": { "const": "logpad_msg_getter" },
-                                    "infogetter_args": {
-                                        "description": "Arguments to pass to logpad_files()",
-                                        "type": "object",
-                                        "properties": {
-                                            "path": {
-                                                "$ref": "#/$defs/simple_path"
-                                            }
-                                        }
                                     },
                                     "timestamps": {
                                         "description": "Should the timestamp column be displayed",

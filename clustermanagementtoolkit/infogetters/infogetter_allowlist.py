@@ -29,7 +29,6 @@ from clustermanagementtoolkit.infogetters.get_themearrays import get_themearrays
 from clustermanagementtoolkit.infogetters.get_traceflow import get_traceflow
 from clustermanagementtoolkit.infogetters.logpad_files import logpad_files
 from clustermanagementtoolkit.infogetters.logpad_formatted import logpad_formatted
-from clustermanagementtoolkit.infogetters.logpad_msg_getter import logpad_msg_getter
 
 # Infogetters acceptable for direct use in view files
 infogetter_allowlist: dict[str, Callable] = {
@@ -50,8 +49,6 @@ infogetter_allowlist: dict[str, Callable] = {
     "get_subsets_info": get_subsets_info,
     # Used by logpad
     "logpad_formatted": logpad_formatted,
-    # XXX: We should aim to replace this with logpad_formatted
-    "logpad_msg_getter": logpad_msg_getter,
     "logpad_files": logpad_files,
     "get_journalctl_log": get_journalctl_log,
     "get_task_log": get_task_log,

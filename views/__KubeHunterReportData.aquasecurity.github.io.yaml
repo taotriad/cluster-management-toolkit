@@ -61,7 +61,7 @@ infoview:
         path: "vulnerability"
         type: "str"
   logpad:
-    infogetter: "logpad_msg_getter"
+    infogetter: "logpad_formatted"
     infogetter_args:
       path: "description"
     timestamps: false

@@ -42,7 +42,6 @@ from clustermanagementtoolkit.infogetters.get_traceflow import get_traceflow
 from clustermanagementtoolkit.infogetters.infogetter_allowlist import infogetter_allowlist
 from clustermanagementtoolkit.infogetters.logpad_files import logpad_files
 from clustermanagementtoolkit.infogetters.logpad_formatted import logpad_formatted
-from clustermanagementtoolkit.infogetters.logpad_msg_getter import logpad_msg_getter
 from clustermanagementtoolkit.infogetters.process_value import process_value
 from clustermanagementtoolkit.infogetters.transform_filter import transform_filter
 from clustermanagementtoolkit.infogetters.transform_list import transform_list
@@ -83,7 +82,6 @@ __all__ = [
     "infogetter_allowlist",
     "logpad_files",
     "logpad_formatted",
-    "logpad_msg_getter",
     "process_value",
     "transform_filter",
     "transform_list",

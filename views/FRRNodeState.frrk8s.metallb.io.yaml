@@ -84,7 +84,7 @@ infoview:
                   - context: "main"
                     type: "status_not_ok"
   logpad:
-    infogetter: "logpad_msg_getter"
+    infogetter: "logpad_formatted"
     infogetter_args:
       path: "status#runningConfig"
     timestamps: false
