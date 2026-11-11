@@ -48,8 +48,7 @@ def get_obj_remap(obj: dict, path: list[DictPath], ipath: dict,
         values.append((value, vtype))
         return values, True
 
-    if (tmp := deep_get_with_fallback(obj, path)) is None:
-        tmp = []
+    tmp = deep_get_with_fallback(obj, path, [])
 
     if type(tmp) in (bool, int, str):
         tmp = [tmp]

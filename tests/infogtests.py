@@ -2051,7 +2051,7 @@ def test_get_obj_remap(verbose: bool = False) -> tuple[str, bool]:
         # Indata format:
         # (obj, path, ipath, values, kwargs, expected_result, expected_exception)
         testdata: tuple = (
-            # No matches
+            # No matches; no default.
             (
                 # obj
                 {
@@ -2101,10 +2101,65 @@ def test_get_obj_remap(verbose: bool = False) -> tuple[str, bool]:
                     "default": None,
                     "vtype": "raw"
                 },
-                ([([], None)], True),
+                ([([], "raw")], True),
                 None,
             ),
-            # At least one match
+            # No matches; default set.
+            (
+                # obj
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0048"
+                        }
+                    ],
+                    "commands": [
+                        {
+                            "id": "CMD-0001"
+                        }
+                    ],
+                    "description": "Ensure that the API server pod specification file "
+                                   "has permissions of 600 or more restrictive",
+                    "id": "1.1.1",
+                    "name": "Ensure that the API server pod specification file "
+                            "permissions are set to 600 or more restrictive",
+                    "severity": "HIGH",
+                    "__type": "Basic",
+                    "totalFail": 0
+                },
+                # path
+                ["severity"],
+                # ipath
+                {
+                    "path": "severity",
+                    "pathtype": "remap",
+                    "substitutions": {
+                        "CRITICAL": "Critical",
+                        "HIGH": "High",
+                        "LOW": "Low",
+                        "MEDIUM": "Medium",
+                        "UNKNOWN": "Unknown"
+                    },
+                    "when": [
+                        {
+                            "key": "totalFail",
+                            "gt": 0
+                        }
+                    ],
+                },
+                # values
+                [],
+                # kwargs
+                {
+                    "default": "Unaffected",
+                    "vtype": "raw"
+                },
+                # expected result
+                ([(["Unaffected"], "raw")], True),
+                # expected exception
+                None,
+            ),
+            # At least one match.
             (
                 # obj
                 {
@@ -2154,15 +2209,288 @@ def test_get_obj_remap(verbose: bool = False) -> tuple[str, bool]:
                     "default": None,
                     "vtype": "raw"
                 },
-                ([("High", None)], True),
+                # expected result
+                ([("High", "raw")], True),
+                # expected exception
                 None,
+            ),
+            # No when-filter.
+            (
+                # obj
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0048"
+                        }
+                    ],
+                    "commands": [
+                        {
+                            "id": "CMD-0001"
+                        }
+                    ],
+                    "description": "Ensure that the API server pod specification file "
+                                   "has permissions of 600 or more restrictive",
+                    "id": "1.1.1",
+                    "name": "Ensure that the API server pod specification file "
+                            "permissions are set to 600 or more restrictive",
+                    "severity": "HIGH",
+                    "__type": "Basic",
+                    "totalFail": 1
+                },
+                # path
+                ["severity"],
+                # ipath
+                {
+                    "path": "severity",
+                    "pathtype": "remap",
+                    "substitutions": {
+                        "CRITICAL": "Critical",
+                        "HIGH": "High",
+                        "LOW": "Low",
+                        "MEDIUM": "Medium",
+                        "UNKNOWN": "Unknown"
+                    },
+                },
+                # values
+                [],
+                # kwargs
+                {
+                    "default": None,
+                    "vtype": "raw"
+                },
+                # expected result
+                ([("High", "raw")], True),
+                # expected exception
+                None,
+            ),
+            # No match, default, no when-filter.
+            (
+                # obj
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0048"
+                        }
+                    ],
+                    "commands": [
+                        {
+                            "id": "CMD-0001"
+                        }
+                    ],
+                    "description": "Ensure that the API server pod specification file "
+                                   "has permissions of 600 or more restrictive",
+                    "id": "1.1.1",
+                    "name": "Ensure that the API server pod specification file "
+                            "permissions are set to 600 or more restrictive",
+                    "severity": "HIGH",
+                    "__type": "Basic",
+                    "totalFail": 1
+                },
+                # path
+                ["severity"],
+                # ipath
+                {
+                    "path": "severity",
+                    "pathtype": "remap",
+                    "substitutions": {
+                        "CRITICAL": "Critical",
+                        "LOW": "Low",
+                        "MEDIUM": "Medium",
+                        "UNKNOWN": "Unknown",
+                        "__default": "Unknown",
+                    },
+                },
+                # values
+                [],
+                # kwargs
+                {
+                    "vtype": "raw"
+                },
+                # expected result
+                ([("Unknown", "raw")], True),
+                # expected exception
+                None,
+            ),
+            # No match, no default, no when-filter.
+            (
+                # obj
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0048"
+                        }
+                    ],
+                    "commands": [
+                        {
+                            "id": "CMD-0001"
+                        }
+                    ],
+                    "description": "Ensure that the API server pod specification file "
+                                   "has permissions of 600 or more restrictive",
+                    "id": "1.1.1",
+                    "name": "Ensure that the API server pod specification file "
+                            "permissions are set to 600 or more restrictive",
+                    "severity": "HIGH",
+                    "__type": "Basic",
+                    "totalFail": 1
+                },
+                # path
+                ["severity"],
+                # ipath
+                {
+                    "path": "severity",
+                    "pathtype": "remap",
+                    "substitutions": {
+                        "CRITICAL": "Critical",
+                        "LOW": "Low",
+                        "MEDIUM": "Medium",
+                        "UNKNOWN": "Unknown",
+                    },
+                },
+                # values
+                [],
+                # kwargs
+                {
+                    "vtype": "raw"
+                },
+                # expected result
+                ([("HIGH", "raw")], True),
+                # expected exception
+                None,
+            ),
+            # Empty list, no default, no when-filter.
+            (
+                # obj
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0048"
+                        }
+                    ],
+                    "commands": [
+                        {
+                            "id": "CMD-0001"
+                        }
+                    ],
+                    "description": "Ensure that the API server pod specification file "
+                                   "has permissions of 600 or more restrictive",
+                    "id": "1.1.1",
+                    "name": "Ensure that the API server pod specification file "
+                            "permissions are set to 600 or more restrictive",
+                    "severity": "HIGH",
+                    "__type": "Basic",
+                    "totalFail": 1
+                },
+                # path
+                ["foo"],
+                # ipath
+                {
+                    "path": "foo",
+                    "pathtype": "remap",
+                    "substitutions": {
+                        "CRITICAL": "Critical",
+                        "LOW": "Low",
+                        "MEDIUM": "Medium",
+                        "UNKNOWN": "Unknown",
+                    },
+                },
+                # values
+                [],
+                # kwargs
+                {
+                    "vtype": "raw"
+                },
+                # expected result
+                ([], False),
+                # expected exception
+                None,
+            ),
+            # Empty list, default, no when-filter.
+            (
+                # obj
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0048"
+                        }
+                    ],
+                    "commands": [
+                        {
+                            "id": "CMD-0001"
+                        }
+                    ],
+                    "description": "Ensure that the API server pod specification file "
+                                   "has permissions of 600 or more restrictive",
+                    "id": "1.1.1",
+                    "name": "Ensure that the API server pod specification file "
+                            "permissions are set to 600 or more restrictive",
+                    "severity": "HIGH",
+                    "__type": "Basic",
+                    "totalFail": 1
+                },
+                # path
+                ["foo"],
+                # ipath
+                {
+                    "path": "foo",
+                    "pathtype": "remap",
+                    "substitutions": {
+                        "CRITICAL": "Critical",
+                        "LOW": "Low",
+                        "MEDIUM": "Medium",
+                        "UNKNOWN": "Unknown",
+                    },
+                },
+                # values
+                [],
+                # kwargs
+                {
+                    "default": "HIGH",
+                    "vtype": "raw"
+                },
+                # expected result
+                ([("HIGH", "raw")], True),
+                # expected exception
+                None,
+            ),
+            # Unmappable data.
+            (
+                # obj
+                {
+                    "checks": {},
+                },
+                # path
+                ["checks"],
+                # ipath
+                {
+                    "path": "checks",
+                    "pathtype": "remap",
+                    "substitutions": {
+                        "CRITICAL": "Critical",
+                        "HIGH": "High",
+                        "LOW": "Low",
+                        "MEDIUM": "Medium",
+                        "UNKNOWN": "Unknown"
+                    },
+                },
+                # values
+                [],
+                # kwargs
+                {
+                    "default": None,
+                    "vtype": "raw"
+                },
+                # expected result
+                None,
+                # expected exception
+                TypeError,
             ),
         )
 
         for obj, path, ipath, values, kwargs, expected_result, expected_exception in testdata:
             values_in = copy.deepcopy(values)
             try:
-                tmp = fun(obj=obj, path=path, ipath=ipath, values=values, kwargs=kwargs)
+                tmp = fun(obj=obj, path=path, ipath=ipath, values=values, **kwargs)
                 if tmp != expected_result:
                     message = f"{fun.__name__}() did not yield expected result:\n" \
                               f"              obj: {obj}\n" \
