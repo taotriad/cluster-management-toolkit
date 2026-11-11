@@ -6,6 +6,7 @@
     - image_regex: "/cdi-controller"
     - image_regex: "/cdi-deployment"
     - image_regex: "/cdi-operator"
+    - image_regex: "/container-native-virtualization/virt-cdi-operator"
     - image_regex: "/cdi-importer"
     - image_regex: "/cdi-uploadproxy"
   parser_rules:

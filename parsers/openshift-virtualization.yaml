@@ -12,7 +12,8 @@
 - name: "openshift-virtualization"
   show_in_selector: false
   matchkeys:
-    - image_name: "/container-native-virtualization/virt-platform-autopilot"
+    - image_regex: "/container-native-virtualization/virt-platform-autopilot"
+    - image_regex: "/container-native-virtualization/virt-migration-operator"
   parser_rules:
     - name: "glog"
     - name: "tab_separated"
