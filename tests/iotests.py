@@ -45,7 +45,7 @@ from clustermanagementtoolkit.cmttypes import deep_get, DictPath, FilePath
 from clustermanagementtoolkit.cmttypes import SecurityChecks, SecurityPolicy, SecurityStatus
 from clustermanagementtoolkit.cmttypes.exceptions import FilePathAuditError
 
-# from clustermanagementtoolkit.cmtpaths import HOMEDIR
+from clustermanagementtoolkit.cmtpaths import HOMEDIR
 
 """
 A checker that validates cmtio, cmtio_yaml, and networkio
@@ -1705,19 +1705,19 @@ testcases: dict[str, dict[str, Any]] = {
         "test": test_expand_path,
         "expect": (FilePath(f"{TEST_DIR}/05-not_executable.sh"), False),
     },
-    # "Valid path, expand {HOME}/ (expand_path)": {
-    #     "path": "{HOME}/.cmt/cmt.yaml",
-    #     "fallback": "",
-    #     "test": test_expand_path,
-    #     "expect": (FilePath(f"{HOMEDIR}/.cmt/cmt.yaml"), True),
-    # },
-    # "Bare filename, expand {HOME}/ in search_paths (expand_path)": {
-    #     "path": "cmt.yaml",
-    #     "search_paths": ["{HOME}/.cmt/"],
-    #     "fallback": "",
-    #     "test": test_expand_path,
-    #     "expect": (FilePath(f"{HOMEDIR}/.cmt/cmt.yaml"), True),
-    # },
+    "Valid path, expand {HOME}/ (expand_path)": {
+        "path": "{HOME}/.cmt/cmt.yaml",
+        "fallback": "",
+        "test": test_expand_path,
+        "expect": (FilePath(f"{HOMEDIR}/.cmt/cmt.yaml"), True),
+    },
+    "Bare filename, expand {HOME}/ in search_paths (expand_path)": {
+        "path": "cmt.yaml",
+        "search_paths": ["{HOME}/.cmt/"],
+        "fallback": "",
+        "test": test_expand_path,
+        "expect": (FilePath(f"{HOMEDIR}/.cmt/cmt.yaml"), True),
+    },
     "Bare filename, /bin in search_paths (expand_path)": {
         "path": "ls",
         "search_paths": ["/bin"],
@@ -1731,26 +1731,26 @@ testcases: dict[str, dict[str, Any]] = {
         "test": test_expand_path,
         "expect": (FilePath(""), False),
     },
-    # "Valid path, matching suffix (expand_path)": {
-    #     "path": f"{HOMEDIR}/.cmt/cmt",
-    #     "fallback": "",
-    #     "suffixes": [".yaml"],
-    #     "test": test_expand_path,
-    #     "expect": (FilePath(f"{HOMEDIR}/.cmt/cmt.yaml"), True),
-    # },
-    # "Valid path, non-matching suffix (expand_path)": {
-    #     "path": f"{HOMEDIR}/.cmt/cmt",
-    #     "fallback": "",
-    #     "suffixes": [".json"],
-    #     "test": test_expand_path,
-    #     "expect": (FilePath(""), False),
-    # },
-    # "Valid path, non suffix (expand_path)": {
-    #     "path": f"{HOMEDIR}/.cmt/cmt",
-    #     "fallback": "",
-    #     "test": test_expand_path,
-    #     "expect": (FilePath(""), False),
-    # },
+    "Valid path, matching suffix (expand_path)": {
+        "path": f"{HOMEDIR}/.cmt/cmt",
+        "fallback": "",
+        "suffixes": [".yaml"],
+        "test": test_expand_path,
+        "expect": (FilePath(f"{HOMEDIR}/.cmt/cmt.yaml"), True),
+    },
+    "Valid path, non-matching suffix (expand_path)": {
+        "path": f"{HOMEDIR}/.cmt/cmt",
+        "fallback": "",
+        "suffixes": [".json"],
+        "test": test_expand_path,
+        "expect": (FilePath(""), False),
+    },
+    "Valid path, non suffix (expand_path)": {
+        "path": f"{HOMEDIR}/.cmt/cmt",
+        "fallback": "",
+        "test": test_expand_path,
+        "expect": (FilePath(""), False),
+    },
     "Valid command, no env (execute_command)": {
         "command": [FilePath("/bin/sleep"), "0"],
         "env": None,

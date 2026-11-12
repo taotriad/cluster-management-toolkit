@@ -38,7 +38,7 @@ def expand_path(path: str, search_paths: list[str] | None = None,
     partial_paths = []
     full_path = None
 
-    if path is None or not path:
+    if not path:
         return FilePath(fallback), False
 
     if path.startswith("{HOME}/"):
@@ -58,7 +58,7 @@ def expand_path(path: str, search_paths: list[str] | None = None,
         if path_entry.is_file():
             full_path = partial_path
             break
-        if suffixes is not None:
+        if suffixes:
             for suffix in suffixes:
                 partial_path_suffixed = f"{partial_path}{suffix}"
                 path_entry = Path(partial_path_suffixed)
