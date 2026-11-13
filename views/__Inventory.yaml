@@ -178,7 +178,7 @@ infoview:
             - type: "version"
           field_separators:
             - type: "space"
-          field_formaters:
+          field_formatters:
             - "version"
             - "version"
       processors:
@@ -232,7 +232,7 @@ infoview:
         formatting:
           field_formatters:
             - "numerical_with_units"
-          field_separator:
+          field_separators:
             - type: "fraction"
         align: "right"
       fstype:

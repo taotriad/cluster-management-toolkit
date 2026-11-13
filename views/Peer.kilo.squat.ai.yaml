@@ -35,7 +35,7 @@ infoview:
         # that contain addresses, etc.
         formatter: "list"
         formatting:
-          field_color:
+          field_colors:
             - type: "address"
             - type: "port"
           field_separators:

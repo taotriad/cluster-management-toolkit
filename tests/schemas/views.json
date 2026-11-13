@@ -302,9 +302,15 @@
                 ]
             }
         },
+        "field_mappings": {
+            "description": "The valid field mappings",
+            "type": "array",
+            "items": {
+                "$ref": "#/$defs/mapping"
+            }
+        },
         "field_separators": {
             "description": "Separators to use between items in a field",
-            "type": "array",
             "items": {
                 "description": "[context]/type lookup to a separator in the theme file",
                 "type": "object",
@@ -319,7 +325,9 @@
                         "type": "string",
                         "pattern": "^[a-z][a-z0-9_]*[a-z0-9]$"
                     }
-                }
+                },
+                "required": [ "type" ],
+                "additionalProperties": false
             }
         },
         "file_not_found_status": {
@@ -424,121 +432,95 @@
                 "field_formatters": {
                     "$ref": "#/$defs/field_formatters"
                 },
+                "field_mappings": {
+                    "$ref": "#/$defs/field_mappings"
+                },
+                "field_prefixes": {
+                    "description": "A list of lists of field prefixes",
+                    "type": "array",
+                    "items": {
+                        "description": "A list of field prefixes",
+                        "type": "array",
+                        "items": {
+                            "description": "Prefixes",
+                            "type": "object",
+                            "properties": {
+                                "context": {
+                                    "description": "The context for the the colour pair",
+                                    "type": "string",
+                                    "pattern": "^[a-z][a-z0-9_]*[a-z0-9]$"
+                                },
+                                "type": {
+                                    "description": "The name of the colour pair",
+                                    "type": "string",
+                                    "pattern": "^[a-z][a-z0-9_]*[a-z0-9]$"
+                                }
+                            }
+                        }
+                    }
+                },
                 "field_separators": {
                     "$ref": "#/$defs/field_separators"
                 },
-                "mapping": {
-                    "description": "Remap values",
-                    "type": "object",
-                    "properties": {
-                        "mappings": {
-                            "patternProperties": {
-                                "^.*$": {
-                                    "type": "object",
-                                    "properties": {
-                                        "field_colors": {
-                                            "$ref": "#/$defs/field_colors_mandatory_context"
-                                        },
-                                        "index": {
-                                            "type": "integer"
-                                        }
-                                    },
-                                    "additionalProperties": false
-                                },
-                                "^__default$": {
-                                    "properties": {
-                                        "field_colors": {
-                                            "$ref": "#/$defs/field_colors_mandatory_context"
-                                        },
-                                        "index": {
-                                            "description": "Sort index",
-                                            "type": "integer"
-                                        }
-                                    },
-                                    "additionalProperties": false
-                                }
-                            },
-                            "additionalProperties": false
-                        },
-                        "ranges": {
-                            "description": "Format ranges of values",
-                            "type": "array",
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "default": {
-                                        "description": "Is this the default entry",
-                                        "type": "boolean"
-                                    },
-                                    "field_colors": {
-                                        "$ref": "#/$defs/field_colors_mandatory_context"
-                                    },
-                                    "max": {
-                                        "description": "Upper value in the range",
-                                        "type": ["integer", "string", "null"]
-                                    },
-                                    "min": {
-                                        "description": "Lower value in the range",
-                                        "type": ["integer", "string", "null"]
-                                    }
-                                },
-                                "additionalProperties": false
-                            },
-                            "minItems": 1
-                        },
-                        "source": {
-                            "description": "When doing a comparison against a range, should the range apply to the value directly, or a percentage of a reference value?",
-                            "enum": [
-                                "output",
-                                "reference"
-                            ]
-                        },
-                        "substitutions": {
+                "field_suffixes": {
+                    "description": "A list of lists of field suffixes",
+                    "type": "array",
+                    "items": {
+                        "description": "A list of field suffixes",
+                        "type": "array",
+                        "items": {
+                            "description": "Suffixes",
                             "type": "object",
-                            "patternProperties": {
-                                "^.*$": {
-                                    "anyOf": [
-                                        {
-                                            "description": "Substitute the value with a boolean",
-                                            "type": "boolean"
-                                        }, {
-                                            "description": "Substitute the value with an integer",
-                                            "type": "integer"
-                                        }, {
-                                            "description": "Substitute the value with a string",
-                                            "type": "string"
-                                        }, {
-                                            "description": "A ThemeRef(context, type) or ThemeString(string, ThemeAttr(context, type))",
-                                            "type": "object",
-                                            "properties": {
-                                                "context": {
-                                                    "type": "string"
-                                                },
-                                                "string": {
-                                                    "type": "string"
-                                                },
-                                                "type": {
-                                                    "type": "string"
-                                                }
-                                            },
-                                            "required": [ "type" ],
-                                            "additionalProperties": false
-                                        }
-                                    ]
+                            "properties": {
+                                "context": {
+                                    "description": "The context for the the colour pair",
+                                    "type": "string",
+                                    "pattern": "^[a-z][a-z0-9_]*[a-z0-9]$"
+                                },
+                                "type": {
+                                    "description": "The name of the colour pair",
+                                    "type": "string",
+                                    "pattern": "^[a-z][a-z0-9_]*[a-z0-9]$"
                                 }
-                            },
-                            "additionalProperties": false
+                            }
                         }
-                    },
-                    "additionalProperties": false
+                    }
+                },
+                "item_separator": {
+                    "$ref": "#/$defs/item_separator"
+                },
+                "mapping": {
+                    "$ref": "#/$defs/mapping"
+                },
+                "unit": {
+                    "description": "A unit string",
+                    "type": "string"
                 }
             },
-            "addititionalProperties": false
+            "additionalProperties": false
         },
         "header": {
             "description": "A header to use for fields",
             "type": "string",
             "pattern": "^[A-Za-z0-9%#!][A-Za-z0-9()%#./! -]*:$"
+        },
+        "item_separator": {
+            "description": "Separator to use between items in a list",
+            "type": "object",
+            "properties": {
+                "type": {
+                    "description": "The name of the separator",
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]*[a-z0-9]$"
+                },
+                "context": {
+                    "description": "The context of the separator (default: 'separators'):",
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]*[a-z0-9]$"
+                }
+            },
+            "required": [ "type" ],
+            "additionalProperties": false
         },
         "itemgetter_source": {
             "description": "Is the data source the selected object or the parent object; default: object",
@@ -552,6 +534,111 @@
             "type": "string",
             "pattern": "^[_A-Z][_A-Za-z0-9]*$",
             "minLength": 1
+        },
+        "mapping": {
+            "description": "Remap values",
+            "type": "object",
+            "properties": {
+                "mappings": {
+                    "patternProperties": {
+                        "^.*$": {
+                            "type": "object",
+                            "properties": {
+                                "field_colors": {
+                                    "$ref": "#/$defs/field_colors_mandatory_context"
+                                },
+                                "index": {
+                                    "type": "integer"
+                                }
+                            },
+                            "additionalProperties": false
+                        },
+                        "^__default$": {
+                            "properties": {
+                                "field_colors": {
+                                    "$ref": "#/$defs/field_colors_mandatory_context"
+                                },
+                                "index": {
+                                    "description": "Sort index",
+                                    "type": "integer"
+                                }
+                            },
+                            "additionalProperties": false
+                        }
+                    },
+                    "additionalProperties": false
+                },
+                "ranges": {
+                    "description": "Format ranges of values",
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "default": {
+                                "description": "Is this the default entry",
+                                "type": "boolean"
+                            },
+                            "field_colors": {
+                                "$ref": "#/$defs/field_colors_mandatory_context"
+                            },
+                            "max": {
+                                "description": "Upper value in the range",
+                                "type": ["integer", "string", "null"]
+                            },
+                            "min": {
+                                "description": "Lower value in the range",
+                                "type": ["integer", "string", "null"]
+                            }
+                        },
+                        "additionalProperties": false
+                    },
+                    "minItems": 1
+                },
+                "source": {
+                    "description": "When doing a comparison against a range, should the range apply to the value directly, or a percentage of a reference value?",
+                    "enum": [
+                        "output",
+                        "reference"
+                    ]
+                },
+                "substitutions": {
+                    "type": "object",
+                    "patternProperties": {
+                        "^.*$": {
+                            "anyOf": [
+                                {
+                                    "description": "Substitute the value with a boolean",
+                                    "type": "boolean"
+                                }, {
+                                    "description": "Substitute the value with an integer",
+                                    "type": "integer"
+                                }, {
+                                    "description": "Substitute the value with a string",
+                                    "type": "string"
+                                }, {
+                                    "description": "A ThemeRef(context, type) or ThemeString(string, ThemeAttr(context, type))",
+                                    "type": "object",
+                                    "properties": {
+                                        "context": {
+                                            "type": "string"
+                                        },
+                                        "string": {
+                                            "type": "string"
+                                        },
+                                        "type": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [ "type" ],
+                                    "additionalProperties": false
+                                }
+                            ]
+                        }
+                    },
+                    "additionalProperties": false
+                }
+            },
+            "additionalProperties": false
         },
         "newlines": {
             "description": "How to handle newlines",

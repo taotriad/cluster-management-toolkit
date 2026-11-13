@@ -27,7 +27,7 @@ listview:
         field_colors:
           - type: "user"
           - type: "uid"
-        field_separator:
+        field_separators:
           - type: "user_uid"
 infoview:
   name: "Identity Info"
@@ -55,7 +55,7 @@ infoview:
           field_colors:
             - type: "user"
             - type: "uid"
-          field_separator:
+          field_separators:
             - type: "user_uid"
   shortcuts:
     "User":

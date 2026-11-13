@@ -99,7 +99,7 @@ infoview:
           field_colors:
             - type: "numerical"
             - type: "numerical"
-          separators:
+          field_separators:
             - type: "fraction"
   listpad:
     listgetter: "listgetter_path"

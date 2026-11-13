@@ -86,7 +86,7 @@ infoview:
           field_colors:
             - type: "namespace"
             - type: "generic"
-          field_separator:
+          field_separators:
             - type: "namespace"
       progress:
         header: [["Progress:", ["main", "infoheader"]]]
