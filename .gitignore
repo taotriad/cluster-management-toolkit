@@ -87,6 +87,7 @@ views/DockerCluster.infrastructure.cluster.x-k8s.io.yaml
 views/EndpointSlice.discovery.k8s.io.yaml
 views/EngineImage.longhorn.io.yaml
 views/EnterpriseSearch.enterprisesearch.k8s.elastic.co.yaml
+views/EphemeralJob.apps.kruise.io.yaml
 views/Event.events.k8s.io.yaml
 views/Event.yaml
 views/EventType.eventing.knative.dev.yaml

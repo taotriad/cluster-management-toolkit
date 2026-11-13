@@ -1,0 +1,380 @@
+---
+kind: "EphemeralJob"
+api_family: "apps.kruise.io"
+default_command: "ephemeraljobs"
+command:
+  - "ephjobs"
+  - "ephjob"
+listview:
+  name: "Ephemeral Jobs"
+  group: "Kruise"
+  field_indexes:
+    Wide:
+      fields: ["namespace", "name",
+               "matched",
+               "waiting",
+               "running",
+               "succeeded",
+               "failed",
+               "completion_time_with_age",
+               "replicas",
+               "paused", "phase", "age"]
+      sortcolumn: "namespace"
+    Normal:
+      fields: ["namespace", "name", "completion_time_with_age",
+               "replicas",
+               "paused", "phase", "age"]
+      sortcolumn: "namespace"
+  fields:
+    completion_time_with_age:
+      header: "Completion Time:"
+      paths:
+        - paths: [["status#startTime"], " (", "Duration: ",
+                  ["status#completionTime"], ")"]
+          pathtype: "timestamp_with_age"
+      formatter: "timestamp_with_age"
+      formatting:
+        field_colors:
+          # This is a meta-type, indicating where the timestamp goes
+          - type: "timestamp"
+          - type: "generic"
+          - type: "generic"
+          # This is a meta-type, indicating where the age goes
+          - type: "age"
+          - type: "generic"
+    failed:
+      header: "Failed:"
+      path: "status#failed"
+      default: "<unset>"
+      type: "int"
+      formatter: "value_mapper"
+      align: "right"
+      formatting:
+        mapping:
+          ranges:
+            - min: 0
+              max: 1
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            - default: true
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+    matched:
+      header: "Matched:"
+      path: "status#match"
+      default: "<unset>"
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    paused:
+      header: "Paused:"
+      path: "spec#paused"
+      type: "str"
+      default: "False"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+    phase:
+      header: "Phase:"
+      path: "status#phase"
+      type: "str"
+      default: "<unset>"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "Error":
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            "Failed":
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            "Paused":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            "Running":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "Succeeded":
+              field_colors:
+                - context: "main"
+                  type: "status_done"
+            "Unknown":
+              field_colors:
+                - context: "main"
+                  type: "status_unknown"
+            "Waiting":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+    replicas:
+      header: "Replicas:"
+      path: "spec#replicas"
+      default: "<unset>"
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    running:
+      header: "Running:"
+      path: "status#running"
+      default: "<unset>"
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    succeeded:
+      header: "Succeeded:"
+      path: "status#succeeded"
+      default: "<unset>"
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    waiting:
+      header: "Waiting:"
+      path: "status#waiting"
+      default: "<unset>"
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+  actions:
+    actionlist:
+      "Delete resource":
+        description: "Delete resource"
+        category: "Resource Level"
+        confirm: true
+        actionfunc: "delete_resource"
+      "Unpause resource":
+        description: "Unpause resource"
+        category: "Resource Level"
+        actionfunc: "patch_resource"
+        extravars:
+          action_str: "Unpausing"
+          args:
+            patch:
+              spec:
+                paused: false
+            strategic_merge: false
+      "Pause resource":
+        description: "Pause resource"
+        category: "Resource Level"
+        actionfunc: "patch_resource"
+        extravars:
+          action_str: "Pausing"
+          args:
+            patch:
+              spec:
+                paused: true
+            strategic_merge: false
+infoview:
+  name: "Ephemeral Job Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["selector",
+                 "active_deadline_seconds",
+                 "ttl_seconds_after_finished",
+                 "completion_time_with_age",
+                 "parallelism",
+                 "pods",
+                 "replicas",
+                 "paused",
+                 "phase"]
+    rows:
+      active_deadline_seconds:
+        header: [["Active Deadline:", ["main", "infoheader"]]]
+        path: "spec#activeDeadlineSeconds"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+        formatting:
+          unit: "s"
+      completion_time_with_age:
+        header: [["Completion Time:", ["main", "infoheader"]]]
+        paths:
+          - paths: [["status#startTime"], " (", "Duration: ",
+                    ["status#completionTime"], ")"]
+            pathtype: "timestamp_with_age"
+        formatter: "timestamp_with_age"
+        formatting:
+          field_colors:
+            # This is a meta-type, indicating where the timestamp goes
+            - type: "timestamp"
+            - type: "generic"
+            - context: "main"
+              type: "infoheader"
+            # This is a meta-type, indicating where the age goes
+            - type: "age"
+            - type: "generic"
+      parallelism:
+        header: [["Parallelism:", ["main", "infoheader"]]]
+        path: "spec#parallelism"
+        default: 1
+        type: "int"
+        formatter: "numerical"
+      paused:
+        header: [["Paused:", ["main", "infoheader"]]]
+        path: "spec#paused"
+        type: "str"
+        default: "False"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+      phase:
+        header: [["Phase:", ["main", "infoheader"]]]
+        path: "status#phase"
+        type: "str"
+        default: "<unset>"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "Error":
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              "Failed":
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              "Paused":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              "Running":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "Succeeded":
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              "Unknown":
+                field_colors:
+                  - context: "main"
+                    type: "status_unknown"
+              "Waiting":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+      pods:
+        header: [["Pods:", ["main", "infoheader"]]]
+        paths:
+          - path: [["status#matched"], " Matched",
+                   ["status#waiting"], " Waiting",
+                   ["status#running"], " Running",
+                   ["status#succeeded"], " Succeeded",
+                   ["status#failed"], " Failed"]
+            pathtype: "tuple"
+            default: [0, "", 0, "", 0, "", 0, 0, ""]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "numerical"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
+          field_formatters:
+            - ""
+            - ""
+            - ""
+            - ""
+            - ""
+            - ""
+            - ""
+            - ""
+            - "value_mapping"
+            - ""
+          field_separators:
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
+          field_mappings:
+            - {}
+            - {}
+            - {}
+            - {}
+            - {}
+            - {}
+            - {}
+            - {}
+            - ranges:
+                - min: 0
+                  max: 1
+                  field_colors:
+                    - context: "main"
+                      type: "status_ok"
+                - default: true
+                  field_colors:
+                    - context: "main"
+                      type: "status_not_ok"
+            - {}
+      replicas:
+        header: [["Replicas:", ["main", "infoheader"]]]
+        path: "spec#replicas"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      {%- for line in row_selector.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      ttl_seconds_after_finished:
+        header: [["TTL after Finished:", ["main", "infoheader"]]]
+        path: "spec#ttlSecondsAfterFinished"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+        formatting:
+          unit: "s"
+  {%- for line in listpad_pod_spec_selector_matchlabels.split("\n") %}
+  {{ line }}
+  {%- endfor %}
+  shortcuts:
+    {%- for line in shortcut_selector.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    "Pod template":
+      key: "t"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show Pod template"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Pod template"
+        _pass_obj: true
+        path: "spec#template"
