@@ -389,7 +389,7 @@ nodes:
               - "sha256:{{ ca_cert_hash }}"
               # This will be auto-populated;
               # only change if you know what you're doing.
-              apiServerEndpoint: "{{ control_plane_ip }}:{{ control_plane_port }}{{ control_plane_path }}"
+              apiServerEndpoint: "{{ control_plane_ip }}{{ control_plane_port }}{{ control_plane_path }}"
         # yamllint enable rule:line-length
 
         # Path to node configuration template,
@@ -413,12 +413,12 @@ nodes:
     #   # or if using virtualised nodes.
     #   nodes:
     #     - name: "<node 1>"
-    #   # A dict of Ansible variables for the node.
-    #   # This can, for instance, be used to set
-    #   # ansible_user, ansible_pass, etc.
-    #   # These override the global Ansible variables
-    #   # and the Ansible variables for the node-group.
-    #   # ansibleVars:
+    #       # A dict of Ansible variables for the node.
+    #       # This can, for instance, be used to set
+    #       # ansible_user, ansible_pass, etc.
+    #       # These override the global Ansible variables
+    #       # and the Ansible variables for the node-group.
+    #       # ansibleVars:
     #
     #   # Set this to true if the nodes are virtualised;
     #   # if so the "nodes" should be empty or unset.
@@ -599,7 +599,7 @@ nodes:
     #               - "sha256:{{ ca_cert_hash }}"
     #               # This will be auto-populated;
     #               # only change if you know what you're doing.
-    #               apiServerEndpoint: "{{ control_plane_ip }}:{{ control_plane_port }}{{ control_plane_path }}"
+    #               apiServerEndpoint: "{{ control_plane_ip }}{{ control_plane_port }}{{ control_plane_path }}"
               # yamllint enable rule:line-length
 
     #         # Path to node configuration template,

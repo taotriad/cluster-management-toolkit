@@ -875,8 +875,8 @@ def __upgrade_cni(cni: str, upgradetype: str, context: str,
 
     arch_aliases = deep_get(cni_data, DictPath(f"{cni}#{upgradetype}#arch_aliases"), {})
 
-    # Just to mess things up it's not enough to know the arch that the distro
-    # expects; we sometimes need the arch that github expects.
+    # Just to mess things up it's not enough to know the arch that the distro expects;
+    # we sometimes need the arch that github expects.
     arch = identify_arch()
     arch = deep_get(arch_aliases, DictPath(arch), arch)
 
@@ -2109,8 +2109,8 @@ def __playbook_paths_from_path(playbook_path: FilePath) -> list[FilePath]:
     playbook_paths = []
 
     # Populate list of playbooks.
-    # Note: cannot use glob, since glob neither supports
-    # "{pattern1,pattern2} nor ("pattern1", "pattern2").
+    # Note: we cannot use glob, since glob neither supports
+    # {pattern1,pattern2} nor (pattern1, pattern2).
     for path in Path(playbook_path).iterdir():
         # Do not process backups, etc.
         if path.name.startswith(("~", ".")):
@@ -2282,7 +2282,7 @@ def __task_run_preparation_playbooks_on_localhost(installation_info: dict, **kwa
                                      "default")], stderr=True)
         sys.exit(errno.ENOENT)
 
-    # Split the version tuple
+    # Split the version tuple.
     _upstream_major, upstream_minor, _rest = kubernetes_upstream_version.split(".")
     minor_versions = []
     for minor_version in range(32, int(upstream_minor) + 1):
@@ -2343,7 +2343,7 @@ def __task_run_preparation_playbooks_on_hosts(installation_info: dict, **kwargs:
                                      "default")], stderr=True)
         sys.exit(errno.ENOENT)
 
-    # Split the version tuple
+    # Split the version tuple.
     _upstream_major, upstream_minor, _rest = kubernetes_upstream_version.split(".")
     minor_versions = []
     for minor_version in range(32, int(upstream_minor) + 1):
@@ -2380,7 +2380,7 @@ def __task_run_postpreparation_playbooks(installation_info: dict, **kwargs: Any)
             **kwargs (dict[str, Any]): Keyword arguments
     """
     # The default selection is control planes;
-    # the playbooks need to explicitly specify if the play should be run on other hosts
+    # the playbooks need to explicitly specify if the play should be run on other hosts.
     selection = __selection_control_planes()
     try:
         __generic_task_run_playbooks_on_selection(selection=selection,
@@ -2423,7 +2423,7 @@ def __task_run_presetup_playbooks(installation_info: dict, **kwargs: Any) -> Non
             **kwargs (dict[str, Any]): Keyword arguments
     """
     # The default selection is control planes;
-    # the playbooks need to explicitly specify if the play should be run on other hosts
+    # the playbooks need to explicitly specify if the play should be run on other hosts.
     selection = __selection_control_planes()
     try:
         __generic_task_run_playbooks_on_selection(selection=selection,
@@ -2539,7 +2539,7 @@ def __task_run_postsetup_playbooks(installation_info: dict, **kwargs: Any) -> No
             **kwargs (dict[str, Any]): Keyword arguments
     """
     # The default selection is control planes;
-    # the playbooks need to explicitly specify if the play should be run on other hosts
+    # the playbooks need to explicitly specify if the play should be run on other hosts.
     selection = __selection_control_planes()
     try:
         __generic_task_run_playbooks_on_selection(selection=selection,
@@ -2621,7 +2621,7 @@ def merge_kubeconfigs(kubeconfig1: dict[str, Any] | ruyaml.comments.CommentedSeq
             return kubeconfig1
         users[user_name] = dict(user)
 
-    # Now that we've merged the values we update the merged_config
+    # Now that we've merged the values we update the merged_config.
     merged_kubeconfig["clusters"] = list(clusters.values())
     merged_kubeconfig["contexts"] = list(contexts.values())
     merged_kubeconfig["users"] = list(users.values())
@@ -2646,10 +2646,10 @@ def __task_import_kubeconfig(installation_info: dict, **kwargs: Any) -> None:
 
     d1: dict[str, Any] | ruyaml.comments.CommentedSeq = {}
 
-    # This read must not fail, so no exceptions
+    # This read must not fail, so no exceptions.
     d2: dict[str, Any] | ruyaml.comments.CommentedSeq = secure_read_yaml(config_file_name)
 
-    # This file will not exist if this is the first cluster
+    # This file will not exist if this is the first cluster.
     security_checks = [
         SecurityChecks.PARENT_RESOLVES_TO_SELF,
         SecurityChecks.OWNER_IN_ALLOWLIST,
@@ -2664,7 +2664,7 @@ def __task_import_kubeconfig(installation_info: dict, **kwargs: Any) -> None:
     except (FileNotFoundError, TypeError):
         pass
 
-    # Before merging we may need to rename the cluster, the admin, and the context
+    # Before merging we may need to rename the cluster, the admin, and the context.
     for cluster in deep_get(d2, DictPath("clusters"), []):
         if deep_get(cluster, DictPath("name")) in (cluster_name, "default"):
             cluster["name"] = cluster_name
@@ -2742,7 +2742,7 @@ def __task_adjust_kubeconfig_server_address(installation_info: dict, **kwargs: A
                 # Try to figure out the internal IP of the control plane;
                 # this only works if we're running this on the control plane;
                 # we should probably do this while fetching the config-file instead
-                # This will only work for running clusters
+                # This will only work for running clusters.
                 if kh is None:
                     kh = kubernetes_helper.KubernetesHelper(about.PROGRAM_SUITE_NAME,
                                                             about.PROGRAM_SUITE_VERSION, None)
@@ -2799,7 +2799,7 @@ def __task_setup_cni(installation_info: dict, **kwargs: Any) -> None:
                           f"kubernetes-admin+{cluster_name}")
     context_name = f"{admin_name}@{cluster_name}"
 
-    # If everything is successful so far we deploy the pod network
+    # If everything is successful so far we deploy the pod network.
     __setup_cni(cni, context_name, cluster_name, verbose=verbose)
 
 
@@ -2817,8 +2817,8 @@ def __task_drain_control_planes(installation_info: dict, **kwargs: Any) -> None:
 
     # Check if there is an API-server running that will listen to our request;
     # drain is issued during teardown--so if we are resuming a teardown the cluster
-    # might already be partially deconfigured
-    # XXX: This should be done on the control plane(s), not on localhost
+    # might already be partially deconfigured.
+    # XXX: This should be done on the control plane(s), not on localhost.
     args = ["/usr/bin/sudo", "/usr/bin/lsof", "-i", "-P", "-n"]
     response, _retval = execute_command_with_response(args)
     running = False
@@ -2850,7 +2850,7 @@ def __task_uncordon_control_planes(installation_info: dict, **kwargs: Any) -> No
 
     controlplanes = __selection_control_planes()
 
-    # This will only work for running clusters
+    # This will only work for running clusters.
     if kh is None:
         kh = kubernetes_helper.KubernetesHelper(about.PROGRAM_SUITE_NAME,
                                                 about.PROGRAM_SUITE_VERSION, None)
@@ -2884,7 +2884,7 @@ def __task_run_preupgrade_playbooks(installation_info: dict, **kwargs: Any) -> N
             **kwargs (dict[str, Any]): Keyword arguments
     """
     # The default selection is control planes;
-    # the playbooks need to explicitly specify if the play should be run on other hosts
+    # the playbooks need to explicitly specify if the play should be run on other hosts.
     selection = __selection_control_planes()
     try:
         __generic_task_run_playbooks_on_selection(selection=selection,
@@ -2896,7 +2896,7 @@ def __task_run_preupgrade_playbooks(installation_info: dict, **kwargs: Any) -> N
             raise
 
 
-# Run upgrade playbooks on control planes
+# Run upgrade playbooks on control planes.
 def __task_run_upgrade_playbooks_on_control_planes(installation_info: dict, **kwargs: Any) -> None:
     """
     A task that runs upgrade playbooks on control planes.
@@ -2970,7 +2970,7 @@ def __task_run_postupgrade_playbooks(installation_info: dict, **kwargs: Any) -> 
             **kwargs (dict[str, Any]): Keyword arguments
     """
     # The default selection is control planes;
-    # the playbooks need to explicitly specify if the play should be run on other hosts
+    # the playbooks need to explicitly specify if the play should be run on other hosts.
     selection = __selection_control_planes()
     try:
         __generic_task_run_playbooks_on_selection(selection=selection,
@@ -3014,7 +3014,7 @@ def __task_run_preteardown_playbooks(installation_info: dict, **kwargs: Any) -> 
             **kwargs (dict[str, Any]): Keyword arguments
     """
     # The default selection is control planes;
-    # the playbooks need to explicitly specify if the play should be run on other hosts
+    # the playbooks need to explicitly specify if the play should be run on other hosts.
     selection = __selection_control_planes()
     try:
         __generic_task_run_playbooks_on_selection(selection=selection,
@@ -3026,7 +3026,7 @@ def __task_run_preteardown_playbooks(installation_info: dict, **kwargs: Any) -> 
             raise
 
 
-# Run teardown playbooks on control planes
+# Run teardown playbooks on control planes.
 def __task_run_teardown_playbooks_on_control_planes(installation_info: dict, **kwargs: Any) -> None:
     """
     A task that runs teardown playbooks on control planes.
@@ -3054,7 +3054,7 @@ def __task_run_postteardown_playbooks(installation_info: dict, **kwargs: Any) ->
             **kwargs (dict[str, Any]): Keyword arguments
     """
     # The default selection is control planes;
-    # the playbooks need to explicitly specify if the play should be run on other hosts
+    # the playbooks need to explicitly specify if the play should be run on other hosts.
     selection = __selection_control_planes()
     try:
         __generic_task_run_playbooks_on_selection(selection=selection,
@@ -3116,7 +3116,7 @@ def __task_remove_kubeconfig(installation_info: dict, **kwargs: Any) -> None:
         if "SecurityStatus.DOES_NOT_EXIST" not in str(e):
             raise
 
-    # If there's no cluster left, remove the config completely
+    # If there's no cluster left, remove the config completely.
     if d1 is None or len(d1["clusters"]) == 0:
         secure_rm(KUBE_CONFIG_FILE, ignore_non_existing=True)
 
@@ -3130,11 +3130,11 @@ def __task_remove_kubeconfig(installation_info: dict, **kwargs: Any) -> None:
         except ValueError:
             pass
 
-        # If there's nothing else than the cache subdirectories in .kube, remove .kube too
+        # If there's nothing else than the cache subdirectories in .kube, remove .kube too.
         if not _dir:
             shutil.rmtree(f"{HOMEDIR}/.kube")
     else:
-        # Set the context to the first remaining context, if any
+        # Set the context to the first remaining context, if any.
         if d1["contexts"]:
             d1["current-context"] = d1["contexts"][0]["name"]
 
@@ -3152,7 +3152,7 @@ def __task_run_prepurge_playbooks(installation_info: dict, **kwargs: Any) -> Non
             **kwargs (dict[str, Any]): Keyword arguments
     """
     # The default selection is control planes;
-    # the playbooks need to explicitly specify if the play should be run on other hosts
+    # the playbooks need to explicitly specify if the play should be run on other hosts.
     selection = __selection_control_planes()
     try:
         __generic_task_run_playbooks_on_selection(selection=selection,
@@ -3164,7 +3164,7 @@ def __task_run_prepurge_playbooks(installation_info: dict, **kwargs: Any) -> Non
             raise
 
 
-# Run purge playbooks on control planes
+# Run purge playbooks on control planes.
 def __task_run_purge_playbooks_on_control_planes(installation_info: dict, **kwargs: Any) -> None:
     """
     An installer task that runs purge playbooks on control planes.
@@ -3216,7 +3216,7 @@ def __task_run_postpurge_playbooks(installation_info: dict, **kwargs: Any) -> No
             **kwargs (dict[str, Any]): Keyword arguments
     """
     # The default selection is control planes;
-    # the playbooks need to explicitly specify if the play should be run on other hosts
+    # the playbooks need to explicitly specify if the play should be run on other hosts.
     selection = __selection_control_planes()
     try:
         __generic_task_run_playbooks_on_selection(selection=selection,
@@ -3542,7 +3542,7 @@ def __find_requested_version(k8s_distro: str, version: str | None = None) -> str
     if k8s_distro == "kubeadm":
         # First remove the distro revision.
         major_minor_patchrev = requested_version.split("-")
-        # Now split the version tuple
+        # Now split the version tuple.
         _major, minor, _patchrev = major_minor_patchrev[0].split(".")
     else:
         # Split the version tuple.
@@ -3581,7 +3581,7 @@ def prepare_installation(options: list[tuple[str, Any]], args: list[str]) -> Non
     global no_password  # pylint: disable=global-statement
     confirm = True
 
-    # We do not need a cluster name for --list-tasks, so check this first of all
+    # We do not need a cluster name for --list-tasks, so check this first of all.
     if "--list-tasks" in [tmp[0] for tmp in options]:
         __list_phases(prepare_tasks)
         sys.exit(0)
@@ -3598,7 +3598,7 @@ def prepare_installation(options: list[tuple[str, Any]], args: list[str]) -> Non
 
     # Always require the user to specify the name of the cluster to operate against,
     # even when resuming prepare; this avoids a lot of hairy corner-cases and attempts
-    # to figure out what cluster the user intended to operate against
+    # to figure out what cluster the user intended to operate against.
     cluster_name = args[0]
 
     installation_info = get_installation_info(cluster_name=cluster_name)
@@ -3620,7 +3620,7 @@ def prepare_installation(options: list[tuple[str, Any]], args: list[str]) -> Non
                                      "aborting.", "default")], stderr=True)
         sys.exit(errno.EINVAL)
 
-    # The user has restarted preparation
+    # The user has restarted preparation.
     if phase == "<done>" and state == "preparing":
         phase = 0
 
@@ -3630,7 +3630,7 @@ def prepare_installation(options: list[tuple[str, Any]], args: list[str]) -> Non
 
     hostname = socket.gethostname()
 
-    # default options
+    # Default options.
     installation_info = \
         update_installation_info(cluster_name=cluster_name, distro=k8s_distro,
                                  state="preparing", phase=phase)
@@ -3703,7 +3703,7 @@ def prepare_installation(options: list[tuple[str, Any]], args: list[str]) -> Non
 
     node_list: list[str] = []
 
-    # Get a list of all nodes in the cluster.
+    # Get a list with the names of all nodes in the cluster.
     for node in nodes:
         if isinstance(node, dict):
             node = deep_get(node, DictPath("name"))
@@ -3713,6 +3713,11 @@ def prepare_installation(options: list[tuple[str, Any]], args: list[str]) -> Non
                       group="controlplane", skip_all=False)
     ansible_add_hosts(inventory=ANSIBLE_INVENTORY, hosts=control_plane_list,
                       group=cluster_name, skip_all=True)
+    for node in node_list:
+        ansible_add_hosts(inventory=ANSIBLE_INVENTORY, hosts=node_list,
+                          group="nodes", skip_all=False)
+        ansible_add_hosts(inventory=ANSIBLE_INVENTORY, hosts=node_list,
+                          group=cluster_name, skip_all=True)
 
     # If the control planes have ansible_vars specified we add them.
     if control_planes and isinstance(control_planes[0], dict):
@@ -3726,9 +3731,20 @@ def prepare_installation(options: list[tuple[str, Any]], args: list[str]) -> Non
             ansible_set_hostvars(inventory=ANSIBLE_INVENTORY, hosts=[control_plane_name],
                                  hostvars=hostvars)
 
+    # If the nodes have ansible_vars specified we add them.
+    for node in nodes:
+        node_name = deep_get(node, DictPath("name"))
+        if not (ansible_vars := deep_get(node, DictPath("ansibleVars"))):
+            continue
+        hostvars = []
+        for key, value in ansible_vars.items():
+            hostvars.append((key, value))
+        ansible_set_hostvars(inventory=ANSIBLE_INVENTORY, hosts=[node_name],
+                             hostvars=hostvars)
+
     installation_info = \
         update_installation_info(cluster_name=cluster_name,
-                                 control_planes=control_plane_list, nodes=nodes)
+                                 control_planes=control_plane_list, nodes=node_list)
 
     if len(args) > 1:
         requested_version = args[1]
@@ -3764,7 +3780,7 @@ def prepare_installation(options: list[tuple[str, Any]], args: list[str]) -> Non
                                          "default")], stderr=True)
             sys.exit(errno.ENOENT)
 
-        # Split the version tuple
+        # Split the version tuple.
         upstream_major, upstream_minor, _rest = kubernetes_upstream_version.split(".")
         requested_version = f"{upstream_major}.{upstream_minor}"
 
@@ -3796,7 +3812,7 @@ def prepare_installation(options: list[tuple[str, Any]], args: list[str]) -> Non
 
     # Adjust the kube* packages for the control plane(s) and localhost to match
     # the requested cluster version if necessary; we could not do this before
-    # since the apt repository was not available then
+    # since the apt repository was not available then.
     if requested_version is not None:
         requested_version = __find_requested_version(k8s_distro, requested_version)
     else:
@@ -3843,7 +3859,7 @@ def import_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
     global kh  # pylint: disable=global-statement
     global no_password  # pylint: disable=global-statement
 
-    # default options
+    # Default options.
     confirm: bool = True
     verbose: bool = False
 
@@ -3917,7 +3933,7 @@ def import_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
     ansithemeprint([ANSIThemeStr("\n[Importing cluster(s)]", "phase")])
 
     # Since the clusters might use different versions of Kubernetes
-    # we always install the latest kubectl on localhost, so no need to adjust version
+    # we always install the latest kubectl on localhost, so no need to adjust version.
 
     contexts = kh.list_contexts()
     current_context = None
@@ -4102,7 +4118,7 @@ def import_kubeconfig(options: list[tuple[str, str]], args: list[str]) -> None:
     """
     kubeconfig: dict[str, Any] | ruyaml.comments.CommentedSeq = {}
 
-    # First read .kube/config (if it exists)
+    # First read .kube/config (if it exists).
     try:
         kubeconfig = secure_read_yaml(KUBE_CONFIG_FILE)
     except FileNotFoundError:
@@ -4143,7 +4159,7 @@ def check_for_updates(options: list[tuple[str, str]], args: list[str]) -> None:
     """
     os_distro = identify_distro()
 
-    # default options
+    # Default options.
     update_pkg_cache = True
     update_upstream_cache = True
     verbose = False
@@ -4254,7 +4270,7 @@ def show_configuration(action: str,
                           "[Errno -5] No address associated with hostname"):
                 if (re_tmp := re.match(r"\[Errno (-\d+)\] (.+)", str(e))) is None:
                     # If we cannot extract the error we re-raise it since we don't know
-                    # how to handle it
+                    # how to handle it.
                     raise
                 if not deep_get(failures, DictPath(re_tmp[2]), []):
                     failures[re_tmp[2]] = []
@@ -4272,7 +4288,7 @@ def show_configuration(action: str,
                           "[Errno -5] No address associated with hostname"):
                 if (re_tmp := re.match(r"\[Errno (-\d+)\] (.+)", str(e))) is None:
                     # If we cannot extract the error we re-raise it since we don't know
-                    # how to handle it
+                    # how to handle it.
                     raise
                 if not deep_get(failures, DictPath(re_tmp[2]), []):
                     failures[re_tmp[2]] = []
@@ -4493,9 +4509,9 @@ def add_nodes(options: list[tuple[str, Any]], args: list[Any]) -> None:
 
     control_plane_version = get_control_plane_version(control_planes[0], k8s_distro)
 
-    # First remove the distro revision
+    # First remove the distro revision.
     major_minor_patchrev = control_plane_version.split("-")
-    # Now split the version tuple
+    # Now split the version tuple.
     requested_major, requested_minor, _rest = major_minor_patchrev[0].split(".")
 
     control_plane_ip, control_plane_port, control_plane_path = kh.get_control_plane_address()
@@ -4517,16 +4533,17 @@ def add_nodes(options: list[tuple[str, Any]], args: list[Any]) -> None:
     ansible_add_hosts(inventory=ANSIBLE_INVENTORY, hosts=node_list, skip_all=False)
 
     # If the nodes have ansible_vars specified we add them.
-    if isinstance(nodes, dict):
-        for node in nodes:
-            node_name = deep_get(node, DictPath("name"))
-            if not (ansible_vars := deep_get(node, DictPath("ansibleVars"))):
-                continue
-            hostvars = []
-            for key, value in ansible_vars.items():
-                hostvars.append((key, value))
-            ansible_set_hostvars(inventory=ANSIBLE_INVENTORY, hosts=[node_name],
-                                 hostvars=hostvars)
+    for node in nodes:
+        if not isinstance(node, dict):
+            continue
+        node_name = deep_get(node, DictPath("name"))
+        if not (ansible_vars := deep_get(node, DictPath("ansibleVars"))):
+            continue
+        hostvars = []
+        for key, value in ansible_vars.items():
+            hostvars.append((key, value))
+        ansible_set_hostvars(inventory=ANSIBLE_INVENTORY, hosts=[node_name],
+                             hostvars=hostvars)
 
     # Create a group-list.
     group_list = []
@@ -4542,7 +4559,7 @@ def add_nodes(options: list[tuple[str, Any]], args: list[Any]) -> None:
 
     add_playbooks: list[FilePath] = []
 
-    # Add the CRI to the setup playbooks for the control plane
+    # Add the CRI to the setup playbooks for the control plane.
     if cri == "containerd":
         add_playbooks = [FilePath("setup_containerd.yaml")]
     elif cri == "cri-o":
@@ -4552,7 +4569,7 @@ def add_nodes(options: list[tuple[str, Any]], args: list[Any]) -> None:
             if tmp_crio_version is None:
                 check_and_print_status(False)
             # The type ignore below is necessary because mypy doesn't recognise that
-            # check_and_print_status always aborts with sys.exit() when called with False
+            # check_and_print_status always aborts with sys.exit() when called with False.
             crio_major_version, crio_minor_version = tmp_crio_version  # type: ignore
         else:
             # This case shouldn't be necessary; mypy should recognise that we're doing
@@ -4567,7 +4584,7 @@ def add_nodes(options: list[tuple[str, Any]], args: list[Any]) -> None:
 
     add_playbooks += [
         # cmtadm does not use run_before/run_after/add_to_groups/remove_from_groups,
-        # so we have to do all of that explicitly
+        # so we have to do all of that explicitly.
         FilePath("add_kubernetes_repo.yaml"),
     ]
     if k8s_distro == "kubeadm":
@@ -4635,6 +4652,8 @@ def add_nodes(options: list[tuple[str, Any]], args: list[Any]) -> None:
     for group in ["nodes"] + group_list + [cluster_name]:
         ansible_add_hosts(inventory=ANSIBLE_INVENTORY, hosts=node_list, group=group, skip_all=True)
 
+    # If the groups have ansible_vars specified we add them.
+    # FIXME(This needs to be moved).
     if isinstance(groups, dict):
         for group in groups:
             group_name = deep_get(group, DictPath("name"))
@@ -4657,7 +4676,7 @@ def set_context(cluster_name: str, context_name: str) -> None:
     """
     global kh  # pylint: disable=global-statement
 
-    # This will only work for running clusters
+    # This will only work for running clusters.
     if kh is None:
         kh = kubernetes_helper.KubernetesHelper(about.PROGRAM_SUITE_NAME,
                                                 about.PROGRAM_SUITE_VERSION, None)
@@ -4880,11 +4899,11 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
 
     # Get a list of all nodes in the cluster.
     for data in deep_get(cd, DictPath("nodes#groups"), {}).values():
-        nodes.append(data)
-        for node in data:
+        for node in deep_get(data, DictPath("nodes"), []):
             if isinstance(node, dict):
-                node = deep_get(node, DictPath("name"))
-            node_list.append(node)
+                node_name = deep_get(node, DictPath("name"))
+            node_list.append(node_name)
+            nodes.append(node)
 
     prepare_options = [
         ("--control-plane", control_planes),
@@ -4941,7 +4960,7 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
     setup_control_plane_args = [
         # Pass "none" as CNI; since we'll potentially be adding nodes
         # we want to postpone deploying the CNI until after those
-        # have been added, to avoid extra traffic
+        # have been added, to avoid extra traffic.
         "none",
         pod_network_cidr,
     ]
@@ -4951,7 +4970,7 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
     phase = deep_get(installation_info, DictPath(f"{cluster_name}#phase"))
 
     if state is None or state in ("<none>", "preparing", "torn_down"):
-        # First prepare all hosts
+        # First prepare all hosts.
         prepare_installation(prepare_options, prepare_args)
     elif state not in ("adding_nodes", "installing", "installed", "deploying",
                        "<done>", "setup_cni", "deploy_workloads", "deployed", "prepared",
@@ -4967,7 +4986,7 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
     state = deep_get(installation_info, DictPath(f"{cluster_name}#state"))
     phase = deep_get(installation_info, DictPath(f"{cluster_name}#phase"))
 
-    # Now it's time to setup the control plane(s)
+    # Now it's time to setup the control plane(s).
     if state in ("prepared", "installing"):
         setup_control_planes(setup_control_plane_options, setup_control_plane_args)
         phase = 0
@@ -4982,7 +5001,7 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
         kh = kubernetes_helper.KubernetesHelper(about.PROGRAM_SUITE_NAME,
                                                 about.PROGRAM_SUITE_VERSION, None)
 
-    # We (hopefully) have a cluster now; change the context to that cluster
+    # We (hopefully) have a cluster now; change the context to that cluster.
     if not kh.set_context(name=context_name, unchanged_is_success=True):
         ansithemeprint([ANSIThemeStr("Warning", "warning"),
                         ANSIThemeStr(": Failed to change to context ", "default"),
@@ -5006,7 +5025,7 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
             installation_info = \
                 update_installation_info(cluster_name=cluster_name, state=state, phase=phase)
 
-    # Set necessary Ansible keys before running playbooks
+    # Set necessary Ansible keys before running playbooks.
     insecure_registries = deep_get(cmtlib.cmtconfig, DictPath("Docker#insecure_registries"), [])
     registry_mirrors = deep_get(cmtlib.cmtconfig, DictPath("Containerd#registry_mirrors"), [])
     retval = 0
@@ -5031,7 +5050,7 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
         # since we've just setup the control plane...
         ansithemeprint([ANSIThemeStr("\n[Adding nodes]", "phase")])
 
-        # Check whether ansible_password is defined or not
+        # Check whether ansible_password is defined or not.
         if AnsibleConfiguration.ansible_password is None and not no_password:
             ansithemeprint([ANSIThemeStr("Attention", "warning"),
                             ANSIThemeStr(": To be able to run playbooks you need to provide the "
@@ -5064,9 +5083,9 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
             deep_get(cd, DictPath("nodes#options#configurationTemplates"), {})
 
         # We've potentially got multiple groups of nodes,
-        # so calling add_nodes() once isn't gonna cut it
+        # so calling add_nodes() once isn't gonna cut it.
         for group, data in deep_get(cd, DictPath("nodes#groups"), {}).items():
-            # Don't add node groups again
+            # Don't add node groups again.
             if i < phase:
                 continue
             tmp_nodes: list[str] = deep_get(data, DictPath("nodes"), [])
@@ -5101,6 +5120,8 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
             nodes_tuple: list[tuple[str, str, str]] = []
             if tmp_nodes:
                 for node in tmp_nodes:
+                    if isinstance(node, dict):
+                        node = deep_get(node, DictPath("name"))
                     nodes_tuple.append((node, "", ""))
                     hosts.append(node)
             else:
@@ -5130,7 +5151,7 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
                             macaddress = substitute_string(macaddress_template, {
                                                            "<<<item.1>>>": f"{lowdigit:0>2x}",
                                                            "<<<item.0>>>": f"{highdigit:0>2x}"})
-                            # The first IP is reserved for the template
+                            # The first IP is reserved for the template.
                             if not template_ip:
                                 template_ip = ipaddress
                                 template_mac = macaddress
@@ -5181,16 +5202,16 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
                 setup_control_plane_options.append(("--save-ansible-logs", None))
 
             add_nodes_args = [
-                # List of nodes
+                # List of nodes.
                 hosts,
-                # Group(s) to add the nodes to
+                # Group(s) to add the nodes to.
                 [group],
             ]
 
             if not nodes_tuple:
                 continue
 
-            # Prepare nodes
+            # Prepare nodes.
             if virtualise:
                 retval = prepare_vm_template(vmhost,
                                              [(template_name, template_ip, template_mac)],
@@ -5243,7 +5264,7 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
         installation_info = \
             update_installation_info(cluster_name=cluster_name, state=state, phase=phase)
 
-    # Now we can setup the CNI
+    # Now we can setup the CNI.
     if state == "setup_cni":
         __setup_cni(cni, context_name, cluster_name,
                     cni_version=cni_version, cni_executable_version=cni_executable_version,
@@ -5259,7 +5280,7 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
         installation_info = \
             update_installation_info(cluster_name=cluster_name, state=state, phase=phase)
 
-    # Finally we attempt to deploy workloads
+    # Finally we attempt to deploy workloads.
     workloads = deep_get(cd, DictPath("workloads"), [])
 
     # pylint: disable-next=too-many-nested-blocks
@@ -5278,7 +5299,7 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
                 continue
             description = deep_get(workload, DictPath("description"), "")
             split_description = description.splitlines()
-            # For now this is unused
+            # For now this is unused.
             _error_policy = deep_get(workload, DictPath("errorPolicy"), "ignore")
 
             if name is None:
@@ -5559,7 +5580,8 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
                     elif wtype == "namespace":
                         args = [kubectl_path, "create", "namespace", pname]
                     elif wtype == "secret+tls":
-                        # secret + tls needs to run as sudo to be able to access /etc/kubernetes/pki
+                        # secret + tls needs to run as sudo to be
+                        # able to access /etc/kubernetes/pki.
                         args = [sudo_path, kubectl_path, "create", "--kubeconfig", KUBE_CONFIG_FILE,
                                 "secret", "tls", pname, "--cert", cert, "--key", key]
                         if pnamespace is not None:
@@ -5656,14 +5678,14 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
                                         ANSIThemeStr("; aborting.", "default")], stderr=True)
                         sys.exit(errno.EINVAL)
 
-                    # Add helm repo
+                    # Add helm repo.
                     args = [helm_path, "repo", "add", repo_name, repo_url]
                     if verbose:
                         check_and_print_status(execute_command(args))
                     else:
                         _result, _retval = execute_command_with_response(args)
 
-                    # Check whether the component is already installed
+                    # Check whether the component is already installed.
                     args = [helm_path, "list", "--namespace", namespace,
                             "--filter", f"^{hname}$", "--no-headers"]
                     response, _retval = execute_command_with_response(args, env=env)
@@ -5679,7 +5701,7 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
                                                      "default")], stderr=True)
                         continue
 
-                    # If redeploying workloads we might need to update the repo
+                    # If redeploying workloads we might need to update the repo.
                     args = [helm_path, "repo", "update"]
 
                     if verbose:
@@ -5692,7 +5714,7 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
                     if create_namespace:
                         args.append("--create-namespace")
 
-                    # Add extra flags if there are any
+                    # Add extra flags if there are any.
                     for flags in extra_flags:
                         if isinstance(flags, list):
                             args += flags
@@ -5886,7 +5908,7 @@ def setup_control_planes(options: list[tuple[str, Any]], args: list[str]) -> Non
         }
 
         # Override the feature-gate format if the parameters are passed via command-line;
-        # e.g. when using RKE2
+        # e.g. when using RKE2.
         if k8s_distro == "rke2":
             setup_extras["kubelet_feature_gates"] = \
                 "DynamicResourceAllocation=true"
@@ -5907,15 +5929,15 @@ def setup_control_planes(options: list[tuple[str, Any]], args: list[str]) -> Non
         }
 
         # Override the feature-gate format if the parameters are passed via command-line;
-        # e.g. when using RKE2
+        # e.g. when using RKE2.
         if k8s_distro == "rke2":
             setup_extras["kubelet_feature_gates"] = ""
             setup_extras["kubeproxy_feature_gates"] = ""
 
     if k8s_distro == "kubeadm":
-        # First remove the distro revision
+        # First remove the distro revision.
         major_minor_patchrev = requested_version.split("-")
-        # Now split the version tuple
+        # Now split the version tuple.
         split_tuple = major_minor_patchrev[0].split(".")
         if len(split_tuple) < 2:
             ansithemeprint([ANSIThemeStr("Error", "error"),
@@ -5934,7 +5956,7 @@ def setup_control_planes(options: list[tuple[str, Any]], args: list[str]) -> Non
         setup_extras["init_configuration_api_version"] = init_configuration_api_version
         requested_major_minor = f"{requested_major}.{requested_minor}"
 
-        # Add major/minor to extra_values
+        # Add major/minor to extra_values.
         setup_extras["kubernetes_major_minor_version"] = requested_major_minor
     elif k8s_distro == "rke2":
         if requested_version == "latest":
@@ -5950,27 +5972,27 @@ def setup_control_planes(options: list[tuple[str, Any]], args: list[str]) -> Non
             requested_major = version_split[0]
             requested_minor = version_split[1]
             requested_major_minor = f"{requested_major}.{requested_minor}"
-            # Add major/minor to extra_values
+            # Add major/minor to extra_values.
             setup_extras["kubernetes_major_minor_version"] = requested_major_minor
         else:
-            # First remove the distro revision, if any
+            # First remove the distro revision, if any.
             major_minor_patchrev = requested_version.lstrip("v").split("-")
-            # Now split the version tuple
+            # Now split the version tuple.
             version_split = major_minor_patchrev[0].split(".")
             requested_major = version_split[0]
             requested_minor = version_split[1]
             requested_major_minor = f"{requested_major}.{requested_minor}"
-            # Add major/minor to extra_values
+            # Add major/minor to extra_values.
             setup_extras["kubernetes_major_minor_version"] = requested_major_minor
 
         # Add requested_version to extra_values;
-        # for rke2 this is either vX.YY or latest
+        # for rke2 this is either vX.YY or latest.
         setup_extras["requested_version"] = requested_version
 
-        # For now at least we disable the cloud controller
+        # For now at least we disable the cloud controller.
         rke2_disable_cloud_controller = True
         setup_extras["disable_cloud_controller"] = rke2_disable_cloud_controller
-        # Disable canal since we install the CNI separately
+        # Disable canal since we install the CNI separately.
         rke2_disabled_options_list = ["rke2-canal"]
         setup_extras["disabled_options_list"] = rke2_disabled_options_list
 
@@ -5985,7 +6007,7 @@ def setup_control_planes(options: list[tuple[str, Any]], args: list[str]) -> Non
     installation_info = update_installation_info(cri=cri)
 
     # Add the CRI to the setup playbooks for the control plane;
-    # the list is short enough that doing prepend isn't a performance issue
+    # the list is short enough that doing prepend isn't a performance issue.
     if cri == "containerd":
         cri_playbook_path = FilePath("setup_containerd.yaml")
         setup_control_plane_targets[k8s_distro]["playbooks"].insert(0, cri_playbook_path)
@@ -5997,7 +6019,7 @@ def setup_control_planes(options: list[tuple[str, Any]], args: list[str]) -> Non
             if tmp_crio_version is None:
                 check_and_print_status(False)
             # The type ignore below is necessary because mypy doesn't recognise that
-            # check_and_print_status always aborts with sys.exit() when called with False
+            # check_and_print_status always aborts with sys.exit() when called with False.
             crio_major_version, crio_minor_version = tmp_crio_version  # type: ignore
         else:
             # This case shouldn't be necessary; mypy should recognise that we're doing
@@ -6096,7 +6118,7 @@ def setup_control_planes(options: list[tuple[str, Any]], args: list[str]) -> Non
     setup_localhost = setup_control_plane_targets["localhost"]
     setup_k8s_distro = setup_control_plane_targets[k8s_distro]
 
-    # Add the package versions to the package list
+    # Add the package versions to the package list.
     if k8s_distro == "kubeadm":
         setup_localhost["deb_packages"].remove("kubectl")
         setup_localhost["deb_packages"].append(f"kubectl={requested_version}")
@@ -6276,7 +6298,7 @@ def get_control_planes(fail_on_empty: bool = True) -> list[tuple[str, str]]:
         sys.exit(errno.ENOENT)
 
     for controlplane in controlplanes_:
-        # Only include control planes belonging to this cluster
+        # Only include control planes belonging to this cluster.
         if controlplane not in clusterhosts_:
             continue
         try:
@@ -6397,7 +6419,7 @@ def teardown_control_plane(options: list[tuple[str, str]], args: list[str]) -> N
                         ANSIThemeStr("; aborting.", "default")], stderr=True)
         sys.exit(errno.ENOENT)
 
-    # If phase is "<done>" it's a holdover from a previous state
+    # If phase is "<done>" it's a holdover from a previous state.
     if phase == "<done>":
         phase = 0
 
@@ -6465,7 +6487,7 @@ def purge_control_plane(options: list[tuple[str, str]], args: list[str]) -> None
     """
     confirm = True
 
-    # We do not need a cluster name for --list-tasks, so check this first of all
+    # We do not need a cluster name for --list-tasks, so check this first of all.
     if "--list-tasks" in [tmp[0] for tmp in options]:
         __list_phases(purge_control_plane_tasks)
         sys.exit(0)
@@ -6490,7 +6512,7 @@ def purge_control_plane(options: list[tuple[str, str]], args: list[str]) -> None
         sys.exit(errno.EINVAL)
 
     # If phase is "<done>" it's a holdover from a previous state;
-    # if this is the case we need to start from phase 0 and ignore the skiplist
+    # if this is the case we need to start from phase 0 and ignore the skiplist.
     if not options or phase == "<done>":
         phase = 0
         phase_skiplist = set()
@@ -6570,13 +6592,13 @@ def upgrade_control_plane(options: list[tuple[str, str]], args: list[str]) -> No
 
     confirm: bool = True
 
-    # default options
+    # Default options.
     update_cache = True
     allow_reinstall = False
     requested_version = None
 
     for opt, optarg in options:
-        # We do not need a cluster name for --list-tasks or --override, so check this first of all
+        # We do not need a cluster name for --list-tasks or --override, so check this first of all.
         if opt == "--list-tasks":
             __list_phases(upgrade_control_plane_tasks)
             sys.exit(0)
@@ -6729,7 +6751,7 @@ def upgrade_control_plane(options: list[tuple[str, str]], args: list[str]) -> No
                             ANSIThemeStr("--ignore-feature-gates", "option"),
                             ANSIThemeStr("“ passed; continuing.", "default")], stderr=True)
 
-    # XXX: How do we check that nodes are drained? We can check whether they are cordoned
+    # XXX: How do we check that nodes are drained? We can check whether they are cordoned.
     node_status = __get_node_info()
 
     if node_status is None:
@@ -6752,7 +6774,7 @@ def upgrade_control_plane(options: list[tuple[str, str]], args: list[str]) -> No
                                      "default")], stderr=True)
         sys.exit(errno.ENOENT)
 
-    # Split the version tuple
+    # Split the version tuple.
     upstream_major, upstream_minor, _rest = kubernetes_upstream_version.split(".")
     minor_versions = []
     for minor_version in range(32, int(upstream_minor) + 1):
@@ -6836,7 +6858,7 @@ def upgrade_control_plane(options: list[tuple[str, str]], args: list[str]) -> No
                                 ANSIThemeStr(". Downgrades are not supported; aborting.",
                                              "default")], stderr=True)
                 sys.exit(errno.EINVAL)
-            # FIXME: Implement version checking for Fedora/RHEL packages
+            # FIXME: Implement version checking for Fedora/RHEL packages.
         else:
             requested_version = pkg_versions[0][2]
             if not requested_version or requested_version == "<none>":
@@ -6891,7 +6913,7 @@ def upgrade_control_plane(options: list[tuple[str, str]], args: list[str]) -> No
         else:
             upgrade_type = "patchrev"
 
-        # If this is an upgrade to a new patchrev the cluster does not have to be drained
+        # If this is an upgrade to a new patchrev the cluster does not have to be drained.
         if upgrade_type == "minor":
             schedulable_count = 0
             nodes_to_drain = []
@@ -6921,9 +6943,9 @@ def upgrade_control_plane(options: list[tuple[str, str]], args: list[str]) -> No
                                 ANSIThemeStr("“", "default")])
                 sys.exit(errno.EBUSY)
 
-        # First remove the distro revision
+        # First remove the distro revision.
         major_minor_patchrev = requested_version.split("-")
-        # Now split the version tuple
+        # Now split the version tuple.
         requested_major, requested_minor, _rest = major_minor_patchrev[0].split(".")
 
         if int(requested_minor) < 31:
@@ -6933,11 +6955,11 @@ def upgrade_control_plane(options: list[tuple[str, str]], args: list[str]) -> No
 
         upgrade_control_plane_targets[k8s_distro]["extra_values"] = {
             "upgrade_configuration_api_version": upgrade_configuration_api_version,
-            # Add major/minor to extra_values
+            # Add major/minor to extra_values.
             "kubernetes_major_minor_version": f"{requested_major}.{requested_minor}",
         }
 
-        # Adjust package version for localhost
+        # Adjust package version for localhost.
         localhost_targets = upgrade_control_plane_targets["localhost"]
         localhost_targets["deb_packages"].remove("kubectl")
         localhost_targets["deb_packages"].append(f"kubectl={requested_version}")
@@ -6946,14 +6968,14 @@ def upgrade_control_plane(options: list[tuple[str, str]], args: list[str]) -> No
         localhost_targets["fedora_packages"].append(f"kubectl-{requested_version}")
     elif k8s_distro == "rke2":
         # Add requested_version to extra_values;
-        # for rke2 this is either vX.YY or latest
+        # for rke2 this is either vX.YY or latest.
         upgrade_control_plane_targets["rke2"]["extra_values"]["requested_version"] = \
             requested_version
 
     installation_info = \
         update_installation_info(state="upgrading", requested_version=requested_version, phase=0)
 
-    # If we got here all the sanity checks were successful
+    # If we got here all the sanity checks were successful.
     ansithemeprint([ANSIThemeStr("OK", "ok")])
 
     show_configuration(action="Upgrading control plane:", tasks=upgrade_control_plane_tasks)
@@ -7166,7 +7188,7 @@ def run_checks(checks: list[dict], **kwargs: Any) -> bool:
         call = deep_get(check, DictPath("call"))
         if call is not None:
             if (kh := deep_get(kwargs, DictPath("kubernetes_helper"))) is None:
-                # This will only work for running clusters
+                # This will only work for running clusters.
                 kh = kubernetes_helper.KubernetesHelper(about.PROGRAM_SUITE_NAME,
                                                         about.PROGRAM_SUITE_VERSION, None)
                 kwargs["kubernetes_helper"] = kh
@@ -7237,7 +7259,7 @@ def audit(options: list[tuple[str, str]], args: list[str]) -> None:
 
     # Get the username and group for the user;
     # if they match it's highly likely that the system
-    # is configured to use usergroups
+    # is configured to use usergroups.
     uid = os.getuid()
     username = pwd.getpwuid(uid).pw_name
     gid = pwd.getpwuid(uid).pw_gid
@@ -7252,7 +7274,7 @@ def audit(options: list[tuple[str, str]], args: list[str]) -> None:
                 if usergroups_regex.match(line) is not None:
                     usergroup = groupname
         except FilePathAuditError:
-            # If there's no such file we default to using the group
+            # If there's no such file we default to using the group.
             usergroup = groupname
 
     kwargs: dict[str, str] = {
@@ -7377,10 +7399,10 @@ troubleshoot_checks: list[dict[str, Any]] = [
     },
     # Check kube-controller-manager, kube-scheduler, and cloud-controller-manager;
     # they should match, but can be up to one version older,
-    # but must not be newer
+    # but must not be newer.
 
-    # check whether role bindings and cluster role bindings
-    # refer to non-existing roles/cluster roles
+    # Check whether role bindings and cluster role bindings
+    # refer to non-existing roles/cluster roles.
 ]
 
 
@@ -8490,8 +8512,8 @@ COMMANDLINE: dict[str, CommandType] = {
                 "requires_arg": True,
                 "validation": {
                     "validator": "regex",
-                    # regex taken from debian;
-                    # other distros might be stricter or possible more permissive
+                    # regex taken from Debian;
+                    # other distros might be stricter or possibly more permissive.
                     "regex": r"^[a-z_][a-z0-9_-]*[$]?$",
                 },
             },
@@ -8582,7 +8604,7 @@ def main() -> None:
                                              quiet_on_ok=True, user=getuser())
         checks.check_netrc_permissions(verbose=False, exit_on_error=True, quiet_on_ok=True)
 
-    # Used by the ansible module.
+    # Used by the Ansible module.
     AnsibleConfiguration.ansible_forks = \
         deep_get(cmtlib.cmtconfig, DictPath("Ansible#forks"), 10)
     ansible_user = deep_get(cmtlib.cmtconfig, DictPath("Ansible#ansible_user"))
