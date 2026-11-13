@@ -293,6 +293,7 @@
                     "",
                     "address",
                     "address_with_port",
+                    "value_mapping",
                     "numerical_with_units",
                     "selector",
                     "toleration",

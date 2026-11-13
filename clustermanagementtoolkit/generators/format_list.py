@@ -12,6 +12,7 @@ from typing import Any
 
 from clustermanagementtoolkit.cmttypes import DictPath
 from clustermanagementtoolkit.cmttypes import deep_get
+from clustermanagementtoolkit.cmttypes import deep_set
 
 from clustermanagementtoolkit.curses_helper import ThemeAttr
 from clustermanagementtoolkit.curses_helper import ThemeRef
@@ -61,6 +62,7 @@ def format_list(items: Any, fieldlen: int, pad: bool, **kwargs: Any) -> list[The
     field_prefixes: list[list[ThemeRef]] = deep_get(kwargs, DictPath("field_prefixes"))
     field_suffixes: list[list[ThemeRef]] = deep_get(kwargs, DictPath("field_suffixes"))
     mapping: dict = deep_get(kwargs, DictPath("mapping"), {})
+    field_mappings: list[dict] = deep_get(kwargs, DictPath("field_mappings"), [])
     collate: int = deep_get(kwargs, DictPath("args#collate"), 1)
     field_formatters: list[Callable | None] = \
         deep_get(kwargs, DictPath("field_formatters"), [])
@@ -146,24 +148,29 @@ def format_list(items: Any, fieldlen: int, pad: bool, **kwargs: Any) -> list[The
 
             field_formatter: Callable | None = None
             field_formatting: FormattingType = {
-                "item_separator": deep_get(kwargs, DictPath("item_separator")),
-                "field_separators": deep_get(kwargs, DictPath("field_separators")),
-                "field_colors": deep_get(kwargs, DictPath("field_colors")),
-                "ellipsise": deep_get(kwargs, DictPath("ellipsise"), -1),
-                "ellipsis": deep_get(kwargs, DictPath("ellipsis")),
-                "field_prefixes": deep_get(kwargs, DictPath("field_prefixes")),
-                "field_suffixes": deep_get(kwargs, DictPath("field_suffixes")),
+                "item_separator": item_separator,
+                "field_separators": field_separators,
+                "field_colors": field_colors,
+                "ellipsise": ellipsise,
+                "ellipsis": ellipsis,
+                "field_prefixes": field_prefixes,
+                "field_suffixes": field_suffixes,
             }
 
+            if field_mappings:
+                deep_set(field_formatting, DictPath("mapping"),
+                         field_mappings[min(i, len(field_mappings) - 1)], create_path=True)
+
+            default_field_color = field_colors[min(i, len(field_colors) - 1)]
             if field_formatters:
                 field_formatter = field_formatters[min(i, len(field_formatters) - 1)]
             if (tmp := format_special(string, selected)) is not None:
                 formatted_string = tmp
             elif field_formatter:
                 formatted_string = field_formatter(string, selected, ftype="numerical",
-                                                   formatting=field_formatting)
+                                                   formatting=field_formatting,
+                                                   default_field_color=default_field_color)
             else:
-                default_field_color = field_colors[min(i, len(field_colors) - 1)]
                 formatted_string, __string = map_value(string, selected=selected,
                                                        default_field_color=default_field_color,
                                                        mapping=mapping, mapitems=items)

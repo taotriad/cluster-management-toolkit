@@ -15,6 +15,7 @@ from clustermanagementtoolkit.generators.format_address_with_port import format_
 # pylint: disable-next=line-too-long
 from clustermanagementtoolkit.generators.format_numerical_with_units import format_numerical_with_units  # noqa: E501
 from clustermanagementtoolkit.generators.format_selector import format_selector
+from clustermanagementtoolkit.generators.format_map_value import format_map_value
 from clustermanagementtoolkit.generators.format_toleration import format_toleration
 from clustermanagementtoolkit.generators.format_uri import format_uri
 from clustermanagementtoolkit.generators.format_version import format_version
@@ -23,6 +24,7 @@ from clustermanagementtoolkit.generators.format_version import format_version
 field_formatter_allowlist: dict[str, Callable] = {
     "address": format_address,
     "address_with_port": format_address_with_port,
+    "value_mapping": format_map_value,
     "numerical_with_units": format_numerical_with_units,
     "selector": format_selector,
     "toleration": format_toleration,

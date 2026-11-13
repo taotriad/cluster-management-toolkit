@@ -95,6 +95,7 @@ def get_formatter(field: dict) -> dict:
     item_separator = get_formatting(field, "item_separator",
                                     {"item_separator": ThemeRef("separators", "list")})
     mapping = deep_get(field, DictPath("formatting#mapping"), {})
+    field_mappings = deep_get(field, DictPath("formatting#field_mappings"), [])
     field_formatters = []
     for field_formatter in deep_get(field, DictPath("formatting#field_formatters"), []):
         field_formatters.append(deep_get(field_formatter_allowlist, DictPath(field_formatter)))
@@ -117,6 +118,7 @@ def get_formatter(field: dict) -> dict:
         "field_prefixes": field_prefixes,
         "field_suffixes": field_suffixes,
         "mapping": mapping,
+        "field_mappings": field_mappings,
         "field_formatters": field_formatters,
         "unit": unit,
     }

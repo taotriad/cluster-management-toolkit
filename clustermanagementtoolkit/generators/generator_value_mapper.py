@@ -13,6 +13,7 @@ from typing import Any
 from clustermanagementtoolkit.cmttypes import DictPath
 from clustermanagementtoolkit.cmttypes import deep_get
 
+from clustermanagementtoolkit.curses_helper import ThemeAttr
 from clustermanagementtoolkit.curses_helper import ThemeRef
 from clustermanagementtoolkit.curses_helper import ThemeStr
 
@@ -43,7 +44,8 @@ def generator_value_mapper(obj: dict, field: "str", fieldlen: int, pad: bool,
     array: list[ThemeRef | ThemeStr] = []
     value = deep_get(obj, DictPath(field))
 
-    default_field_color = deep_get(kwargs, DictPath("field_colors"), [("types", "generic")])[0]
+    default_field_color = \
+        deep_get(kwargs, DictPath("field_colors"), [ThemeAttr("types", "generic")])[0]
 
     formatted_string, _string = map_value(value,
                                           selected=selected,
