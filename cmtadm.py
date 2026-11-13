@@ -14,7 +14,6 @@
 Setup or teardown a Kubernetes cluster.
 """
 
-import copy
 import errno
 import grp
 import os
@@ -4525,11 +4524,11 @@ def add_nodes(options: list[tuple[str, Any]], args: list[Any]) -> None:
     node_list = []
 
     # Add all nodes to the inventory.
-    if nodes and isinstance(nodes[0], dict):
-        for node in nodes:
+    for node in nodes:
+        if isinstance(node, dict):
             node_list.append(deep_get(node, DictPath("name")))
-    else:
-        node_list = copy.deepcopy(nodes)
+        else:
+            node_list.append(node)
     ansible_add_hosts(inventory=ANSIBLE_INVENTORY, hosts=node_list, skip_all=False)
 
     # If the nodes have ansible_vars specified we add them.
@@ -4548,11 +4547,24 @@ def add_nodes(options: list[tuple[str, Any]], args: list[Any]) -> None:
     # Create a group-list.
     group_list = []
 
-    if isinstance(groups, dict):
-        for group in groups:
+    for group in groups:
+        if isinstance(group, dict):
             group_list.append(deep_get(group, DictPath("name")))
-    else:
-        group_list = copy.deepcopy(groups)
+        else:
+            group_list.append(group)
+
+    # If the groups have ansible_vars specified we add them.
+    for group in groups:
+        if not isinstance(group, dict):
+            continue
+        group_name = deep_get(group, DictPath("name"))
+        if not (ansible_vars := deep_get(group, DictPath("ansibleVars"))):
+            continue
+        groupvars = []
+        for key, value in ansible_vars:
+            groupvars.append((key, value))
+        ansible_set_groupvars(inventory=ANSIBLE_INVENTORY, groups=[group_name],
+                              groupvars=groupvars)
 
     crio_major_version = None
     crio_minor_version = None
@@ -4651,19 +4663,6 @@ def add_nodes(options: list[tuple[str, Any]], args: list[Any]) -> None:
 
     for group in ["nodes"] + group_list + [cluster_name]:
         ansible_add_hosts(inventory=ANSIBLE_INVENTORY, hosts=node_list, group=group, skip_all=True)
-
-    # If the groups have ansible_vars specified we add them.
-    # FIXME(This needs to be moved).
-    if isinstance(groups, dict):
-        for group in groups:
-            group_name = deep_get(group, DictPath("name"))
-            if not (ansible_vars := deep_get(group, DictPath("ansibleVars"))):
-                continue
-            groupvars = []
-            for key, value in ansible_vars:
-                groupvars.append((key, value))
-            ansible_set_groupvars(inventory=ANSIBLE_INVENTORY, groups=[group_name],
-                                  groupvars=groupvars)
 
 
 def set_context(cluster_name: str, context_name: str) -> None:
@@ -4901,8 +4900,9 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
     for data in deep_get(cd, DictPath("nodes#groups"), {}).values():
         for node in deep_get(data, DictPath("nodes"), []):
             if isinstance(node, dict):
-                node_name = deep_get(node, DictPath("name"))
-            node_list.append(node_name)
+                node_list.append(deep_get(node, DictPath("name")))
+            else:
+                node_list.append(node)
             nodes.append(node)
 
     prepare_options = [
