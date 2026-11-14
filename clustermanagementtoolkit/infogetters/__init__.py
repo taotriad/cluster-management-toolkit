@@ -23,6 +23,7 @@ from clustermanagementtoolkit.infogetters.get_node_addresses import get_node_add
 from clustermanagementtoolkit.infogetters.get_node_info import get_node_info
 from clustermanagementtoolkit.infogetters.get_obj import get_obj
 from clustermanagementtoolkit.infogetters.get_obj_dictlist import get_obj_dictlist
+from clustermanagementtoolkit.infogetters.get_obj_items import get_obj_items
 from clustermanagementtoolkit.infogetters.get_obj_key_value import get_obj_key_value
 from clustermanagementtoolkit.infogetters.get_obj_list import get_obj_list
 from clustermanagementtoolkit.infogetters.get_obj_lookup import get_obj_lookup
@@ -64,6 +65,7 @@ __all__ = [
     "get_node_info",
     "get_obj",
     "get_obj_dictlist",
+    "get_obj_items",
     "get_obj_key_value",
     "get_obj_list",
     "get_obj_lookup",

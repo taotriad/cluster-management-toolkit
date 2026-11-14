@@ -2041,6 +2041,333 @@ def test_get_key_value_info(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
+def test_get_obj_items(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = infogetters.get_obj_items
+
+    if result:
+        # Indata format:
+        # (obj, mpaths, ipath, values, kwargs, expected_result, expected_exception)
+        testdata: tuple = (
+            # Standard behaviour.
+            (
+                # obj
+                {
+                    "metadata": {
+                        "ownerReferences": [
+                            {
+                                "apiVersion": "apps/v1",
+                                "kind": "ReplicaSet",
+                                "name": "aaq-controller-5d684d9c84",
+                                "uid": "42c1f1a2-beaa-4849-8922-c86cff588bc7",
+                                "controller": True,
+                                "blockOwnerDeletion": True
+                            }
+                        ],
+                    },
+                },
+                # mpaths
+                [["metadata#ownerReferences"]],
+                # ipath
+                {
+                    "when": [
+                        {
+                            "key": "controller",
+                            "eq": True
+                        }
+                    ],
+                },
+                # values
+                [],
+                # kwargs
+                {
+                    "default": ["<none>"],
+                    "fallback_on_empty": False,
+                    "subpaths": ["kind", "apiVersion", "name"],
+                    "limit": None,
+                    "action": "",
+                    "pathtype": "items",
+                    "vtype": ["kind", "api_group", "name"]
+                },
+                # expected_result
+                [
+                    (
+                        ("ReplicaSet", "apps/v1", "aaq-controller-5d684d9c84"),
+                        ["kind", "api_group", "name"]
+                    ),
+                ],
+                # expected_exception
+                None,
+            ),
+            # action=sum
+            # Note: The action does not take place in get_obj_items;
+            # it just changes the format of the data being returned).
+            (
+                # obj
+                {
+                    "containers": [
+                        {
+                            "name": "openshift-apiserver",
+                            "usage": {
+                                "cpu": "48565645n", "memory": "471852Ki"
+                            }
+                        },
+                        {
+                            "name": "openshift-apiserver-check-endpoints",
+                            "usage": {
+                                "cpu": "962452n",
+                                "memory": "115652Ki"
+                            }
+                        }
+                    ],
+                },
+                # mpaths
+                [["containers"]],
+                # ipath
+                {},
+                # values
+                [],
+                # kwargs
+                {
+                    "default": None,
+                    "fallback_on_empty": False,
+                    "subpaths": ["usage#cpu"],
+                    "limit": None,
+                    "action": "sum",
+                    "pathtype": "items",
+                    "vtype": "cpu_usage"
+                },
+                # expected_result
+                [(["48565645n", "962452n"], "cpu_usage")],
+                # expected_exception
+                None,
+            ),
+            # action=sum, no data
+            # Note: The action does not take place in get_obj_items;
+            # it just changes the format of the data being returned).
+            (
+                # obj
+                {
+                    "containers": [],
+                },
+                # mpaths
+                [["containers"]],
+                # ipath
+                {},
+                # values
+                [],
+                # kwargs
+                {
+                    "default": None,
+                    "fallback_on_empty": False,
+                    "subpaths": ["usage#cpu"],
+                    "limit": None,
+                    "action": "sum",
+                    "pathtype": "items",
+                    "vtype": "cpu_usage"
+                },
+                # expected_result
+                [],
+                # expected_exception
+                None,
+            ),
+            # action=sum, default
+            # Note: The action does not take place in get_obj_items;
+            # it just changes the format of the data being returned).
+            (
+                # obj
+                {
+                    "containers": [],
+                },
+                # mpaths
+                [["containers"]],
+                # ipath
+                {},
+                # values
+                [],
+                # kwargs
+                {
+                    "default": ["0n"],
+                    "fallback_on_empty": False,
+                    "subpaths": ["usage#cpu"],
+                    "limit": None,
+                    "action": "sum",
+                    "pathtype": "items",
+                    "vtype": "cpu_usage"
+                },
+                # expected_result
+                [(["0n"], "cpu_usage")],
+                # expected_exception
+                None,
+            ),
+            # limit=1
+            (
+                # obj
+                {
+                    "containers": [
+                        {
+                            "name": "openshift-apiserver",
+                            "usage": {
+                                "cpu": "48565645n", "memory": "471852Ki"
+                            }
+                        },
+                        {
+                            "name": "openshift-apiserver-check-endpoints",
+                            "usage": {
+                                "cpu": "962452n",
+                                "memory": "115652Ki"
+                            }
+                        }
+                    ],
+                },
+                # mpaths
+                [["containers"]],
+                # ipath
+                {},
+                # values
+                [],
+                # kwargs
+                {
+                    "default": None,
+                    "fallback_on_empty": False,
+                    "subpaths": ["usage#cpu"],
+                    "limit": 1,
+                    "action": "",
+                    "pathtype": "items",
+                    "vtype": "cpu_usage"
+                },
+                # expected_result
+                [("48565645n", "cpu_usage")],
+                # expected_exception
+                None,
+            ),
+            # limit=1, prefix, suffix
+            (
+                # obj
+                {
+                    "containers": [
+                        {
+                            "name": "openshift-apiserver",
+                            "usage": {
+                                "cpu": "48565645n", "memory": "471852Ki"
+                            }
+                        },
+                        {
+                            "name": "openshift-apiserver-check-endpoints",
+                            "usage": {
+                                "cpu": "962452n",
+                                "memory": "115652Ki"
+                            }
+                        }
+                    ],
+                },
+                # mpaths
+                [["containers"]],
+                # ipath
+                {
+                    "prefix": "<",
+                    "suffix": ">",
+                },
+                # values
+                [],
+                # kwargs
+                {
+                    "default": None,
+                    "fallback_on_empty": False,
+                    "subpaths": ["usage#cpu"],
+                    "limit": 1,
+                    "action": "",
+                    "pathtype": "items",
+                    "vtype": "cpu_usage",
+                },
+                # expected_result
+                [("<48565645n>", "cpu_usage")],
+                # expected_exception
+                None,
+            ),
+            # regex
+            (
+                # obj
+                {
+                    "containers": [
+                        {
+                            "name": "openshift-apiserver",
+                        },
+                    ],
+                },
+                # mpaths
+                [["containers"]],
+                # ipath
+                {
+                    "regex": ".*-(.*)",
+                },
+                # values
+                [],
+                # kwargs
+                {
+                    "default": None,
+                    "fallback_on_empty": False,
+                    "subpaths": ["name"],
+                    "limit": 1,
+                    "action": "",
+                    "pathtype": "items",
+                    "vtype": "cpu_usage",
+                },
+                # expected_result
+                [(["apiserver"], "cpu_usage")],
+                # expected_exception
+                None,
+            ),
+        )
+
+        for obj, mpaths, ipath, values, kwargs, expected_result, expected_exception in testdata:
+            values_in = copy.deepcopy(values)
+            try:
+                tmp = fun(obj=obj, mpaths=mpaths, ipath=ipath, values=values, **kwargs)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"              obj: {obj}\n" \
+                              f"           mpaths: {mpaths}\n" \
+                              f"            ipath: {ipath}\n" \
+                              f"           kwargs: {kwargs}\n" \
+                              f"      values (in): {values_in}\n" \
+                              f"     values (out): {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"              obj: {obj}\n" \
+                                  f"           mpaths: {mpaths}\n" \
+                                  f"            ipath: {ipath}\n" \
+                                  f"           kwargs: {kwargs}\n" \
+                                  f"      values (in): {values_in}\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"              obj: {obj}\n" \
+                              f"           mpaths: {mpaths}\n" \
+                              f"            ipath: {ipath}\n" \
+                              f"           kwargs: {kwargs}\n" \
+                              f"      values (in): {values_in}\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
 def test_get_obj_remap(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -2513,7 +2840,6 @@ def test_get_obj_remap(verbose: bool = False) -> tuple[str, bool]:
                                   f"            ipath: {ipath}\n" \
                                   f"           kwargs: {kwargs}\n" \
                                   f"      values (in): {values_in}\n" \
-                                  f"     values (out): {tmp}\n" \
                                   f"        exception: {type(e)}\n" \
                                   f"          message: {str(e)}\n" \
                                   f"         expected: {expected_exception}"
@@ -2526,7 +2852,6 @@ def test_get_obj_remap(verbose: bool = False) -> tuple[str, bool]:
                               f"            ipath: {ipath}\n" \
                               f"           kwargs: {kwargs}\n" \
                               f"      values (in): {values_in}\n" \
-                              f"     values (out): {tmp}\n" \
                               f"        exception: {type(e)}\n" \
                               f"          message: {str(e)}\n" \
                               f"  expected result: {expected_result}"
@@ -3419,6 +3744,10 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
     },
     ("get_key_value_info()",): {
         "callable": test_get_key_value_info,
+        "result": None,
+    },
+    ("get_obj_items()",): {
+        "callable": test_get_obj_items,
         "result": None,
     },
     ("get_obj_remap()",): {

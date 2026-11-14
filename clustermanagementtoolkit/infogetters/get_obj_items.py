@@ -30,7 +30,7 @@ def get_obj_items(obj: dict, mpaths: list[list[DictPath]], ipath: dict,
         Parameters:
             obj (dict): The object to extract data from
             mpaths ([[DictPath]]): Multiple paths to iterate over
-            ipath (dict): The subpath to extra data from
+            ipath (dict): The subpath to extract data from
             values (list[Any]): The list of values to append the data to
             **kwargs (dict[str, Any]): Keyword arguments
                 action (str): An action to perform on the data; can be one of:
@@ -68,7 +68,7 @@ def get_obj_items(obj: dict, mpaths: list[list[DictPath]], ipath: dict,
                 pass
         # XXX: This is to avoid breaking anything
         # Ideally the "appenditems" behaviour should be the only one,
-        # but requires rewriting a lot of files
+        # but requires rewriting a lot of files.
         if pathtype == "items" and tmp is not None:
             items += tmp
         else:
