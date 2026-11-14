@@ -55,14 +55,14 @@ def expand_path(path: str, search_paths: list[str] | None = None,
 
     for partial_path in partial_paths:
         path_entry = Path(partial_path)
-        if path_entry.is_file():
+        if path_entry.exists():
             full_path = partial_path
             break
         if suffixes:
             for suffix in suffixes:
                 partial_path_suffixed = f"{partial_path}{suffix}"
                 path_entry = Path(partial_path_suffixed)
-                if path_entry.is_file():
+                if path_entry.exists():
                     full_path = partial_path_suffixed
                     break
     if full_path is None:

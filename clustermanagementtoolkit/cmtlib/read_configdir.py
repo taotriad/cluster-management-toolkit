@@ -45,7 +45,8 @@ def read_configdir(configpath: Path) -> dict:
                 continue
 
             # Read the conflet files.
-            if (more_config := secure_read_yaml(FilePath(path))) is not None:
+            if (more_config := secure_read_yaml(FilePath(path),
+                                                directory_is_symlink=True)) is not None:
                 config = {**config, **dict(more_config)}
 
     return copy.deepcopy(config)

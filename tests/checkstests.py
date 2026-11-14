@@ -204,7 +204,7 @@ def test_check_sudo_configuration(verbose: bool = False) -> tuple[str, bool]:
         for kwargs, mock_response, expected_result, expected_exception in testdata:
             try:
                 with mock.patch("clustermanagementtoolkit.checks.check_sudo_configuration."
-                                "execute_command_with_response",
+                                "cmtio.execute_command_with_response",
                                 return_value=mock_response):
                     tmp = fun(**kwargs)
                 if tmp != expected_result:

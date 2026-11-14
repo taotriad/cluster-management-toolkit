@@ -14,9 +14,9 @@ from typing import Any
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
 from clustermanagementtoolkit.ansithemeprint import ansithemeprint
 
-from clustermanagementtoolkit.cmtio import execute_command_with_response
+from clustermanagementtoolkit import cmtio
 
-from clustermanagementtoolkit.cmttypes import DictPath
+from clustermanagementtoolkit.cmttypes import DictPath, FilePath, SecurityPolicy
 from clustermanagementtoolkit.cmttypes import deep_get
 from clustermanagementtoolkit.cmttypes.exceptions import ProgrammingError
 
@@ -67,8 +67,13 @@ def check_sudo_configuration(**kwargs: Any) -> tuple[bool, int, int, int, int]:
                         ANSIThemeStr(" on ", "phase"),
                         ANSIThemeStr("localhost", "hostname"),
                         ANSIThemeStr("]", "phase")])
-    args = ["/usr/bin/sudo", "-l"]
-    result, _retval = execute_command_with_response(args)
+    # Ubuntu 26.04 uses the rust implementation of sudo,
+    # so it'll be in /usr/lib/cargo/bin instead.
+    sudo_path = cmtio.secure_which(FilePath("sudo"),
+                                   fallback_allowlist=["/bin", "/usr/bin", "/usr/lib/cargo/bin"],
+                                   security_policy=SecurityPolicy.ALLOWLIST_STRICT)
+    args = [sudo_path, "-l"]
+    result, _retval = cmtio.execute_command_with_response(args)
 
     sudoer = True
 

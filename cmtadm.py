@@ -101,7 +101,6 @@ from clustermanagementtoolkit.cmtio import (
     secure_mkdir,
     secure_read_string,
     secure_rm,
-    secure_which,
     secure_write_string,
 )
 
@@ -894,6 +893,18 @@ def __upgrade_cni(cni: str, upgradetype: str, context: str,
     install_command = deep_get(cni_data, DictPath(f"{cni}#{upgradetype}#install"))
     upgrade_command = deep_get(cni_data, DictPath(f"{cni}#{upgradetype}#upgrade"))
 
+    # Path lookups; do these before any loops.
+    try:
+        kubectl_path = cmtio.secure_which(FilePath("/usr/bin/kubectl"),
+                                          fallback_allowlist=["/etc/alternatives"],
+                                          security_policy=SecurityPolicy.ALLOWLIST_RELAXED)
+    except FileNotFoundError:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": Could not find ", "default"),
+                        ANSIThemeStr("kubectl", "path"),
+                        ANSIThemeStr("; aborting.", "default")], stderr=True)
+        sys.exit(errno.ENOENT)
+
     version_substitutions = {
         "<<<arch>>>": arch,
         "<<<context>>>": context,
@@ -1001,10 +1012,8 @@ def __upgrade_cni(cni: str, upgradetype: str, context: str,
 
                 if upgradetype == "CNI":
                     new_path = FilePath(directory).joinpath(filename)
-                    kubectl_path = secure_which(FilePath("/usr/bin/kubectl"),
-                                                fallback_allowlist=["/etc/alternatives"],
-                                                security_policy=SecurityPolicy.ALLOWLIST_RELAXED)
-                    args = [str(kubectl_path)]
+                    args: list[FilePath | str] = [kubectl_path]
+
                     kubectl_major_version, kubectl_minor_version, *_ignore = \
                         kubernetes_helper.kubectl_get_version(client_only=True)
                     if kubectl_major_version is None or kubectl_minor_version is None:
@@ -1345,13 +1354,21 @@ def teardown_cni(options: list[tuple[str, str]], args: list[str]) -> None:
 
     ansithemeprint([ANSIThemeStr("\n[Removing CNI and configuration]", "phase")])
 
+    try:
+        kubectl_path = cmtio.secure_which(FilePath("/usr/bin/kubectl"),
+                                          fallback_allowlist=["/etc/alternatives"],
+                                          security_policy=SecurityPolicy.ALLOWLIST_RELAXED)
+    except FileNotFoundError:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": Could not find ", "default"),
+                        ANSIThemeStr("kubectl", "path"),
+                        ANSIThemeStr("; aborting.", "default")], stderr=True)
+        sys.exit(errno.ENOENT)
+
     for cni_filename in cni_filenames:
         cni_path = FilePath(directory).joinpath(cni_filename)
 
         # OK, we have paths to the CNI files; this should be enough to remove it.
-        kubectl_path = secure_which(FilePath("/usr/bin/kubectl"),
-                                    fallback_allowlist=["/etc/alternatives"],
-                                    security_policy=SecurityPolicy.ALLOWLIST_RELAXED)
         _result, _retval = execute_command_with_response([kubectl_path, "delete", "-f", cni_path])
 
     if uninstall_command is not None:
@@ -1828,7 +1845,8 @@ def update_apt_cache() -> bool:
     sudo_path = cmtio.secure_which(FilePath("sudo"),
                                    fallback_allowlist=["/bin", "/usr/bin", "/usr/lib/cargo/bin"],
                                    security_policy=SecurityPolicy.ALLOWLIST_STRICT)
-    apt_get_path = cmtio.secure_which(FilePath("apt-get"), fallback_allowlist=["/bin", "/usr/bin"],
+    apt_get_path = cmtio.secure_which(FilePath("apt-get"),
+                                      fallback_allowlist=["/bin", "/usr/bin"],
                                       security_policy=SecurityPolicy.ALLOWLIST_STRICT)
     args = [sudo_path, apt_get_path, "update"]
     return execute_command(args)
@@ -1841,9 +1859,11 @@ def update_zypper_cache() -> bool:
         Returns:
             (bool): True on success, False on failure
     """
-    sudo_path = cmtio.secure_which(FilePath("sudo"), fallback_allowlist=["/bin", "/usr/bin"],
+    sudo_path = cmtio.secure_which(FilePath("sudo"),
+                                   fallback_allowlist=["/bin", "/usr/bin"],
                                    security_policy=SecurityPolicy.ALLOWLIST_STRICT)
-    apt_get_path = cmtio.secure_which(FilePath("zypper"), fallback_allowlist=["/bin", "/usr/bin"],
+    apt_get_path = cmtio.secure_which(FilePath("zypper"),
+                                      fallback_allowlist=["/bin", "/usr/bin"],
                                       security_policy=SecurityPolicy.ALLOWLIST_STRICT)
     args = [sudo_path, apt_get_path, "refresh"]
     return execute_command(args)
@@ -2408,7 +2428,18 @@ def __task_setup_bash_completion(installation_info: dict, **kwargs: Any) -> None
     secure_mkdir(BASH_COMPLETION_BASE_DIR, verbose=verbose)
     secure_mkdir(BASH_COMPLETION_DIR, verbose=verbose)
 
-    args = ["/usr/bin/kubectl", "completion", "bash"]
+    try:
+        kubectl_path = cmtio.secure_which(FilePath("/usr/bin/kubectl"),
+                                          fallback_allowlist=["/etc/alternatives"],
+                                          security_policy=SecurityPolicy.ALLOWLIST_RELAXED)
+    except FileNotFoundError:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": Could not find ", "default"),
+                        ANSIThemeStr("kubectl", "path"),
+                        ANSIThemeStr("; aborting.", "default")], stderr=True)
+        sys.exit(errno.ENOENT)
+
+    args = [kubectl_path, "completion", "bash"]
     result, _retval = execute_command_with_response(args)
     secure_write_string(BASH_COMPLETION_DIR.joinpath("kubectl"), result)
 
@@ -2814,11 +2845,17 @@ def __task_drain_control_planes(installation_info: dict, **kwargs: Any) -> None:
     ignore_errors: bool = deep_get(kwargs, DictPath("ignore_errors"), False)
     controlplanes = __selection_control_planes()
 
+    # Ubuntu 26.04 uses the rust implementation of sudo,
+    # so it'll be in /usr/lib/cargo/bin instead.
+    sudo_path = cmtio.secure_which(FilePath("sudo"),
+                                   fallback_allowlist=["/bin", "/usr/bin", "/usr/lib/cargo/bin"],
+                                   security_policy=SecurityPolicy.ALLOWLIST_STRICT)
+
     # Check if there is an API-server running that will listen to our request;
     # drain is issued during teardown--so if we are resuming a teardown the cluster
     # might already be partially deconfigured.
     # XXX: This should be done on the control plane(s), not on localhost.
-    args = ["/usr/bin/sudo", "/usr/bin/lsof", "-i", "-P", "-n"]
+    args = [sudo_path, "/usr/bin/lsof", "-i", "-P", "-n"]
     response, _retval = execute_command_with_response(args)
     running = False
     for line in response.splitlines():
@@ -2829,7 +2866,18 @@ def __task_drain_control_planes(installation_info: dict, **kwargs: Any) -> None:
         check_and_print_status(True)
         return
 
-    args = ["/usr/bin/kubectl", "drain",
+    try:
+        kubectl_path = cmtio.secure_which(FilePath("/usr/bin/kubectl"),
+                                          fallback_allowlist=["/etc/alternatives"],
+                                          security_policy=SecurityPolicy.ALLOWLIST_RELAXED)
+    except FileNotFoundError:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": Could not find ", "default"),
+                        ANSIThemeStr("kubectl", "path"),
+                        ANSIThemeStr("; aborting.", "default")], stderr=True)
+        sys.exit(errno.ENOENT)
+
+    args = [kubectl_path, "drain",
             "--ignore-daemonsets", "--delete-emptydir-data", "--disable-eviction"]
 
     for controlplane in controlplanes:
@@ -4734,7 +4782,8 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
         elif opt == "--redeploy":
             redeploy = True
 
-    cluster_deployment_file = FilePath(args[0])
+    cluster_deployment_file, _fallback_returned = \
+        cmtio.expand_path(args[0], search_paths=[os.getcwd()], fallback=args[0])
 
     if not os.path.exists(cluster_deployment_file):
         ansithemeprint([ANSIThemeStr("Error", "error"),
@@ -4743,7 +4792,8 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
                         ANSIThemeStr(" does not exist; aborting.", "default")], stderr=True)
         sys.exit(errno.ENOENT)
     elif not (os.path.isfile(cluster_deployment_file)
-              or os.path.isdir(cluster_deployment_file) and cluster_deployment_file.endswith(".d")):
+              or os.path.isdir(cluster_deployment_file)
+              and cluster_deployment_file.endswith((".d", ".d/"))):
         ansithemeprint([ANSIThemeStr("Error", "error"),
                         ANSIThemeStr(": ", "default"),
                         ANSIThemeStr(f"{cluster_deployment_file}", "path"),
@@ -5283,6 +5333,43 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
     # Finally we attempt to deploy workloads.
     workloads = deep_get(cd, DictPath("workloads"), [])
 
+    # Path lookups; do these before any loops.
+    try:
+        kubectl_path = cmtio.secure_which(FilePath("/usr/bin/kubectl"),
+                                          fallback_allowlist=["/etc/alternatives"],
+                                          security_policy=SecurityPolicy.ALLOWLIST_RELAXED)
+    except FileNotFoundError:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": Could not find ", "default"),
+                        ANSIThemeStr("kubectl", "path"),
+                        ANSIThemeStr("; aborting.", "default")], stderr=True)
+        sys.exit(errno.ENOENT)
+
+    # Ubuntu 26.04 uses the rust implementation of sudo,
+    # so it'll be in /usr/lib/cargo/bin instead.
+    sudo_path = \
+        cmtio.secure_which(FilePath("sudo"),
+                           fallback_allowlist=["/bin", "/usr/bin", "/usr/lib/cargo/bin"],
+                           security_policy=SecurityPolicy.ALLOWLIST_STRICT)
+
+    try:
+        helm_path = \
+            cmtio.secure_which(FilePath("/usr/bin/helm"),
+                               fallback_allowlist=["/etc/alternatives",
+                                                   "/usr/local/bin", f"{HOMEDIR}/bin"],
+                               security_policy=SecurityPolicy.ALLOWLIST_RELAXED)
+    except FileNotFoundError:
+        helm_path = None
+
+    try:
+        git_path = \
+            cmtio.secure_which(FilePath("/usr/bin/git"),
+                               fallback_allowlist=["/etc/alternatives", "/usr/lib/git",
+                                                   "/usr/local/bin", f"{HOMEDIR}/bin"],
+                               security_policy=SecurityPolicy.ALLOWLIST_RELAXED)
+    except FileNotFoundError:
+        git_path = None
+
     # pylint: disable-next=too-many-nested-blocks
     if state in ("deploy_workloads", "deploying") and workloads:
         ansithemeprint([ANSIThemeStr("\n[Deploying workloads]", "phase")])
@@ -5323,35 +5410,6 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
                 print()
 
             deployments = deep_get(workload, DictPath("deployments"), [])
-            kubectl_path = \
-                secure_which(FilePath("/usr/bin/kubectl"),
-                             fallback_allowlist=["/etc/alternatives"],
-                             security_policy=SecurityPolicy.ALLOWLIST_RELAXED)
-            # Ubuntu 26.04 uses the rust implementation of sudo,
-            # so it'll be in /usr/lib/cargo/bin instead.
-            sudo_path = \
-                cmtio.secure_which(FilePath("sudo"),
-                                   fallback_allowlist=["/bin", "/usr/bin",
-                                                       "/usr/lib/cargo/bin"],
-                                   security_policy=SecurityPolicy.ALLOWLIST_STRICT)
-            try:
-                helm_path = \
-                    secure_which(FilePath("/usr/bin/helm"),
-                                 fallback_allowlist=["/etc/alternatives",
-                                                     "/usr/local/bin", f"{HOMEDIR}/bin"],
-                                 security_policy=SecurityPolicy.ALLOWLIST_RELAXED)
-            except FileNotFoundError:
-                helm_path = None
-
-            try:
-                git_path = \
-                    secure_which(FilePath("/usr/bin/git"),
-                                 fallback_allowlist=["/etc/alternatives", "/usr/lib/git",
-                                                     "/usr/local/bin", f"{HOMEDIR}/bin"],
-                                 security_policy=SecurityPolicy.ALLOWLIST_RELAXED)
-            except FileNotFoundError:
-                git_path = None
-
             for data in deployments:
                 intersection = {"kubectl", "helm", "git"} & data.keys()
                 if len(intersection) != 1:
