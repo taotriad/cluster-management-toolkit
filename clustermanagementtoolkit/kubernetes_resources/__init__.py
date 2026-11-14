@@ -9109,6 +9109,10 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "clustertrainingruntimes",
         "namespaced": False,
     },
+    ("OptimizationJob", "trainer.kubeflow.org"): {
+        "api_paths": ["apis/trainer.kubeflow.org/v1alpha1/"],
+        "api": "optimizationjobs",
+    },
     ("TrainingRuntime", "trainer.kubeflow.org"): {
         "api_paths": ["apis/trainer.kubeflow.org/v1alpha1/"],
         "api": "trainingruntimes",
