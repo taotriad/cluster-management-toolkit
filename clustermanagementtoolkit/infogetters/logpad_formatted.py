@@ -37,6 +37,7 @@ def logpad_formatted(obj: dict, **kwargs: Any) -> list[list[ThemeRef | ThemeStr]
     """
     paths: list[DictPath] = deep_get(kwargs, DictPath("paths"), [])
     path: DictPath = DictPath(deep_get(kwargs, DictPath("path"), ""))
+    reparent: str = deep_get(kwargs, DictPath("reparent"), "")
     merge_paths: bool = deep_get(kwargs, DictPath("merge_paths"), False)
     dump_formatter_tmp = deep_get(kwargs, DictPath("formatter"), "format_none")
     formatter_args = deep_get(kwargs, DictPath("formatter_args"), {})
@@ -64,6 +65,9 @@ def logpad_formatted(obj: dict, **kwargs: Any) -> list[list[ThemeRef | ThemeStr]
         data = newobj
     else:
         data = obj
+    if reparent and data:
+        new_data = dict({reparent: data})
+        data = new_data
 
     return dump_formatter(data, raw=deep_get(kwargs, DictPath("_show_raw"), False),
                           **formatter_args)

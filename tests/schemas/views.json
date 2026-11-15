@@ -3210,6 +3210,10 @@
                                                     },
                                                     "additionalProperties": false
                                                 }
+                                            },
+                                            "reparent": {
+                                                "description": "Add a new parent to the content (for use with structured data, such as YAML/JSON)",
+                                                "type": "string"
                                             }
                                         },
                                         "allOf": [
