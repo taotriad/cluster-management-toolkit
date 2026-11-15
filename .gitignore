@@ -232,6 +232,7 @@ views/TektonTrigger.operator.tekton.dev.yaml
 views/Telemetry.telemetry.istio.io.yaml
 views/TenantControlPlane.kamaji.clastix.io.yaml
 views/Topology.kai.scheduler.yaml
+views/TrainJob.trainer.kubeflow.org.yaml
 views/Trial.kubeflow.org.yaml
 views/Trigger.eventing.knative.dev.yaml
 views/Tuned.tuned.openshift.io.yaml

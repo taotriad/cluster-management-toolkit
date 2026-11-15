@@ -2621,6 +2621,10 @@ TrafficWeightUpdated:
   field_colors:
     - context: "main"
       type: "status_done"
+TrainJobResourcesCreationFailed:
+  field_colors:
+    - context: "main"
+      type: "status_not_ok"
 TriggerAuthenticationAdded:
   field_colors:
     - context: "main"

@@ -77,11 +77,11 @@ infoview:
       path: "spec#crd"
     timestamps: false
   shortcuts:
-    "Show Targets":
+    "List Targets":
       key: "t"
       modifier: "shift"
       read_only: true
-      helptext: "List Targts"
+      helptext: "List Targets"
       widget: "windowwidget"
       widget_args:
         title: "Targets:"

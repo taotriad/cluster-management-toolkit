@@ -19,6 +19,7 @@ from clustermanagementtoolkit.curses_helper import ThemeStr
 from clustermanagementtoolkit.formatters import formatter_allowlist
 
 
+# pylint: disable-next=too-many-locals
 def logpad_formatted(obj: dict, **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     """
     Takes an object and dumps it using the specified format (if possible).
@@ -66,7 +67,7 @@ def logpad_formatted(obj: dict, **kwargs: Any) -> list[list[ThemeRef | ThemeStr]
     else:
         data = obj
     if reparent and data:
-        new_data = dict({reparent: data})
+        new_data = {reparent: data}
         data = new_data
 
     return dump_formatter(data, raw=deep_get(kwargs, DictPath("_show_raw"), False),

@@ -1,0 +1,26 @@
+---
+kind: "__RuntimePatch"
+api_family: "trainer.kubeflow.org"
+default_command: "__"
+infoview:
+  name: "Runtime Patch Info"
+  infopad:
+    creation_timestamp_path: "time"
+    name_path: null
+    row_indexes:
+      Normal:
+        fields: ["manager"]
+    rows:
+      manager:
+        header: [["Manager:", ["main", "infoheader"]]]
+        path: "manager"
+        default: "<unset>"
+        type: "str"
+  logpad:
+    title: "Training Runtime Spec:"
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "trainingRuntimeSpec"
+      reparent: "trainingRuntimeSpec"
+    timestamps: false

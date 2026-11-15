@@ -3,6 +3,7 @@
   show_in_selector: false
   matchkeys:
     - pod_name: "jobset-controller-manager"
+    - image_name: "/jobset/jobset"
   parser_rules:
     - name: "glog"
     - name: "tab_separated"
