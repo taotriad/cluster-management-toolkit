@@ -12,11 +12,10 @@ listview:
   group: "Kubeflow"
   field_indexes:
     Normal:
-      fields: ["name", "num_nodes", "age"]
-      sortcolumn: "state"
+      fields: ["name", "nodes", "age"]
   fields:
-    num_nodes:
-      header: "Number of Nodes:"
+    nodes:
+      header: "Nodes:"
       path: "spec#mlPolicy#numNodes"
       default: "<unset>"
       type: "int"
