@@ -2368,6 +2368,451 @@ def test_get_obj_items(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
+def test_get_obj_list(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = infogetters.get_obj_list
+
+    if result:
+        # Indata format:
+        # (obj, path, ipath, values, kwargs, expected_result, expected_exception)
+        testdata: tuple = (
+            # Single list entry.
+            (
+                # obj
+                {
+                    "spec": {
+                        "clusterIPs": [
+                            "10.96.0.10",
+                        ],
+                        "clusterIP": "10.96.0.10",
+                    },
+                },
+                # path
+                ["spec#clusterIPs", "spec#clusterIP"],
+                # ipath
+                {
+                    "sorted": False,
+                    "none_str_as_none": True,
+                },
+                # values
+                [],
+                # kwargs
+                {
+                    "default": ["<none>"],
+                },
+                [(["10.96.0.10"], None)],
+                None,
+            ),
+            # Multiple list entries.
+            (
+                # obj
+                {
+                    "spec": {
+                        "clusterIPs": [
+                            "10.96.0.10",
+                            "10.96.0.11",
+                        ],
+                        "clusterIP": "10.96.0.10",
+                    },
+                },
+                # path
+                ["spec#clusterIPs", "spec#clusterIP"],
+                # ipath
+                {
+                    "sorted": False,
+                    "none_str_as_none": True,
+                },
+                # values
+                [],
+                # kwargs
+                {
+                    "default": ["<none>"],
+                    "limit": None,
+                    "vtype": None,
+                },
+                [(["10.96.0.10", "10.96.0.11"], None)],
+                None,
+            ),
+            # Multiple list entries; limit.
+            (
+                # obj
+                {
+                    "spec": {
+                        "clusterIPs": [
+                            "10.96.0.10",
+                            "10.96.0.11",
+                        ],
+                        "clusterIP": "10.96.0.10",
+                    },
+                },
+                # path
+                ["spec#clusterIPs", "spec#clusterIP"],
+                # ipath
+                {
+                    "sorted": False,
+                    "none_str_as_none": True,
+                },
+                # values
+                [],
+                # kwargs
+                {
+                    "default": ["<none>"],
+                    "limit": 1,
+                    "vtype": None,
+                },
+                [(["10.96.0.10"], None)],
+                None,
+            ),
+            # Multiple list entries; sorted.
+            (
+                # obj
+                {
+                    "spec": {
+                        "clusterIPs": [
+                            "10.96.0.11",
+                            "10.96.0.10",
+                        ],
+                        "clusterIP": "10.96.0.10",
+                    },
+                },
+                # path
+                ["spec#clusterIPs", "spec#clusterIP"],
+                # ipath
+                {
+                    "sorted": True,
+                    "none_str_as_none": True,
+                },
+                # values
+                [],
+                # kwargs
+                {
+                    "default": ["<none>"],
+                    "limit": None,
+                    "vtype": None,
+                },
+                [(["10.96.0.10", "10.96.0.11"], None)],
+                None,
+            ),
+            # No data; default, no fallback on empty.
+            (
+                # obj
+                {
+                    "spec": {
+                        "clusterIPs": None,
+                    },
+                },
+                # path
+                ["spec#clusterIPs", "spec#clusterIP"],
+                # ipath
+                {
+                    "sorted": True,
+                    "none_str_as_none": True,
+                },
+                # values
+                [],
+                # kwargs
+                {
+                    "default": ["<none>"],
+                    "fallback_on_empty": False,
+                    "limit": None,
+                    "vtype": None,
+                },
+                [(["<none>"], None)],
+                None,
+            ),
+            # No data; default, no fallback on empty.
+            (
+                # obj
+                {
+                    "spec": {
+                        "clusterIPs": [],
+                        "clusterIPs2": ["foo"],
+                    },
+                },
+                # path
+                ["spec#clusterIPs", "spec#clusterIPs2"],
+                # ipath
+                {
+                    "sorted": True,
+                    "none_str_as_none": True,
+                },
+                # values
+                [],
+                # kwargs
+                {
+                    "default": ["<none>"],
+                    "fallback_on_empty": True,
+                    "limit": None,
+                    "vtype": None,
+                },
+                [(["foo"], None)],
+                None,
+            ),
+            # Data is str representation of None, none_str_as_none
+            (
+                # obj
+                {
+                    "spec": {
+                        "clusterIPs": ["None"],
+                    },
+                },
+                # path
+                ["spec#clusterIPs"],
+                # ipath
+                {
+                    "sorted": True,
+                    "none_str_as_none": True,
+                },
+                # values
+                [],
+                # kwargs
+                {
+                    "default": ["<none>"],
+                    "fallback_on_empty": True,
+                    "limit": None,
+                    "vtype": None,
+                },
+                [(["<none>"], None)],
+                None,
+            ),
+        )
+
+        for obj, path, ipath, values, kwargs, expected_result, expected_exception in testdata:
+            values_in = copy.deepcopy(values)
+            try:
+                tmp = fun(obj=obj, path=path, ipath=ipath, values=values, **kwargs)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"              obj: {obj}\n" \
+                              f"             path: {path}\n" \
+                              f"            ipath: {ipath}\n" \
+                              f"           kwargs: {kwargs}\n" \
+                              f"      values (in): {values_in}\n" \
+                              f"     values (out): {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"              obj: {obj}\n" \
+                                  f"             path: {path}\n" \
+                                  f"            ipath: {ipath}\n" \
+                                  f"           kwargs: {kwargs}\n" \
+                                  f"      values (in): {values_in}\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"              obj: {obj}\n" \
+                              f"             path: {path}\n" \
+                              f"            ipath: {ipath}\n" \
+                              f"           kwargs: {kwargs}\n" \
+                              f"      values (in): {values_in}\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_get_obj_regex(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = infogetters.get_obj_regex
+
+    if result:
+        # Indata format:
+        # (obj, path, ipath, values, kwargs, expected_result, expected_exception)
+        testdata: tuple = (
+            # regex; matches found.
+            (
+                # obj
+                {
+                    "spec": {
+                        "clusterType": "k8s,bgp,kubeadm,kdd",
+                    },
+                },
+                # path
+                ["spec#clusterType"],
+                # ipath
+                {
+                    "regex": r".*(bgp)",
+                },
+                # values
+                [],
+                # kwargs
+                {
+                    "default": None,
+                },
+                [(("bgp",), "raw")],
+                None,
+            ),
+            # regex; no matches found.
+            (
+                # obj
+                {
+                    "spec": {
+                        "clusterType": "k8s,bgp,kubeadm,kdd",
+                    },
+                },
+                # path
+                ["spec#clusterType"],
+                # ipath
+                {
+                    "regex": r"(bgp)",
+                },
+                # values
+                [],
+                # kwargs
+                {
+                    "default": None,
+                },
+                [((), "raw")],
+                None,
+            ),
+            # findall; matches found.
+            (
+                # obj
+                {
+                    "spec": {
+                        "clusterType": "k8s,bgp,kubeadm,kdd",
+                    },
+                },
+                # path
+                ["spec#clusterType"],
+                # ipath
+                {
+                    "findall": r"([^,]+)",
+                },
+                # values
+                [],
+                # kwargs
+                {
+                    "default": None,
+                },
+                [(("k8s", "bgp", "kubeadm", "kdd"), "raw")],
+                None,
+            ),
+            # findall; no matches found.
+            (
+                # obj
+                {
+                    "spec": {
+                        "clusterType": "k8s,bgp,kubeadm,kdd",
+                    },
+                },
+                # path
+                ["spec#clusterType"],
+                # ipath
+                {
+                    "findall": r"(foobar+)",
+                },
+                # values
+                [],
+                # kwargs
+                {
+                    "default": None,
+                },
+                [((), "raw")],
+                None,
+            ),
+            # findall; no indata, no default.
+            (
+                # obj
+                {},
+                # path
+                ["spec#clusterType"],
+                # ipath
+                {
+                    "findall": r"(foobar+)",
+                },
+                # values
+                [],
+                # kwargs
+                {
+                    "default": None,
+                },
+                [((), "raw")],
+                None,
+            ),
+            # findall; no indata, default.
+            (
+                # obj
+                {},
+                # path
+                ["spec#clusterType"],
+                # ipath
+                {
+                    "findall": r"(foobar+)",
+                },
+                # values
+                [],
+                # kwargs
+                {
+                    "default": ("foobar",),
+                },
+                [(("foobar",), "raw")],
+                None,
+            ),
+        )
+
+        for obj, path, ipath, values, kwargs, expected_result, expected_exception in testdata:
+            values_in = copy.deepcopy(values)
+            try:
+                tmp = fun(obj=obj, path=path, ipath=ipath, values=values, **kwargs)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"              obj: {obj}\n" \
+                              f"             path: {path}\n" \
+                              f"            ipath: {ipath}\n" \
+                              f"           kwargs: {kwargs}\n" \
+                              f"      values (in): {values_in}\n" \
+                              f"     values (out): {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"              obj: {obj}\n" \
+                                  f"             path: {path}\n" \
+                                  f"            ipath: {ipath}\n" \
+                                  f"           kwargs: {kwargs}\n" \
+                                  f"      values (in): {values_in}\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"              obj: {obj}\n" \
+                              f"             path: {path}\n" \
+                              f"            ipath: {ipath}\n" \
+                              f"           kwargs: {kwargs}\n" \
+                              f"      values (in): {values_in}\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
 def test_get_obj_remap(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -3748,6 +4193,14 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
     },
     ("get_obj_items()",): {
         "callable": test_get_obj_items,
+        "result": None,
+    },
+    ("get_obj_list()",): {
+        "callable": test_get_obj_list,
+        "result": None,
+    },
+    ("get_obj_regex()",): {
+        "callable": test_get_obj_regex,
         "result": None,
     },
     ("get_obj_remap()",): {

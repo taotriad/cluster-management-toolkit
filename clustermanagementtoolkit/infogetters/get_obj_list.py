@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: MIT
 
 """
-Helper for get_obj() to get liists.
+Helper for get_obj() that extracts lists.
 """
 
 from typing import Any
@@ -43,15 +43,14 @@ def get_obj_list(obj: dict, path: list[DictPath], ipath: dict,
 
     tmp = deep_get_with_fallback(obj, path, default=default,
                                  fallback_on_empty=fallback_on_empty)
-    if deep_get(ipath, DictPath("sorted"), False) and tmp is not None:
+    if tmp and deep_get(ipath, DictPath("sorted"), False):
         tmp = natsorted(tmp)
 
-    if tmp is not None and tmp in ("None", ["None"]) \
-            and deep_get(ipath, DictPath("none_str_as_none"), False):
+    if tmp in ("None", ["None"]) and deep_get(ipath, DictPath("none_str_as_none"), False):
         tmp = default
 
-    # Just return the list, unless a subset has been requested
-    if limit is not None and tmp is not None:
+    # Just return the list, unless a subset has been requested.
+    if limit is not None and tmp:
         value = tmp[0:limit]
     else:
         value = tmp

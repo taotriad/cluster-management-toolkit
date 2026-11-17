@@ -18,7 +18,7 @@ from clustermanagementtoolkit.cmttypes import deep_get_with_fallback
 def get_obj_regex(obj: dict, path: list[DictPath], ipath: dict,
                   values: list[Any], **kwargs: Any) -> list[Any]:
     """
-    A helper for get_obj() that extracts dict-lists.
+    A helper for get_obj() to extract data using regular expressions.
 
         Parameters:
             obj (dict): The object to extract data from
