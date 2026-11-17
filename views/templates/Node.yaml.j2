@@ -8,12 +8,15 @@ listview:
   group: "Core"
   field_indexes:
     Wide:
-      fields: ["name", "status", "roles", "age", "kubelet_version",
-               "internal_ips", "os_image", "kernel_version",
-               "container_runtime", "cpu", "pods", "mem", "taints"]
+      fields: ["name", "status", "roles",
+               "internal_ips", "cpu", "pods", "mem", "age", "taints",
+               "kubelet_version", "kernel_version",
+               "os_image", "container_runtime"]
+      sortcolumn: "status"
     Normal:
-      fields: ["name", "status", "roles", "age", "kubelet_version",
-               "internal_ips", "cpu", "pods", "mem", "taints"]
+      fields: ["name", "status", "roles",
+               "internal_ips", "cpu", "pods", "mem", "age", "taints"]
+      sortcolumn: "status"
   fields:
     container_runtime:
       header: "Container Runtime:"
