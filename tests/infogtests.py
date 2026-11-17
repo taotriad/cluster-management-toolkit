@@ -2041,6 +2041,164 @@ def test_get_key_value_info(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
+def test_get_obj_dictlist(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = infogetters.get_obj_dictlist
+
+    if result:
+        # Indata format:
+        # (obj, path, ipath, values, kwargs, expected_result, expected_exception)
+        testdata: tuple = (
+            # Single dict entry.
+            (
+                # obj
+                {
+                    "spec": {
+                        "block": {
+                            "10.244.226.192/26": 1,
+                        },
+                    },
+                },
+                # path
+                ["spec#block"],
+                # ipath
+                {
+                    "transform": {
+                        "key": {
+                            "regex": [r"^([^/]+)/(.+)"],
+                            "groups": [0, 1],
+                            "join": ["/"],
+                        },
+                        "output": ["key"],
+                        "sorted": True,
+                    },
+                },
+                # values
+                [],
+                # kwargs
+                {
+                    "default": None,
+                    "fallback_on_empty": False,
+                    "vtype": None,
+                },
+                [("10.244.226.192/26", None)],
+                None,
+            ),
+            # Multiple dict entries.
+            (
+                # obj
+                {
+                    "spec": {
+                        "block": {
+                            "10.244.226.192/26": 1,
+                            "192.168.10.0/26": 1,
+                        },
+                    },
+                },
+                # path
+                ["spec#block"],
+                # ipath
+                {
+                    "transform": {
+                        "key": {
+                            "regex": [r"^([^/]+)/(.+)"],
+                            "groups": [0, 1],
+                            "join": ["/"],
+                        },
+                        "output": ["key"],
+                        "sorted": True,
+                    },
+                },
+                # values
+                [],
+                # kwargs
+                {
+                    "default": None,
+                    "fallback_on_empty": False,
+                    "vtype": None,
+                },
+                [('10.244.226.192/26', None), ('192.168.10.0/26', None)],
+                None,
+            ),
+            # No data, fallback on empty.
+            (
+                # obj
+                {},
+                # path
+                ["spec#block"],
+                # ipath
+                {
+                    "transform": {
+                        "key": {
+                            "regex": [r"^([^/]+)/(.+)"],
+                            "groups": [0, 1],
+                            "join": ["/"],
+                        },
+                        "output": ["key"],
+                        "sorted": True,
+                    },
+                },
+                # values
+                [],
+                # kwargs
+                {
+                    "default": "<none>",
+                    "fallback_on_empty": True,
+                    "vtype": None,
+                },
+                [("<none>", None)],
+                None,
+            ),
+        )
+
+        for obj, path, ipath, values, kwargs, expected_result, expected_exception in testdata:
+            values_in = copy.deepcopy(values)
+            try:
+                tmp = fun(obj=obj, path=path, ipath=ipath, values=values, **kwargs)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"              obj: {obj}\n" \
+                              f"             path: {path}\n" \
+                              f"            ipath: {ipath}\n" \
+                              f"           kwargs: {kwargs}\n" \
+                              f"      values (in): {values_in}\n" \
+                              f"     values (out): {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"              obj: {obj}\n" \
+                                  f"             path: {path}\n" \
+                                  f"            ipath: {ipath}\n" \
+                                  f"           kwargs: {kwargs}\n" \
+                                  f"      values (in): {values_in}\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"              obj: {obj}\n" \
+                              f"             path: {path}\n" \
+                              f"            ipath: {ipath}\n" \
+                              f"           kwargs: {kwargs}\n" \
+                              f"      values (in): {values_in}\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
 def test_get_obj_items(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -4189,6 +4347,10 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
     },
     ("get_key_value_info()",): {
         "callable": test_get_key_value_info,
+        "result": None,
+    },
+    ("get_obj_dictlist()",): {
+        "callable": test_get_obj_dictlist,
         "result": None,
     },
     ("get_obj_items()",): {

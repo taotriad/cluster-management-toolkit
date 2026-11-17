@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: MIT
 
 """
-Helper for get_obj() to get dictlists.
+Helper for get_obj() that extracts dict-lists.
 """
 
 from typing import Any
@@ -40,10 +40,11 @@ def get_obj_dictlist(obj: dict, path: list[DictPath], ipath: dict,
     transform = deep_get(ipath, DictPath("transform"), {})
     vtype = deep_get(kwargs, DictPath("vtype"))
 
-    raw = deep_get_with_fallback(obj, path, default=default,
-                                 fallback_on_empty=fallback_on_empty)
+    raw = deep_get_with_fallback(obj, path)
 
-    if raw is not None:
+    if raw is None or not raw and fallback_on_empty:
+        values.append((default, vtype))
+    else:
         for tmp in transform_list(raw, transform=transform):
             values.append((tmp, vtype))
 

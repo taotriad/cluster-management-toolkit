@@ -7,7 +7,13 @@ listview:
   group: "Calico"
   field_indexes:
     Normal:
-      fields: ["name", "age"]
+      fields: ["name", "deleted", "age"]
+  fields:
+    deleted:
+      header: "Deleted:"
+      path: "spec#deleted"
+      default: "<unset>"
+      type: "bool"
 infoview:
   name: "IPAM Handle Info"
   infopad:
