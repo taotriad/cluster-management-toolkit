@@ -43,13 +43,16 @@ def get_obj_key_value(obj: dict, path: list[DictPath], ipath: dict,
     value = []
     tmp = deep_get_with_fallback(obj, path, {})
     subtype: Literal["dict", "strlist"] = deep_get(ipath, DictPath("subtype"), "dict")
-    # This is to be for key_value-lists provided as strings
+    # This is to be for key_value-lists provided as strings.
     if subtype == "strlist" and isinstance(tmp, str):
         strlist = {}
         for kv in tmp.split(","):
             kv_tuple = kv.split("=")
             if len(kv_tuple) != 2:
-                break
+                # If we cannot treat this as "key1=value1,key2=value2,..."
+                # we return the entire value unmodified instead.
+                values.append((tmp, vtype))
+                return values
             strlist[kv_tuple[0]] = kv_tuple[1]
             tmp = strlist
     if isinstance(tmp, list):
@@ -78,7 +81,7 @@ def get_obj_key_value(obj: dict, path: list[DictPath], ipath: dict,
         # A regex for key/value is required to capture only one group;
         # (though conceivably there might be scenario for joining),
         # thus the first non-None capture group will exit the match;
-        # when using multiple regexes the first matching regex exits
+        # when using multiple regexes the first matching regex exits.
         match = False
         for _regex in _regexes_key:
             if (re_tmp := re.match(_regex, _key)) is None:
@@ -102,7 +105,7 @@ def get_obj_key_value(obj: dict, path: list[DictPath], ipath: dict,
             if match:
                 break
         # A transform might yield multiple identical key/value pairs;
-        # ignore all except the first one
+        # ignore all except the first one.
         if (_key, _value) in value:
             continue
         value.append((_key, _value))

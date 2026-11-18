@@ -2526,6 +2526,304 @@ def test_get_obj_items(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
+def test_get_obj_key_value(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = infogetters.get_obj_key_value
+
+    if result:
+        # Indata format:
+        # (obj, path, ipath, values, kwargs, expected_result, expected_exception)
+        testdata: tuple = (
+            # No transformation of key or value.
+            (
+                # obj
+                {
+                    "metadata": {
+                        "labels": {
+                            "node-role.kubernetes.io/control-plane": "",
+                        },
+                    },
+                },
+                # path
+                ["metadata#labels"],
+                # ipath
+                {
+                    "subtype": "dict",
+                    "key": {
+                        "transform": {
+                            "node-role.kubernetes.io/master":
+                                "node-role.kubernetes.io/control-plane",
+                        },
+                    },
+                    "value": {
+                        "transform": {
+                            "true": "",
+                        },
+                    },
+                },
+                # values
+                [],
+                # kwargs
+                {
+                    "default": ["<none>"],
+                    "vtype": None,
+                },
+                [(("node-role.kubernetes.io/control-plane", ""), None)],
+                None,
+            ),
+            # No transformation of key or value; when-filter; not filtered.
+            (
+                # obj
+                {
+                    "metadata": {
+                        "labels": {
+                            "node-role.kubernetes.io/control-plane": "",
+                        },
+                    },
+                },
+                # path
+                ["metadata#labels"],
+                # ipath
+                {
+                    "subtype": "dict",
+                    "key": {
+                        "transform": {
+                            "node-role.kubernetes.io/master":
+                                "node-role.kubernetes.io/control-plane",
+                        },
+                    },
+                    "value": {
+                        "transform": {
+                            "true": "",
+                        },
+                    },
+                    "when": [
+                        {
+                            "key_startswith": "node-role.kubernetes.io",
+                        },
+                    ],
+                },
+                # values
+                [],
+                # kwargs
+                {
+                    "default": ["<none>"],
+                    "vtype": None,
+                },
+                [(("node-role.kubernetes.io/control-plane", ""), None)],
+                None,
+            ),
+            # No transformation of key or value; when-filter; filtered.
+            (
+                # obj
+                {
+                    "metadata": {
+                        "labels": {
+                            "node-role.kubernetes.io/control-plane": "",
+                            "foo": "bar",
+                        },
+                    },
+                },
+                # path
+                ["metadata#labels"],
+                # ipath
+                {
+                    "subtype": "dict",
+                    "key": {
+                        "transform": {
+                            "node-role.kubernetes.io/master":
+                                "node-role.kubernetes.io/control-plane",
+                        },
+                    },
+                    "value": {
+                        "transform": {
+                            "true": "",
+                        },
+                    },
+                    "when": [
+                        {
+                            "key_startswith": "node-role.kubernetes.io",
+                        },
+                    ],
+                },
+                # values
+                [],
+                # kwargs
+                {
+                    "default": ["<none>"],
+                    "vtype": None,
+                },
+                [(("node-role.kubernetes.io/control-plane", ""), None)],
+                None,
+            ),
+            # Transformation of key, no transformation of value.
+            (
+                # obj
+                {
+                    "metadata": {
+                        "labels": {
+                            "node-role.kubernetes.io/master": "",
+                        },
+                    },
+                },
+                # path
+                ["metadata#labels"],
+                # ipath
+                {
+                    "subtype": "dict",
+                    "key": {
+                        "transform": {
+                            "node-role.kubernetes.io/master":
+                                "node-role.kubernetes.io/control-plane",
+                        },
+                    },
+                    "value": {
+                        "transform": {
+                            "true": "",
+                        },
+                    },
+                },
+                # values
+                [],
+                # kwargs
+                {
+                    "default": ["<none>"],
+                    "vtype": None,
+                },
+                [(("node-role.kubernetes.io/control-plane", ""), None)],
+                None,
+            ),
+            # Transformation of key and value.
+            (
+                # obj
+                {
+                    "metadata": {
+                        "labels": {
+                            "node-role.kubernetes.io/master": "true",
+                        },
+                    },
+                },
+                # path
+                ["metadata#labels"],
+                # ipath
+                {
+                    "subtype": "dict",
+                    "key": {
+                        "transform": {
+                            "node-role.kubernetes.io/master":
+                                "node-role.kubernetes.io/control-plane",
+                        },
+                    },
+                    "value": {
+                        "transform": {
+                            "true": "",
+                        },
+                    },
+                },
+                # values
+                [],
+                # kwargs
+                {
+                    "default": ["<none>"],
+                    "vtype": None,
+                },
+                [(("node-role.kubernetes.io/control-plane", ""), None)],
+                None,
+            ),
+            # strlist, no transformations.
+            (
+                # obj
+                {
+                    "data": "foo=bar,baz=42",
+                },
+                # path
+                ["data"],
+                # ipath
+                {
+                    "subtype": "strlist",
+                },
+                # values
+                [],
+                # kwargs
+                {
+                    "default": ["<none>"],
+                    "vtype": None,
+                },
+                [(("foo", "bar"), None), (("baz", "42"), None)],
+                None,
+            ),
+            # strlist, not a key=value.
+            (
+                # obj
+                {
+                    "data": "foo=bar=42",
+                },
+                # path
+                ["data"],
+                # ipath
+                {
+                    "subtype": "strlist",
+                },
+                # values
+                [],
+                # kwargs
+                {
+                    "default": ["<none>"],
+                    "vtype": None,
+                },
+                [(("foo=bar=42"), None)],
+                None,
+            ),
+        )
+
+        for obj, path, ipath, values, kwargs, expected_result, expected_exception in testdata:
+            values_in = copy.deepcopy(values)
+            try:
+                tmp = fun(obj=obj, path=path, ipath=ipath, values=values, **kwargs)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"              obj: {obj}\n" \
+                              f"             path: {path}\n" \
+                              f"            ipath: {ipath}\n" \
+                              f"           kwargs: {kwargs}\n" \
+                              f"      values (in): {values_in}\n" \
+                              f"     values (out): {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"              obj: {obj}\n" \
+                                  f"             path: {path}\n" \
+                                  f"            ipath: {ipath}\n" \
+                                  f"           kwargs: {kwargs}\n" \
+                                  f"      values (in): {values_in}\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"              obj: {obj}\n" \
+                              f"             path: {path}\n" \
+                              f"            ipath: {ipath}\n" \
+                              f"           kwargs: {kwargs}\n" \
+                              f"      values (in): {values_in}\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
 def test_get_obj_list(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -4355,6 +4653,10 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
     },
     ("get_obj_items()",): {
         "callable": test_get_obj_items,
+        "result": None,
+    },
+    ("get_obj_key_value()",): {
+        "callable": test_get_obj_key_value,
         "result": None,
     },
     ("get_obj_list()",): {
