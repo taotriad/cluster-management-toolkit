@@ -26,6 +26,12 @@
           - description: "/var/log/ovn/*"
           - description: "/var/run/openvswitch/*"
           - description: "/var/run/ovn/*"
+          - description: "/opt/cni/bin/antrea"
+          - description: "/opt/cni/bin/calico"
+          - description: "/opt/cni/bin/calico-ipam"
+          - description: "/opt/cni/bin/cilium-cni"
+          - description: "/opt/cni/bin/flannel"
+          - description: "/opt/cni/bin/weave*"
         "Other actions":
           - description: "Deletes all CNI-related network interfaces"
           - description: "Kills the weaver process"
@@ -83,7 +89,7 @@
           rm -f /opt/cni/bin/calico-ipam
           rm -f /opt/cni/bin/cilium-cni
           rm -f /opt/cni/bin/flannel
-          rm -f /opt/cni/bin/weave
+          rm -f /opt/cni/bin/weave*
           iptables -F
           iptables -t nat -F
           iptables -t mangle -F
