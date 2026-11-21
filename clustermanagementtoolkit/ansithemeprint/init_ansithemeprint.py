@@ -47,12 +47,15 @@ FALLBACK_THEME = {
         "notok": "\033[1;31m",                          # red + bright
         "success": "\033[1;32m",                        # green + bright
         "note": "\033[0;32m",                           # green
+        "debug": "\033[38;5;240m",                      # grey + dim
+        "info": "\033[0m",                              # reset
         "error": "\033[1;31m",                          # red + bright
         "warning": "\033[1;33m",                        # yellow + bright
         "critical": "\033[1;41;93m",                    # red + bright + inverted
         "errorvalue": "\033[0;31m",                     # red
         "phase": "\033[1;33m",                          # yellow + bright
         "action": "\033[1;36m",                         # cyan + bright
+        "subaction": "\033[0;36m",                      # cyan
         "play": "\033[0;36m",                           # cyan
         "none": "\033[38;5;240m\033[1m",                # grey + dim + bold
         "unknown": "\033[0;31m",                        # red
@@ -62,6 +65,8 @@ FALLBACK_THEME = {
         "yaml_key_separator": "\033[0;37m",             # white
         "yaml_value": "\033[0m",                        # reset
         "namespace": "\033[0;36m",                      # cyan
+        "numerical": "\033[0;36m",                      # cyan
+        "tag": "\033[1;37m",                            # white + bright
     }
 }
 

@@ -730,6 +730,819 @@ def test_themearray(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
+def test_themearray_detab(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = curses_helper.themearray_detab
+
+    if result:
+        # Indata format:
+        # (ThemeArray, expected_result, expected_exception)
+        testdata: tuple = (
+            # ThemeArray as list of ThemeStr.
+            (
+                # themearray
+                [ThemeStr("Foo	Bar", ThemeAttr("types", "generic"), selected=False)],
+                # expected_result
+                [ThemeStr("Foo   Bar", ThemeAttr("types", "generic"), selected=False)],
+                # expected_exception
+                None,
+            ),
+            # ThemeArray as list of ThemeStr; no tabs.
+            (
+                # themearray
+                [ThemeStr("Foo", ThemeAttr("types", "generic"), selected=False)],
+                # expected_result
+                [ThemeStr("Foo", ThemeAttr("types", "generic"), selected=False)],
+                # expected_exception
+                None,
+            ),
+            # ThemeArray as list of ThemeStr.
+            (
+                # themearray
+                [ThemeStr("Foo		Bar", ThemeAttr("types", "generic"), selected=False)],
+                # expected_result
+                [ThemeStr("Foo         Bar", ThemeAttr("types", "generic"), selected=False)],
+                # expected_exception
+                None,
+            ),
+            # ThemeArray as list of ThemeStr.
+            (
+                # themearray
+                [ThemeStr("     Foo	Bar", ThemeAttr("types", "generic"), selected=False)],
+                # expected_result
+                [ThemeStr("     Foo        Bar", ThemeAttr("types", "generic"), selected=False)],
+                # expected_exception
+                None,
+            ),
+            # ThemeArray as list of ThemeRef.
+            (
+                # themearray
+                [ThemeRef("strings", "none", selected=False)],
+                # expected_result
+                [ThemeRef("strings", "none", selected=False)],
+                # expected_exception
+                None,
+            ),
+            # ThemeArray with weird contents.
+            (
+                # themearray
+                ["string"],
+                # expected_result
+                [],
+                # expected_exception
+                None,
+            ),
+        )
+
+        for themearray, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(themearray)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"       themearray: {themearray}\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"       themearray: {themearray}\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"       themearray: {themearray}\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_themearray_flatten(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = curses_helper.themearray_flatten
+
+    if result:
+        # Indata format:
+        # (ThemeArray, expected_result, expected_exception)
+        testdata: tuple = (
+            # ThemeArray as list of ThemeStr.
+            (
+                # themearray
+                [ThemeStr("Foo Bar Baz", ThemeAttr("types", "generic"))],
+                [ThemeStr("Foo Bar Baz", ThemeAttr("types", "generic"))],
+                None,
+            ),
+            # ThemeArray as list of ThemeRef.
+            (
+                # themearray
+                [ThemeRef("strings", "none")],
+                [ThemeStr("<none>", ThemeAttr("types", "none"))],
+                None,
+            ),
+            # ThemeArray as list of non-valid types.
+            (
+                # themearray
+                ["string"],
+                None,
+                ProgrammingError,
+            ),
+        )
+
+        for themearray, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(themearray)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"       themearray: {themearray}\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"       themearray: {themearray}\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"       themearray: {themearray}\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_themearray_select(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = curses_helper.themearray_select
+
+    if result:
+        # Indata format:
+        # (ThemeArray, select, expected_result, expected_exception)
+        testdata: tuple = (
+            # Selected=None ThemeArray as list of ThemeStr.
+            (
+                # themearray
+                [ThemeStr("Foo Bar Baz", ThemeAttr("types", "generic"), selected=None)],
+                # selected
+                True,
+                # force
+                False,
+                # expected_result
+                [ThemeStr("Foo Bar Baz", ThemeAttr("types", "generic"), selected=True)],
+                # expected_exception
+                None,
+            ),
+            # Selected=None ThemeArray as list of ThemeRef.
+            (
+                # themearray
+                [ThemeRef("strings", "none", selected=None)],
+                # selected
+                True,
+                # force
+                False,
+                # expected_result
+                [ThemeRef("strings", "none", selected=True)],
+                # expected_exception
+                None,
+            ),
+            # Selected=None ThemeArray as list of ThemeStr.
+            (
+                # themearray
+                [ThemeStr("Foo Bar Baz", ThemeAttr("types", "generic"), selected=None)],
+                # selected
+                False,
+                # force
+                False,
+                # expected_result
+                [ThemeStr("Foo Bar Baz", ThemeAttr("types", "generic"), selected=False)],
+                # expected_exception
+                None,
+            ),
+            # Selected=None ThemeArray as list of ThemeRef.
+            (
+                # themearray
+                [ThemeRef("strings", "none", selected=None)],
+                # selected
+                False,
+                # force
+                False,
+                # expected_result
+                [ThemeRef("strings", "none", selected=False)],
+                # expected_exception
+                None,
+            ),
+            # Not selected ThemeArray as list of ThemeStr.
+            (
+                # themearray
+                [ThemeStr("Foo Bar Baz", ThemeAttr("types", "generic"), selected=False)],
+                # selected
+                True,
+                # force
+                False,
+                # expected_result
+                [ThemeStr("Foo Bar Baz", ThemeAttr("types", "generic"), selected=False)],
+                # expected_exception
+                None,
+            ),
+            # Not selected ThemeArray as list of ThemeRef.
+            (
+                # themearray
+                [ThemeRef("strings", "none", selected=False)],
+                # selected
+                True,
+                # force
+                False,
+                # expected_result
+                [ThemeRef("strings", "none", selected=False)],
+                # expected_exception
+                None,
+            ),
+            # Selected ThemeArray as list of ThemeStr.
+            (
+                # themearray
+                [ThemeStr("Foo Bar Baz", ThemeAttr("types", "generic"), selected=True)],
+                # selected
+                False,
+                # force
+                False,
+                # expected_result
+                [ThemeStr("Foo Bar Baz", ThemeAttr("types", "generic"), selected=True)],
+                # expected_exception
+                None,
+            ),
+            # Selected ThemeArray as list of ThemeRef.
+            (
+                # themearray
+                [ThemeRef("strings", "none", selected=True)],
+                # selected
+                False,
+                # force
+                False,
+                # expected_result
+                [ThemeRef("strings", "none", selected=True)],
+                # expected_exception
+                None,
+            ),
+            # Not selected ThemeArray as list of ThemeStr; force.
+            (
+                # themearray
+                [ThemeStr("Foo Bar Baz", ThemeAttr("types", "generic"), selected=False)],
+                # selected
+                True,
+                # force
+                True,
+                # expected_result
+                [ThemeStr("Foo Bar Baz", ThemeAttr("types", "generic"), selected=True)],
+                # expected_exception
+                None,
+            ),
+            # Not selected ThemeArray as list of ThemeRef; force.
+            (
+                # themearray
+                [ThemeRef("strings", "none", selected=False)],
+                # selected
+                True,
+                # force
+                True,
+                # expected_result
+                [ThemeRef("strings", "none", selected=True)],
+                # expected_exception
+                None,
+            ),
+            # Selected ThemeArray as list of ThemeStr; force.
+            (
+                # themearray
+                [ThemeStr("Foo Bar Baz", ThemeAttr("types", "generic"), selected=True)],
+                # selected
+                False,
+                # force
+                True,
+                # expected_result
+                [ThemeStr("Foo Bar Baz", ThemeAttr("types", "generic"), selected=False)],
+                # expected_exception
+                None,
+            ),
+            # Selected ThemeArray as list of ThemeRef; force.
+            (
+                # themearray
+                [ThemeRef("strings", "none", selected=True)],
+                # selected
+                False,
+                # force
+                True,
+                # expected_result
+                [ThemeRef("strings", "none", selected=False)],
+                # expected_exception
+                None,
+            ),
+            # ThemeArray as list of non-valid types.
+            (
+                # themearray
+                ["string"],
+                # selected,
+                True,
+                # force
+                False,
+                None,
+                ProgrammingError,
+            ),
+        )
+
+        for themearray, selected, force, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(themearray, selected=selected, force=force)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"       themearray: {themearray}\n" \
+                              f"         selected: {selected}\n" \
+                              f"            force: {force}\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"       themearray: {themearray}\n" \
+                                  f"         selected: {selected}\n" \
+                                  f"            force: {force}\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"       themearray: {themearray}\n" \
+                              f"         selected: {selected}\n" \
+                              f"            force: {force}\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_themearray_split(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = curses_helper.themearray_split
+
+    if result:
+        # Indata format:
+        # (ThemeArray, select, expected_result, expected_exception)
+        testdata: tuple = (
+            # ThemeArray as list of ThemeStr, " " as separator.
+            (
+                # themearray
+                [ThemeStr("Foo Bar", ThemeAttr("types", "generic"), selected=False)],
+                # separator
+                " ",
+                # expected_result
+                [[ThemeStr("F", ThemeAttr("types", "generic"), selected=False),
+                  ThemeStr("o", ThemeAttr("types", "generic"), selected=False),
+                  ThemeStr("o", ThemeAttr("types", "generic"), selected=False)],
+                 [ThemeStr("B", ThemeAttr("types", "generic"), selected=False),
+                  ThemeStr("a", ThemeAttr("types", "generic"), selected=False),
+                  ThemeStr("r", ThemeAttr("types", "generic"), selected=False)]],
+                # expected_exception
+                None,
+            ),
+            # ThemeArray as list of ThemeStr, ":" as separator.
+            (
+                # themearray
+                [ThemeStr("Foo Bar", ThemeAttr("types", "generic"), selected=False)],
+                # separator
+                ":",
+                # expected_result
+                [[ThemeStr("F", ThemeAttr("types", "generic"), selected=False),
+                  ThemeStr("o", ThemeAttr("types", "generic"), selected=False),
+                  ThemeStr("o", ThemeAttr("types", "generic"), selected=False),
+                  ThemeStr(" ", ThemeAttr("types", "generic"), selected=False),
+                  ThemeStr("B", ThemeAttr("types", "generic"), selected=False),
+                  ThemeStr("a", ThemeAttr("types", "generic"), selected=False),
+                  ThemeStr("r", ThemeAttr("types", "generic"), selected=False)]],
+                # expected_exception
+                None,
+            ),
+            # Empty ThemeArray as list of ThemeStr, " " as separator.
+            (
+                # themearray
+                [],
+                # separator
+                " ",
+                # expected_result
+                [],
+                # expected_exception
+                None,
+            ),
+        )
+
+        for themearray, separator, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(themearray, separator=separator)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"       themearray: {themearray}\n" \
+                              f"        separator: '{separator}'\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"       themearray: {themearray}\n" \
+                                  f"        separator: '{separator}'\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"       themearray: {themearray}\n" \
+                              f"        separator: '{separator}'\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_themestring_to_cursestuple(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = curses_helper.themestring_to_cursestuple
+
+    if result:
+        # Indata format:
+        # (ThemeArray, select, expected_result, expected_exception)
+        testdata: tuple = (
+            # ThemeStr (selected=False); selected=False.
+            (
+                # themearray
+                ThemeStr("Foo Bar", ThemeAttr("types", "generic"), selected=False),
+                # selected
+                False,
+                # expected_result
+                ("Foo Bar", 768),
+                # expected_exception
+                None,
+            ),
+            # ThemeStr (selected=True); selected=False.
+            (
+                # themearray
+                ThemeStr("Foo Bar", ThemeAttr("types", "generic"), selected=False),
+                # selected
+                False,
+                # expected_result
+                ("Foo Bar", 768),
+                # expected_exception
+                None,
+            ),
+            # ThemeStr (selected=None); selected=None.
+            (
+                # themearray
+                ThemeStr("Foo Bar", ThemeAttr("types", "generic"), selected=None),
+                # selected
+                None,
+                # expected_result
+                ("Foo Bar", 768),
+                # expected_exception
+                None,
+            ),
+        )
+
+        for themearray, selected, expected_result, expected_exception in testdata:
+            try:
+                curses.initscr()
+                curses.start_color()
+                curses_helper.read_theme(DEFAULT_THEME_FILE, DEFAULT_THEME_FILE)
+                curses_helper.themefile = None
+                curses_helper.init_curses()
+                tmp = fun(themearray, selected=selected)
+                curses.endwin()
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"       themearray: {themearray}\n" \
+                              f"         selected: {selected}\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"       themearray: {themearray}\n" \
+                                  f"         selected: {selected}\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"       themearray: {themearray}\n" \
+                              f"         selected: {selected}\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    try:
+        curses.endwin()
+    except curses.error:
+        pass
+    return message, result
+
+
+def test_themearray_to_string(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = curses_helper.themearray_to_string
+
+    if result:
+        # Indata format:
+        # (ThemeArray, expected_result, expected_exception)
+        testdata: tuple = (
+            # ThemeArray.
+            (
+                # themearray
+                ThemeArray([ThemeStr("Foo Bar Baz", ThemeAttr("types", "generic"))]),
+                "Foo Bar Baz",
+                None,
+            ),
+            # ThemeArray as list of ThemeStr.
+            (
+                # themearray
+                [ThemeStr("Foo Bar Baz", ThemeAttr("types", "generic"))],
+                "Foo Bar Baz",
+                None,
+            ),
+        )
+
+        for themearray, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(themearray)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"       themearray: {themearray}\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"       themearray: {themearray}\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"       themearray: {themearray}\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_themearray_truncate(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = curses_helper.themearray_truncate
+
+    if result:
+        # Indata format:
+        # (ThemeArray, max_len, expected_result, expected_exception)
+        testdata: tuple = (
+            # ThemeArray; len(themearray) > max_len.
+            (
+                # themearray
+                ThemeArray([ThemeStr("Foo Bar Baz", ThemeAttr("types", "generic"))]),
+                # max_len
+                len("Foo Bar"),
+                [ThemeStr("Foo Bar", ThemeAttr("types", "generic"))],
+                None,
+            ),
+            # ThemeArray as list of ThemeStr; len(themearray) > max_len.
+            (
+                # themearray
+                [ThemeStr("Foo Bar Baz", ThemeAttr("types", "generic"))],
+                # max_len
+                len("Foo Bar"),
+                [ThemeStr("Foo Bar", ThemeAttr("types", "generic"))],
+                None,
+            ),
+            # ThemeArray as list of ThemeStr; len(themearray) == max_len.
+            (
+                # themearray
+                [ThemeStr("Foo Bar Baz", ThemeAttr("types", "generic"))],
+                # max_len
+                len("Foo Bar Baz"),
+                [ThemeStr("Foo Bar Baz", ThemeAttr("types", "generic"))],
+                None,
+            ),
+            # ThemeArray as list of ThemeStr; len(themearray) < max_len.
+            (
+                # themearray
+                [ThemeStr("Foo Bar", ThemeAttr("types", "generic"))],
+                # max_len
+                len("Foo Bar Baz"),
+                [ThemeStr("Foo Bar", ThemeAttr("types", "generic"))],
+                None,
+            ),
+        )
+
+        for themearray, max_len, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(themearray, max_len)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"       themearray: {themearray}\n" \
+                              f"          max_len: {max_len}\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"       themearray: {themearray}\n" \
+                                  f"          max_len: {max_len}\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"       themearray: {themearray}\n" \
+                              f"          max_len: {max_len}\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_themearray_wrap_line(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = curses_helper.themearray_wrap_line
+
+    if result:
+        # Indata format:
+        # (ThemeArray, maxwidth, wrap_marker, expected_result, expected_exception)
+        testdata: tuple = (
+            # ThemeArray as list, maxwidth > len(themearray), wrap_marker.
+            (
+                # themearray
+                [ThemeStr("Foo Bar Baz", ThemeAttr("types", "generic"))],
+                # maxwidth
+                len("Foo Bar Baz") + 1,
+                # wrap_marker
+                True,
+                [[ThemeStr("Foo Bar Baz", ThemeAttr("types", "generic"))]],
+                None,
+            ),
+            # ThemeArray as list, maxwidth == len(themearray), wrap_marker.
+            (
+                # themearray
+                [ThemeStr("Foo Bar Baz", ThemeAttr("types", "generic"))],
+                # maxwidth
+                len("Foo Bar Baz"),
+                # wrap_marker
+                True,
+                [[ThemeStr("Foo Bar Baz", ThemeAttr("types", "generic"))]],
+                None,
+            ),
+            # ThemeArray as list, maxwidth < len(themearray), wrap_marker.
+            (
+                # themearray
+                [ThemeStr("Foo Bar Baz", ThemeAttr("types", "generic"))],
+                # maxwidth
+                len("Foo Bar Baz") - 1,
+                # wrap_marker
+                True,
+                [[ThemeStr("Foo Bar B", ThemeAttr("types", "generic")),
+                  ThemeStr("⏎", ThemeAttr("types", "separator_line_break"), False)],
+                 [ThemeStr("az", ThemeAttr("types", "generic"))]],
+                None,
+            ),
+            # ThemeArray as list, maxwidth < len(themearray), no wrap_marker.
+            (
+                # themearray
+                [ThemeStr("Foo Bar Baz", ThemeAttr("types", "generic"))],
+                # maxwidth
+                len("Foo Bar Baz") - 1,
+                # wrap_marker
+                False,
+                [[ThemeStr("Foo Bar Ba", ThemeAttr("types", "generic"))],
+                 [ThemeStr("z", ThemeAttr("types", "generic"))]],
+                None,
+            ),
+            # Empty ThemeArray, maxwidth > len(themearray), wrap_marker.
+            (
+                # themearray
+                [],
+                # maxwidth
+                len("Foo Bar Baz") + 1,
+                # wrap_marker
+                True,
+                [],
+                None,
+            ),
+            # ThemeArray as list, maxwidth == -1, wrap_marker.
+            (
+                # themearray
+                [ThemeStr("Foo Bar Baz", ThemeAttr("types", "generic"))],
+                # maxwidth
+                -1,
+                # wrap_marker
+                True,
+                [[ThemeStr("Foo Bar Baz", ThemeAttr("types", "generic"))]],
+                None,
+            ),
+        )
+
+        for themearray, maxwidth, wrap_marker, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(themearray, maxwidth=maxwidth, wrap_marker=wrap_marker)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"       themearray: {themearray}\n" \
+                              f"         maxwidth: {maxwidth}\n" \
+                              f"      wrap_marker: {wrap_marker}\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"       themearray: {themearray}\n" \
+                                  f"         maxwidth: {maxwidth}\n" \
+                                  f"      wrap_marker: {wrap_marker}\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"       themearray: {themearray}\n" \
+                              f"         maxwidth: {maxwidth}\n" \
+                              f"      wrap_marker: {wrap_marker}\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
 def test_format_helptext(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -1676,6 +2489,38 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
     },
     ("ThemeArray()",): {
         "callable": test_themearray,
+        "result": None,
+    },
+    ("themearray_detab()",): {
+        "callable": test_themearray_detab,
+        "result": None,
+    },
+    ("themearray_flatten()",): {
+        "callable": test_themearray_flatten,
+        "result": None,
+    },
+    ("themearray_select()",): {
+        "callable": test_themearray_select,
+        "result": None,
+    },
+    ("themearray_split()",): {
+        "callable": test_themearray_split,
+        "result": None,
+    },
+    ("themestring_to_cursestuple()",): {
+        "callable": test_themestring_to_cursestuple,
+        "result": None,
+    },
+    ("themearray_to_string()",): {
+        "callable": test_themearray_to_string,
+        "result": None,
+    },
+    ("themearray_truncate()",): {
+        "callable": test_themearray_truncate,
+        "result": None,
+    },
+    ("themearray_wrap_line()",): {
+        "callable": test_themearray_wrap_line,
         "result": None,
     },
     ("format_helptext()",): {

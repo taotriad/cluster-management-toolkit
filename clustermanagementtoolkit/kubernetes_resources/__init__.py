@@ -527,7 +527,8 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     },
     # scheduling.k8s.io
     ("CompositePodGroup", "scheduling.k8s.io"): {
-        "api_paths": ["apis/scheduling.k8s.io/v1alpha3/"],
+        "api_paths": ["apis/scheduling.k8s.io/v1beta1/",
+                      "apis/scheduling.k8s.io/v1alpha3/"],
         "api": "compositepodgroups",
     },
     ("PodGroup", "scheduling.k8s.io"): {

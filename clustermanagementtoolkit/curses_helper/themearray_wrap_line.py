@@ -46,7 +46,7 @@ def themearray_wrap_line(themearray: list[ThemeRef | ThemeStr], maxwidth: int = 
     while True:
         # Does the fragment fit?
         tfilen = len(themearray_flat[i])
-        if tmplen + tfilen < maxwidth:
+        if tmplen + tfilen <= maxwidth:
             tmp_themearray.append(themearray_flat[i])
             tmplen += tfilen
             i += 1

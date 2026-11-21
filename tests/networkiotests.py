@@ -186,6 +186,106 @@ def test_get_github_version(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
+def test_get_netrc_token(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = networkio.get_netrc_token
+    indata: Any = None
+
+    if result:
+        # Indata format:
+        # (url, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            # Token available.
+            (
+                # url
+                "https://github.com",
+                # mock path
+                "tests/testdata/netrc",
+                # expected_result
+                "ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                # expected_exception
+                None,
+            ),
+            # Token available; netrc missing.
+            (
+                # url
+                "https://github.com",
+                # mock path
+                "NOTEXISTING",
+                # expected_result
+                None,
+                # expected_exception
+                None,
+            ),
+            # No token available.
+            (
+                # url
+                "https://docker.com",
+                # mock path
+                "tests/testdata/netrc",
+                # expected_result
+                None,
+                # expected_exception
+                None,
+            ),
+            # url is empty.
+            (
+                # url
+                "",
+                # mock path
+                "tests/testdata/netrc",
+                # expected_result
+                None,
+                # expected_exception
+                None,
+            ),
+            # url is None.
+            (
+                # url
+                None,
+                # mock path
+                "tests/testdata/netrc",
+                # expected_result
+                None,
+                # expected_exception
+                None,
+            ),
+        )
+        for url, mock_value, expected_result, expected_exception in testdata:
+            try:
+                with mock.patch("clustermanagementtoolkit.networkio.get_netrc_token.NETRC_PATH",
+                                mock_value):
+                    tmp = fun(url)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"            url: {url}\n" \
+                              f"         result: {tmp}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"            url: {url}\n" \
+                                  f"      exception: {type(e)}\n" \
+                                  f"       expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"            url: {url}\n" \
+                              f"      exception: {type(e)}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
 tests: dict[tuple[str, ...], dict[str, Any]] = {
     ("reformat_github_release_notes()", ): {
         "callable": test_reformat_github_release_notes,
@@ -193,6 +293,10 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
     },
     ("get_github_version()", ): {
         "callable": test_get_github_version,
+        "result": None,
+    },
+    ("get_netrc_token()", ): {
+        "callable": test_get_netrc_token,
         "result": None,
     },
 }

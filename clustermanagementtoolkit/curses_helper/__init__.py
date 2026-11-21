@@ -51,6 +51,8 @@ from clustermanagementtoolkit.curses_helper.themestr import ThemeAttr
 from clustermanagementtoolkit.curses_helper.themestr import ThemeRef
 from clustermanagementtoolkit.curses_helper.themestr import ThemeStr
 from clustermanagementtoolkit.curses_helper.themestr import ThemeStrConfiguration
+# pylint: disable-next=line-too-long
+from clustermanagementtoolkit.curses_helper.themestring_to_cursestuple import themestring_to_cursestuple  # noqa: E501
 from clustermanagementtoolkit.curses_helper.curses_helper_types import WidgetLineAttrs
 from clustermanagementtoolkit.curses_helper.uiprops import UIProps
 from clustermanagementtoolkit.curses_helper.uiprops import windowwidget
@@ -104,6 +106,7 @@ __all__ = [
     "themearray_to_string",
     "themearray_truncate",
     "themearray_wrap_line",
+    "themestring_to_cursestuple",
     "untag_item",
     "window_tee_hline",
     "window_tee_vline",

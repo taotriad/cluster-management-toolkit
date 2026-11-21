@@ -1860,6 +1860,150 @@ def test_ansible_results_extract(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
+def test_ansible_print_play_results(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = ansible_helper.ansible_print_play_results
+
+    if result:
+        ansithemeprint([ANSIThemeStr("  Note", "note"),
+                        ANSIThemeStr(": Manual sanity check necessary:\n", "default")])
+
+        # Indata format:
+        # (retval, task, msg_lines, stdout_lines, stderr_lines,
+        #  skipped, unreachable, verbose, expected_exception)
+        testdata: tuple[Any, ...] = (
+            # Successful play
+            (
+                # ansible_results
+                {
+                    "polgar": [
+                        {
+                            "task": "Listing GPUs",
+                            "start_date": "2026-11-21T13:34:33.752320+00:00",
+                            "end_date": "2026-11-21T13:34:34.764654+00:00",
+                            "retval": 0,
+                            "no_hosts_matched": False,
+                            "unreachable": False,
+                            "status": "SUCCESS",
+                            "skipped": False,
+                            "stdout_lines": [
+                                "00:02.0 VGA compatible controller [0300]: "
+                                "Intel Corporation Arrow Lake-S [Intel Graphics] "
+                                "[8086:7d67] (rev 06)",
+                                "01:00.0 VGA compatible controller [0300]: "
+                                "NVIDIA Corporation GB206 [GeForce RTX 5060 Ti] "
+                                "[10de:2d04] (rev a1)",
+                            ],
+                            "stderr_lines": [],
+                            "msg_lines": [],
+                            "ansible_facts": {}
+                        }
+                    ],
+                },
+                # retval
+                0,
+                # kwargs
+                {
+                    "verbose": False,
+                },
+                # No output or exceptions
+            ),
+            # Successful play; verbose
+            (
+                # ansible_results
+                {
+                    "polgar": [
+                        {
+                            "task": "Listing GPUs",
+                            "start_date": "2026-11-21T13:34:33.752320+00:00",
+                            "end_date": "2026-11-21T13:34:34.764654+00:00",
+                            "retval": 0,
+                            "no_hosts_matched": False,
+                            "unreachable": False,
+                            "status": "SUCCESS",
+                            "skipped": False,
+                            "stdout_lines": [
+                                "00:02.0 VGA compatible controller [0300]: "
+                                "Intel Corporation Arrow Lake-S [Intel Graphics] "
+                                "[8086:7d67] (rev 06)",
+                                "01:00.0 VGA compatible controller [0300]: "
+                                "NVIDIA Corporation GB206 [GeForce RTX 5060 Ti] "
+                                "[10de:2d04] (rev a1)",
+                            ],
+                            "stderr_lines": [],
+                            "msg_lines": [],
+                            "ansible_facts": {}
+                        }
+                    ],
+                },
+                # retval
+                0,
+                # kwargs
+                {
+                    "verbose": True,
+                },
+                # No output or exceptions
+            ),
+            # Failed to execute
+            (
+                # ansible_results
+                {},
+                # retval
+                -1,
+                # kwargs
+                {
+                    "verbose": False,
+                },
+                # No output or exceptions
+            ),
+            # Nonexisting host
+            (
+                # ansible_results
+                {
+                    "nonexisting": [
+                        {
+                            "task": "Listing GPUs",
+                            "start_date": "2026-11-21T14:09:30.567865+00:00",
+                            "end_date": "2026-11-21T14:09:30.644820+00:00",
+                            "retval": -1,
+                            "no_hosts_matched": False,
+                            "unreachable": True,
+                            "status": "COULD NOT RESOLVE",
+                            "skipped": False,
+                            "stdout_lines": [],
+                            "stderr_lines": [
+                                "Task failed: Failed to connect to the host via ssh: "
+                                "ssh: Could not resolve hostname nonexisting: "
+                                "Name or service not known"
+                            ],
+                            "msg_lines": [],
+                            "ansible_facts": {}
+                        }
+                    ]
+                },
+                -1,
+                # kwargs
+                {
+                    "verbose": False,
+                },
+                # No output or exceptions
+            ),
+        )
+        for ansible_results, retval, kwargs in testdata:
+            try:
+                fun(retval, ansible_results, **kwargs)
+            except Exception as e:
+                message = f"{fun.__name__}() did not yield expected result:\n" \
+                          f"ansible_results: {ansible_results}\n" \
+                          f"         retval: {retval}\n" \
+                          f"      exception: {e}"
+                result = False
+                break
+    return message, result
+
+
 def test_ansible_print_task_results(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -2196,6 +2340,10 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
     },
     ("ansible_results_extract()",): {
         "callable": test_ansible_results_extract,
+        "result": None,
+    },
+    ("ansible_print_play_results()",): {
+        "callable": test_ansible_print_play_results,
         "result": None,
     },
     ("ansible_print_task_results()",): {

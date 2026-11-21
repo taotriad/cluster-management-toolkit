@@ -247,6 +247,754 @@ def test_lvl_to_word_severity(verbose: bool = False) -> tuple[str, bool]:
                                    fun=logparsers.lvl_to_word_severity)
 
 
+def test_match_block_end(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = logparsers.match_block_end
+
+    if result:
+        # Indata format:
+        # (matchrule, name, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            # EOF match, format_block_end=False.
+            (
+                # matchrules
+                [
+                    {
+                        "matchtype": "eof",
+                        "matchkey": None,
+                        "format_block_end": False,
+                    },
+                ],
+                # message
+                None,
+                # expected_result
+                (False, False),
+                # expected_exception
+                None,
+            ),
+            # Not EOF match, None message, format_block_end=False.
+            (
+                # matchrules
+                [
+                    {
+                        "matchtype": "contains",
+                        "matchkey": None,
+                        "format_block_end": False,
+                    },
+                ],
+                # message
+                None,
+                # expected_result
+                (True, False),
+                # expected_exception
+                None,
+            ),
+            # Empty match, format_block_end=True.
+            (
+                # matchrules
+                [
+                    {
+                        "matchtype": "empty",
+                        "matchkey": None,
+                        "format_block_end": True,
+                    },
+                ],
+                # message
+                "",
+                # expected_result
+                (False, True),
+                # expected_exception
+                None,
+            ),
+            # Empty match, format_block_end=True.
+            (
+                # matchrules
+                [
+                    {
+                        "matchtype": "empty",
+                        "matchkey": None,
+                        "format_block_end": True,
+                    },
+                ],
+                # message
+                "not empty",
+                # expected_result
+                (True, True),
+                # expected_exception
+                None,
+            ),
+            # Contains match, format_block_end=True.
+            (
+                # matchrules
+                [
+                    {
+                        "matchtype": "contains",
+                        "matchkey": "a",
+                        "format_block_end": True,
+                    },
+                ],
+                # message
+                "baz",
+                # expected_result
+                (False, True),
+                # expected_exception
+                None,
+            ),
+            # Contains match, format_block_end=True.
+            (
+                # matchrules
+                [
+                    {
+                        "matchtype": "contains",
+                        "matchkey": "a",
+                        "format_block_end": True,
+                    },
+                ],
+                # message
+                "not here",
+                # expected_result
+                (True, True),
+                # expected_exception
+                None,
+            ),
+            # Search match, format_block_end=True.
+            (
+                # matchrules
+                [
+                    {
+                        "matchtype": "search",
+                        "matchkey": re.compile("a.*a"),
+                        "format_block_end": True,
+                    },
+                ],
+                # message
+                "bar baz",
+                # expected_result
+                (False, True),
+                # expected_exception
+                None,
+            ),
+            # Search match, format_block_end=True.
+            (
+                # matchrules
+                [
+                    {
+                        "matchtype": "search",
+                        "matchkey": re.compile("a.*a"),
+                        "format_block_end": True,
+                    },
+                ],
+                # message
+                "foo",
+                # expected_result
+                (True, True),
+                # expected_exception
+                None,
+            ),
+            # Regex match, format_block_end=True.
+            (
+                # matchrules
+                [
+                    {
+                        "matchtype": "regex",
+                        "matchkey": re.compile("bar"),
+                        "format_block_end": True,
+                    },
+                ],
+                # message
+                "bar baz",
+                # expected_result
+                (False, True),
+                # expected_exception
+                None,
+            ),
+            # Match match, format_block_end=True.
+            (
+                # matchrules
+                [
+                    {
+                        "matchtype": "regex",
+                        "matchkey": re.compile("bar"),
+                        "format_block_end": True,
+                    },
+                ],
+                # message
+                "bar baz",
+                # expected_result
+                (False, True),
+                # expected_exception
+                None,
+            ),
+            # Match match, format_block_end=True.
+            (
+                # matchrules
+                [
+                    {
+                        "matchtype": "regex",
+                        "matchkey": re.compile("bar"),
+                        "format_block_end": True,
+                    },
+                ],
+                # message
+                "foo",
+                # expected_result
+                (True, True),
+                # expected_exception
+                None,
+            ),
+            # Ends with match, format_block_end=True.
+            (
+                # matchrules
+                [
+                    {
+                        "matchtype": "endswith",
+                        "matchkey": "z",
+                        "format_block_end": True,
+                    },
+                ],
+                # message
+                "baz",
+                # expected_result
+                (False, True),
+                # expected_exception
+                None,
+            ),
+            # Ends with match, format_block_end=True.
+            (
+                # matchrules
+                [
+                    {
+                        "matchtype": "endswith",
+                        "matchkey": "z",
+                        "format_block_end": True,
+                    },
+                ],
+                # message
+                "not ends with",
+                # expected_result
+                (True, True),
+                # expected_exception
+                None,
+            ),
+            # Exact match, format_block_end=True.
+            (
+                # matchrules
+                [
+                    {
+                        "matchtype": "exact",
+                        "matchkey": "}",
+                        "format_block_end": True,
+                    },
+                ],
+                # message
+                "}",
+                # expected_result
+                (False, True),
+                # expected_exception
+                None,
+            ),
+            # Exact match, format_block_end=True.
+            (
+                # matchrules
+                [
+                    {
+                        "matchtype": "exact",
+                        "matchkey": "}",
+                        "format_block_end": True,
+                    },
+                ],
+                # message
+                "Not exact}",
+                # expected_result
+                (True, True),
+                # expected_exception
+                None,
+            ),
+            # Exact match, format_block_end=False.
+            (
+                # matchrules
+                [
+                    {
+                        "matchtype": "exact",
+                        "matchkey": "}",
+                        "format_block_end": False,
+                    },
+                ],
+                # message
+                "}",
+                # expected_result
+                (False, False),
+                # expected_exception
+                None,
+            ),
+            # Starts with match, format_block_end=True.
+            (
+                # matchrules
+                [
+                    {
+                        "matchtype": "startswith",
+                        "matchkey": "b",
+                        "format_block_end": True,
+                    },
+                ],
+                # message
+                "baz",
+                # expected_result
+                (False, True),
+                # expected_exception
+                None,
+            ),
+            # Starts with match, format_block_end=True.
+            (
+                # matchrules
+                [
+                    {
+                        "matchtype": "startswith",
+                        "matchkey": "b",
+                        "format_block_end": True,
+                    },
+                ],
+                # message
+                "foo",
+                # expected_result
+                (True, True),
+                # expected_exception
+                None,
+            ),
+            # No matchrules, empty message.
+            (
+                # matchrules
+                [],
+                # message
+                "",
+                # expected_result
+                (True, False),
+                # expected_exception
+                None,
+            ),
+        )
+        for matchrules, message, expected_result, expected_exception in testdata:
+            try:
+                if (tmp := fun(matchrules, message)) != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"     matchrules: {matchrules}\n" \
+                              f"        message: {message}\n" \
+                              f"         output: {tmp}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"     matchrules: {matchrules}\n" \
+                                  f"        message: {message}\n" \
+                                  f"      exception: {type(e)}\n" \
+                                  f"       expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"     matchrules: {matchrules}\n" \
+                              f"        message: {message}\n" \
+                              f"      exception: {type(e)}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_match_block_start(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = logparsers.match_block_start
+
+    if result:
+        # Indata format:
+        # (matchrule, name, line, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            # Exact match, format_block_start=False.
+            (
+                # matchrules
+                [
+                    {
+                        "matchtype": "exact",
+                        "matchkey": "Running with config:",
+                        "matchline": "any",
+                        "format_block_start": False,
+                    },
+                ],
+                # message
+                "Running with config:",
+                # line
+                0,
+                # expected_result
+                (["Running with config:"], False),
+                # expected_exception
+                None,
+            ),
+            # Exact match, format_block_start=True.
+            (
+                # matchrules
+                [
+                    {
+                        "matchtype": "exact",
+                        "matchkey": "Running with config:",
+                        "matchline": "any",
+                        "format_block_start": True,
+                    },
+                ],
+                # message
+                "Running with config:",
+                # line
+                0,
+                # expected_result
+                (["Running with config:"], True),
+                # expected_exception
+                None,
+            ),
+            # No Exact match, format_block_start=True.
+            (
+                # matchrules
+                [
+                    {
+                        "matchtype": "exact",
+                        "matchkey": "Running with config:",
+                        "matchline": "any",
+                        "format_block_start": True,
+                    },
+                ],
+                # message
+                "Not exact match:",
+                # line
+                0,
+                # expected_result
+                ([], True),
+                # expected_exception
+                None,
+            ),
+            # Contains match, format_block_start=True.
+            (
+                # matchrules
+                [
+                    {
+                        "matchtype": "contains",
+                        "matchkey": "with",
+                        "matchline": "any",
+                        "format_block_start": True,
+                    },
+                ],
+                # message
+                "Running with config:",
+                # line
+                0,
+                # expected_result
+                (["Running with config:"], True),
+                # expected_exception
+                None,
+            ),
+            # No Contains match, format_block_start=True.
+            (
+                # matchrules
+                [
+                    {
+                        "matchtype": "contains",
+                        "matchkey": "foo",
+                        "matchline": "any",
+                        "format_block_start": True,
+                    },
+                ],
+                # message
+                "Not exact match:",
+                # line
+                0,
+                # expected_result
+                ([], True),
+                # expected_exception
+                None,
+            ),
+            # Ends with match, format_block_start=True.
+            (
+                # matchrules
+                [
+                    {
+                        "matchtype": "endswith",
+                        "matchkey": "config:",
+                        "matchline": "any",
+                        "format_block_start": True,
+                    },
+                ],
+                # message
+                "Running with config:",
+                # line
+                0,
+                # expected_result
+                (["Running with config:"], True),
+                # expected_exception
+                None,
+            ),
+            # No Ends with match, format_block_start=True.
+            (
+                # matchrules
+                [
+                    {
+                        "matchtype": "endswith",
+                        "matchkey": "foo",
+                        "matchline": "any",
+                        "format_block_start": True,
+                    },
+                ],
+                # message
+                "Not exact match:",
+                # line
+                0,
+                # expected_result
+                ([], True),
+                # expected_exception
+                None,
+            ),
+            # Starts with match, format_block_start=True.
+            (
+                # matchrules
+                [
+                    {
+                        "matchtype": "startswith",
+                        "matchkey": "Running",
+                        "matchline": "any",
+                        "format_block_start": True,
+                    },
+                ],
+                # message
+                "Running with config:",
+                # line
+                0,
+                # expected_result
+                (["Running with config:"], True),
+                # expected_exception
+                None,
+            ),
+            # No Starts with match, format_block_start=True.
+            (
+                # matchrules
+                [
+                    {
+                        "matchtype": "startswith",
+                        "matchkey": "foo",
+                        "matchline": "any",
+                        "format_block_start": True,
+                    },
+                ],
+                # message
+                "Not exact match:",
+                # line
+                0,
+                # expected_result
+                ([], True),
+                # expected_exception
+                None,
+            ),
+            # Search match, format_block_start=True.
+            (
+                # matchrules
+                [
+                    {
+                        "matchtype": "search",
+                        "matchkey": re.compile("w..h"),
+                        "matchline": "any",
+                        "format_block_start": True,
+                    },
+                ],
+                # message
+                "Running with config:",
+                # line
+                0,
+                # expected_result
+                (["Running with config:"], True),
+                # expected_exception
+                None,
+            ),
+            # Search match, multiple groups, format_block_start=True.
+            (
+                # matchrules
+                [
+                    {
+                        "matchtype": "search",
+                        "matchkey": re.compile("(.+w)(.*)"),
+                        "matchline": "any",
+                        "format_block_start": True,
+                    },
+                ],
+                # message
+                "Running with config:",
+                # line
+                0,
+                # expected_result
+                (["Running w", "ith config:"], True),
+                # expected_exception
+                None,
+            ),
+            # Not Search match, format_block_start=True.
+            (
+                # matchrules
+                [
+                    {
+                        "matchtype": "search",
+                        "matchkey": re.compile("w.h"),
+                        "matchline": "any",
+                        "format_block_start": True,
+                    },
+                ],
+                # message
+                "Running with config:",
+                # line
+                0,
+                # expected_result
+                ([], True),
+                # expected_exception
+                None,
+            ),
+            # Match match, format_block_start=True.
+            (
+                # matchrules
+                [
+                    {
+                        "matchtype": "match",
+                        "matchkey": re.compile("Running"),
+                        "matchline": "any",
+                        "format_block_start": True,
+                    },
+                ],
+                # message
+                "Running with config:",
+                # line
+                0,
+                # expected_result
+                (["Running with config:"], True),
+                # expected_exception
+                None,
+            ),
+            # Match match, multiple groups, format_block_start=True.
+            (
+                # matchrules
+                [
+                    {
+                        "matchtype": "match",
+                        "matchkey": re.compile("(Running)(.*)"),
+                        "matchline": "any",
+                        "format_block_start": True,
+                    },
+                ],
+                # message
+                "Running with config:",
+                # line
+                0,
+                # expected_result
+                (["Running", " with config:"], True),
+                # expected_exception
+                None,
+            ),
+            # Not Match match, format_block_start=True.
+            (
+                # matchrules
+                [
+                    {
+                        "matchtype": "match",
+                        "matchkey": re.compile("with"),
+                        "matchline": "any",
+                        "format_block_start": True,
+                    },
+                ],
+                # message
+                "Running with config:",
+                # line
+                0,
+                # expected_result
+                ([], True),
+                # expected_exception
+                None,
+            ),
+            # Match line first, line first, format_block_start=True.
+            (
+                # matchrules
+                [
+                    {
+                        "matchtype": "match",
+                        "matchkey": re.compile("Running"),
+                        "matchline": "first",
+                        "format_block_start": True,
+                    },
+                ],
+                # message
+                "Running with config:",
+                # line
+                0,
+                # expected_result
+                (["Running with config:"], True),
+                # expected_exception
+                None,
+            ),
+            # Match line first, line not first, format_block_start=True.
+            (
+                # matchrules
+                [
+                    {
+                        "matchtype": "match",
+                        "matchkey": re.compile("with"),
+                        "matchline": "first",
+                        "format_block_start": True,
+                    },
+                ],
+                # message
+                "Running with config:",
+                # line
+                7,
+                # expected_result
+                ([], True),
+                # expected_exception
+                None,
+            ),
+        )
+        for matchrules, message, line, expected_result, expected_exception in testdata:
+            try:
+                if (tmp := fun(matchrules, message, line)) != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"     matchrules: {matchrules}\n" \
+                              f"        message: {message}\n" \
+                              f"           line: {line}\n" \
+                              f"         output: {tmp}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"     matchrules: {matchrules}\n" \
+                                  f"        message: {message}\n" \
+                                  f"           line: {line}\n" \
+                                  f"      exception: {type(e)}\n" \
+                                  f"       expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"     matchrules: {matchrules}\n" \
+                              f"        message: {message}\n" \
+                              f"           line: {line}\n" \
+                              f"      exception: {type(e)}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
 def test_match_name(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -2626,6 +3374,14 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
     },
     ("lvl_to_word_severity",): {
         "callable": test_lvl_to_word_severity,
+        "result": None,
+    },
+    ("match_block_end",): {
+        "callable": test_match_block_end,
+        "result": None,
+    },
+    ("match_block_start",): {
+        "callable": test_match_block_start,
         "result": None,
     },
     ("match_name",): {

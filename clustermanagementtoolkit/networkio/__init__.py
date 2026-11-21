@@ -10,6 +10,7 @@ Network I/O helpers.
 
 from clustermanagementtoolkit.networkio.download_files import download_files
 from clustermanagementtoolkit.networkio.get_github_version import get_github_version
+from clustermanagementtoolkit.networkio.get_netrc_token import get_netrc_token
 # pylint: disable-next=line-too-long
 from clustermanagementtoolkit.networkio.reformat_github_release_notes import reformat_github_release_notes  # noqa: E501
 from clustermanagementtoolkit.networkio.scan_and_add_ssh_keys import scan_and_add_ssh_keys
@@ -19,6 +20,7 @@ from clustermanagementtoolkit.networkio.verify_checksum import verify_checksum
 __all__ = [
     "download_files",
     "get_github_version",
+    "get_netrc_token",
     "reformat_github_release_notes",
     "scan_and_add_ssh_keys",
     "update_version_cache",
