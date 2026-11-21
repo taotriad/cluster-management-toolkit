@@ -497,7 +497,7 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     },
     ("DeviceTaintRule", "resource.k8s.io"): {
         "api_paths": ["apis/resource.k8s.io/v1/",
-                      "apis/resource.k8s.io/v1alpha3/"],
+                      "apis/resource.k8s.io/v1beta2/"],
         "api": "devicetaintrules",
         "namespaced": False,
     },
@@ -1907,6 +1907,12 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/api.kagent.dev/v1alpha3/"],
         "api": "sandboxtemplates",
     },
+    # apiextensions.openshift.io
+    ("CompatibilityRequirement", "apiextensions.openshift.io"): {
+        "api_paths": ["apis/apiextensions.openshift.io/v1alpha1/"],
+        "api": "compatibilityrequirements",
+        "namespaced": False,
+    },
     # apiserver.openshift.io
     ("APIRequestCount", "apiserver.openshift.io"): {
         "api_paths": ["apis/apiserver.openshift.io/v1/"],
@@ -2989,7 +2995,7 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     },
     ("ClusterMonitoring", "config.openshift.io"): {
         "api_paths": ["apis/config.openshift.io/v1alpha1/"],
-        "api": "clustermonitoring",
+        "api": "clustermonitorings",
         "namespaced": False,
     },
     ("ClusterImagePolicy", "config.openshift.io"): {
@@ -3092,6 +3098,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("OperatorHub", "config.openshift.io"): {
         "api_paths": ["apis/config.openshift.io/v1/"],
         "api": "operatorhubs",
+        "namespaced": False,
+    },
+    ("PKI", "config.openshift.io"): {
+        "api_paths": ["apis/config.openshift.io/v1alpha1/"],
+        "api": "pkis",
         "namespaced": False,
     },
     ("Project", "config.openshift.io"): {
@@ -7468,6 +7479,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "cloudcredentials",
         "namespaced": False,
     },
+    ("ClusterAPI", "operator.openshift.io"): {
+        "api_paths": ["apis/operator.openshift.io/v1alpha1/"],
+        "api": "clusterapis",
+        "namespaced": False,
+    },
     ("ClusterCSIDriver", "operator.openshift.io"): {
         "api_paths": ["apis/operator.openshift.io/v1/"],
         "api": "clustercsidrivers",
@@ -7511,6 +7527,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("ImageContentSourcePolicy", "operator.openshift.io"): {
         "api_paths": ["apis/operator.openshift.io/v1alpha1/"],
         "api": "imagecontentsourcepolicies",
+        "namespaced": False,
+    },
+    ("Ingress", "operator.openshift.io"): {
+        "api_paths": ["apis/operator.openshift.io/v1alpha1/"],
+        "api": "ingresses",
         "namespaced": False,
     },
     ("IngressController", "operator.openshift.io"): {
