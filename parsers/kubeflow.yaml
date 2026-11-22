@@ -236,6 +236,7 @@
     - image_name: "/kubeflow/kfp-cache-server"
   parser_rules:
     - name: "ts_8601"
+    - name: "glog"
     - name: "custom_splitter"
       options:
         regex: '^\[([a-z]+)\] \d{4}.\d\d.\d\d \d\d:\d\d:\d\d (.+?:\d+) (.*)'
