@@ -2315,11 +2315,13 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     },
     # backup.kubevirt.io
     ("VirtualMachineBackup", "backup.kubevirt.io"): {
-        "api_paths": ["apis/backup.kubevirt.io/v1alpha1/"],
+        "api_paths": ["apis/backup.kubevirt.io/v1beta1/",
+                      "apis/backup.kubevirt.io/v1alpha1/"],
         "api": "virtualmachinebackups",
     },
     ("VirtualMachineBackupTracker", "backup.kubevirt.io"): {
-        "api_paths": ["apis/backup.kubevirt.io/v1alpha1/"],
+        "api_paths": ["apis/backup.kubevirt.io/v1beta1/",
+                      "apis/backup.kubevirt.io/v1alpha1/"],
         "api": "virtualmachinebackuptrackers",
     },
     # batch.volcano.sh
