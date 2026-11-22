@@ -1009,6 +1009,14 @@ FileSystemResizeSuccessful:
   field_colors:
     - context: "main"
       type: "status_ok"
+FilteringFailed:
+  field_colors:
+    - context: "main"
+      type: "status_warning"
+FilteringSucceed:
+  field_colors:
+    - context: "main"
+      type: "status_ok"
 FinalizerUpdate:
   field_colors:
     - context: "main"
