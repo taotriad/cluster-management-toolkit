@@ -83,7 +83,7 @@
 ## cmu
 
 * [ ] v0.9.x:
-  * [ ] Make generic_infogetter consistent WRT to paths:
+  * [ ] Make `generic_infogetter` consistent WRT to paths:
         `["literal", ["path"], [["alternate_path1"], ["alternate_path2"], "literal"]]`.
 * [ ] Future:
   * [ ] Do we need a commandline option for quick switching between views
@@ -107,16 +107,17 @@
 ## cmtinv
 
 * v0.9.x:
-  * [ ] Optionally limit rebuild-inventory to a subset of clusters.
+  * [ ] Optionally limit `rebuild-inventory` to a subset of clusters.
 
 ## cmtadm
 
 * [ ] v0.9.x:
   * [ ] Add an option to uninstall/install when upgrading/reinstalling workloads,
         since some workloads don't like to be replaced.
+  * [ ] Add `export-kubeconfig` and `delete-kubeconfig`.
   * [ ] Catch incorrect Ansible inventory and output an error message instead
         of throwing an exception.
-  * [ ] prepare_passwordless_ansible won't work on localhost; we're not passing the password,
+  * [ ] `prepare_passwordless_ansible` won't work on localhost; we're not passing the password,
         and the password might not be the same on the remote system and the local system anyway.
   * [ ] Add `pre-upgrade-check` that checks whether relevant config files (notably containerd)
         are compatible with new settings. Also check whether the cluster currently uses
