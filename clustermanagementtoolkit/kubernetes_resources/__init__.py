@@ -5325,6 +5325,10 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/kargo.akuity.io/v1alpha1/"],
         "api": "promotions",
     },
+    ("PromotionRequest", "kargo.akuity.io"): {
+        "api_paths": ["apis/kargo.akuity.io/v1alpha1/"],
+        "api": "promotionrequests",
+    },
     ("PromotionTask", "kargo.akuity.io"): {
         "api_paths": ["apis/kargo.akuity.io/v1alpha1/"],
         "api": "promotiontasks",
@@ -5332,6 +5336,10 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("Stage", "kargo.akuity.io"): {
         "api_paths": ["apis/kargo.akuity.io/v1alpha1/"],
         "api": "stages",
+    },
+    ("Target", "kargo.akuity.io"): {
+        "api_paths": ["apis/kargo.akuity.io/v1alpha1/"],
+        "api": "targets",
     },
     ("Warehouse", "kargo.akuity.io"): {
         "api_paths": ["apis/kargo.akuity.io/v1alpha1/"],
@@ -6030,6 +6038,14 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/longhorn.io/v1beta2/"],
         "api": "instancemanagers",
     },
+    ("InstanceManagerUpgrade", "longhorn.io"): {
+        "api_paths": ["apis/longhorn.io/v1beta2/"],
+        "api": "instancemanagerupgrades",
+    },
+    ("InstanceManagerUpgradeControl", "longhorn.io"): {
+        "api_paths": ["apis/longhorn.io/v1beta2/"],
+        "api": "instancemanagerupgradecontrols",
+    },
     ("LHNode", "longhorn.io"): {
         "api_paths": ["apis/longhorn.io/v1beta2/"],
         "api": "lhnodes",
@@ -6069,6 +6085,10 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("Snapshot", "longhorn.io"): {
         "api_paths": ["apis/longhorn.io/v1beta2/"],
         "api": "snapshots",
+    },
+    ("SnapshotGroup", "longhorn.io"): {
+        "api_paths": ["apis/longhorn.io/v1beta2/"],
+        "api": "snapshotgroups",
     },
     ("SupportBundle", "longhorn.io"): {
         "api_paths": ["apis/longhorn.io/v1beta2/"],

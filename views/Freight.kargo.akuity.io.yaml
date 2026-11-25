@@ -11,7 +11,7 @@ listview:
   field_indexes:
     Normal:
       fields: ["namespace", "name", "alias", "origin", "age"]
-      sortcolumn: "name"
+      sortcolumn: "namespace"
   fields:
     alias:
       header: "Alias:"
