@@ -373,6 +373,15 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "storageversions",
         "namespaced": False,
     },
+    # lifecycle.k8s.io
+    ("EvictionRequest", "lifecycle.k8s.io"): {
+        "api_paths": ["apis/lifecycle.k8s.io/v1alpha1/"],
+        "api": "evictionrequests",
+    },
+    ("Eviction", "lifecycle.k8s.io"): {
+        "api_paths": ["apis/lifecycle.k8s.io/v1alpha1/"],
+        "api": "evictions",
+    },
     # metacontroller.k8s.io
     ("CompositeController", "metacontroller.k8s.io"): {
         "api_paths": ["apis/metacontroller.k8s.io/v1alpha1/"],
