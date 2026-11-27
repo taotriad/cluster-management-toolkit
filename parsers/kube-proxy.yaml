@@ -24,3 +24,6 @@
             - matchtype: "startswith"
               matchkey: "Trace["
               loglevel: "debug"
+            - matchtype: "startswith"
+              matchkey: "\"Warning: "
+              loglevel: "warning"

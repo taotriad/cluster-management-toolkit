@@ -46,6 +46,9 @@
             - matchtype: "endswith"
               matchkey: "check is not yet complete"
               loglevel: "warning"
+            - matchtype: "startswith"
+              matchkey: "\"Warning: "
+              loglevel: "warning"
 - name: "kube-apiserver"
   show_in_selector: false
   matchkeys:

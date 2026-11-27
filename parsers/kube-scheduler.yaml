@@ -19,6 +19,9 @@
             - matchtype: "startswith"
               matchkey: "Version: v"
               loglevel: "notice"
+            - matchtype: "startswith"
+              matchkey: "\"Warning: "
+              loglevel: "warning"
     - name: "custom_line"
       options:
         block_start:
